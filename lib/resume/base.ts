@@ -81,7 +81,7 @@ export const baseResume: ResumeContent = {
       location: "Culver City, CA",
       dates: "Jan 2017 - Aug 2017",
       bullets: [
-        "Designed the UX/UI for a 0-1 desktop app with live streaming, messaging, and search, connecting fans with celebrities and creators through micro transactions.",
+        "Designed the UX/UI for a 0-1 desktop app with live streaming, messaging, and search, connecting fans with celebrities and creators through microtransactions.",
       ],
     },
     {

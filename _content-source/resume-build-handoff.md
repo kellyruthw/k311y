@@ -100,7 +100,7 @@ ATTN: · Los Angeles, CA · Nov 2018 - Feb 2019
 **Marketing & Product Designer**
 Collide · Culver City, CA · Jan 2017 - Aug 2017
 
-- Designed the UX/UI for a 0-1 desktop app with live streaming, messaging, and search, connecting fans with celebrities and creators through micro transactions.
+- Designed the UX/UI for a 0-1 desktop app with live streaming, messaging, and search, connecting fans with celebrities and creators through microtransactions.
 
 **Senior Frontend Developer**
 OMNI Digital Agency · Torrance, CA · Sept 2016 - Jan 2017
