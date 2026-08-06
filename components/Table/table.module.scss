@@ -1,0 +1,156 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.wrapper {
+  width: 100%;
+}
+
+// THE TAB ---------------------------------------------------------------------
+// Deleted, not moved. The tab above a table is components/UI/Tab, the same
+// object the footer, the case hero, NextCase and the WorkCardGrid use. What was
+// here was a second implementation of it that had drifted a couple of pixels.
+
+// THE TABLE -------------------------------------------------------------------
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.head {
+  background-color: $bg-page;
+  border-bottom: 1px solid $color-border-subtle;
+}
+
+.columnLabel {
+  @include kicker;
+
+  padding: space(2);
+  background-color: $bg-page;
+  text-align: left;
+  white-space: nowrap;
+  border: 1px solid $color-border-subtle;
+}
+
+.row {
+  // Opaque rather than transparent, so the canvas dot grid does not show
+  // through the table.
+  background-color: $bg-page;
+  border: 1px solid $color-border-subtle;
+}
+
+// The label column of a vertical table. Mono, not the Grift the data uses --
+// that difference is what makes it read as a label rather than more content.
+.rowLabel {
+  @include meta-label;
+
+  width: space(30);
+  padding: space(2);
+  text-align: left;
+  vertical-align: top;
+  border: 1px solid $color-border-subtle;
+  color: $color-text-primary;
+}
+
+.cell {
+  @include table-copy;
+
+  padding: space(2);
+  vertical-align: top;
+  border: 1px solid $color-border-subtle;
+
+  a{
+    color: $color-text-select;
+    @include mono-chip;
+  }
+}
+
+.note {
+  @include table-copy;
+
+  display: block;
+  margin-top: space(1);
+  color: $color-text-soft;
+}
+
+// MOBILE ----------------------------------------------------------------------
+// Horizontal tables become stacked full-width cards, data stacking vertically.
+// The column name is drawn from the data-column attribute rather than repeated
+// in the markup, so there is one source for it and no hidden duplicate text.
+// A deliberate self-reference to the Ascaya case study, so it should be good.
+
+// `:not([data-mobile="deck"])` rather than letting a deck override all of this
+// afterwards. Everything below is a class plus an attribute plus a class, and a
+// component trying to undo it would have to out-specify each rule one at a
+// time -- so the primitive states which presentation it is drawing instead, and
+// the other one starts from nothing. See BuildTable for the deck.
+@include respond(tablet) {
+  .wrapper[data-orientation="horizontal"]:not([data-mobile="deck"]) {
+    .head {
+      @include visually-hidden;
+    }
+
+    // `tbody` is in this list for a reason that is easy to miss. Blocking the
+    // table without blocking its row group leaves a `table-row-group` with no
+    // table ancestor, so CSS generates an anonymous table box around it -- and
+    // an anonymous table box is shrink-to-fit. The cards then sized to their
+    // longest line instead of the column, with `width: 100%` on the rows
+    // resolving against that shrunk box and looking like it did nothing.
+    .table,
+    tbody,
+    .row,
+    .cell {
+      display: block;
+      width: 100%;
+    }
+
+    .row {
+      padding: space(2);
+      border: 1px solid $color-border-subtle;
+      border-radius: $radius-square;
+      background-color: $bg-page;
+    }
+
+    // Between the cards only, never above the first one.
+    //
+    // As a plain margin-top this also pushed the first card away from the tab,
+    // and the tab is drawn to be joined to what follows it -- no bottom border,
+    // top corners rounded only -- so the gap left it hanging over nothing.
+    .row + .row {
+      margin-top: space(3);
+    }
+
+    .cell {
+      display: flex;
+      gap: space(3);
+      justify-content: space-between;
+      padding: space(1) 0;
+      border: 0;
+
+      &::before {
+        @include kicker;
+
+        content: attr(data-column);
+        flex-shrink: 0;
+        color: $color-text-soft;
+      }
+
+      // A table with no column labels still generated this, empty and zero
+      // width -- and an empty first item is enough for `space-between` to do
+      // its job, pinning it left and throwing the actual copy to the right
+      // margin against nothing. The home hero's CURRENTLY table authors no
+      // columns, so every line in it was right-aligned for no visible reason.
+      //
+      // Removing it leaves one item, and space-between with one item places it
+      // at the start. So the labelled tables keep their label-left/value-right
+      // split and the unlabelled ones simply read left, from the same rule.
+      &[data-column=""]::before {
+        display: none;
+      }
+
+      &:empty {
+        display: none;
+      }
+    }
+  }
+}

@@ -1,0 +1,192 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.section {
+  @include content-section;
+
+  // Copy and media read as one row, so they centre against each other rather
+  // than both hanging from the top.
+  align-items: center;
+  padding-top: space(12);
+  padding-bottom: space(12);
+}
+
+// A video following a video needs air between them.
+//
+// Stacked, two moving sections read as one restless block: the eye never gets a
+// still edge to rest on, and neither clip wins. A still image gives that edge on
+// its own, which is why the rule asks for video on BOTH sides rather than
+// spacing every section that happens to hold a video.
+//
+// Adjacency is settled here rather than in the Renderer, which scans no section
+// against its neighbours by design. Each section advertises only what it is
+// showing; CSS is what notices two of them in a row.
+// The section above contributes its own space(12) of bottom padding, so
+// space(28) here is what makes the gap between the two exactly 200px.
+.section[data-media="video"] + .section[data-media="video"] {
+  padding-top: space(28);
+}
+
+// Four columns each. The component renders them in visual order, so these only
+// need to span -- no explicit column starts, and nothing can be pushed onto a
+// second row by source order disagreeing with placement.
+.copy {
+  grid-column: span 4;
+  display: flex;
+  flex-direction: column;
+
+  // Inside its own column, so the text never runs to the very edge.
+  padding: 0 space(6);
+
+  // Margins rather than a gap: a uniform gap applies to every pair equally,
+  // and the space under the header has to be able to differ from the rest.
+  > * + * {
+    margin-top: space(6);
+  }
+
+  // A kicker sitting straight on the copy needs less room than a full trio.
+  > [data-heading="false"] + * {
+    margin-top: space(5);
+  }
+}
+
+.mediaSlot {
+  grid-column: span 4;
+  min-width: 0;
+}
+
+// COPY ------------------------------------------------------------------------
+
+.blocks {
+  display: flex;
+  flex-direction: column;
+}
+
+.block + .block {
+  margin-top: space(5);
+}
+
+.blockLabel {
+  @include kicker;
+
+  margin-bottom: space(2);
+  color: $color-text-select;
+}
+
+.blockText {
+  @include paragraph;
+}
+
+// Real paragraphs now, so they need paragraph spacing between them.
+.blockText + .blockText {
+  margin-top: space(4);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: space(3);
+}
+
+.listItem {
+  @include paragraph;
+
+  position: relative;
+  padding-left: space(6);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0.7em;
+    left: 0;
+    width: space(2);
+    height: 1px;
+    background-color: $bg-select;
+  }
+}
+
+// MEDIA -----------------------------------------------------------------------
+
+.media {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: $radius-square;
+}
+
+.beforeAfter {
+  display: grid;
+  gap: space(4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  @include respond(portrait) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.compare {
+  display: flex;
+  flex-direction: column;
+  gap: space(2);
+}
+
+.compareLabel {
+  @include kicker;
+
+  color: $color-text-soft;
+}
+
+// MOBILE ----------------------------------------------------------------------
+// One column, media first regardless of which side it takes on desktop.
+//
+// `media_side` is about arrangement, and in one column there is no arrangement
+// left for it to describe -- obeying it here would only mean the reading order
+// of a page changed according to a decision that is no longer visible. Media
+// first every time: the artifact, then what is said about it.
+//
+// Done with `order` rather than by reordering the markup, because the markup is
+// already in the order the desktop layout needs and cannot be in two at once.
+// Diverging from the DOM is safe in this specific case: the media half holds an
+// image, a muted looping video or a table, and nothing inside it is focusable,
+// so no tab order is being shuffled behind the reader.
+//
+// The old comment here claimed "copy first regardless of which side the media
+// sits on", but nothing implemented it -- there was no `order`, so source order
+// decided and a left-sided section really did lead with its media while a
+// right-sided one led with its copy. It is true now, the other way round.
+
+@include respond(tablet) {
+  // The one opt-out from the global section rhythm, and the only rule in this
+  // file that still touches section padding.
+  //
+  // styles/base/_sections.scss gives every section 40px and takes the top back
+  // from any section that follows another -- but it does that at one element
+  // plus two attributes, and the video-pair rule above is two classes plus two
+  // attributes, so it would go on winning and stack 140px on top of the gap.
+  //
+  // That space(28) is a wide-screen judgement: two moving blocks beside each
+  // other need a still edge between them. Stacked in one column there is no
+  // "beside", and it is simply 140px of nothing.
+  .section[data-media="video"] + .section[data-media="video"] {
+    padding-top: 0;
+  }
+
+  .section,
+  .section[data-side="right"] {
+    .copy,
+    .mediaSlot {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .mediaSlot {
+    order: -1;
+  }
+
+  // 20px, and carried by the copy rather than the media, because the media is
+  // the half that comes first now: a margin above it would push the whole
+  // section down instead of separating the two.
+  .copy {
+    padding: 0;
+    margin-top: space(8);
+  }
+}

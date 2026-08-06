@@ -1,0 +1,143 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.section {
+  @include content-section;
+
+  padding-top: space(16);
+  padding-bottom: space(16);
+}
+
+// Indented to column 3 like TextSection, so the argument's setup sits on the
+// same measure as the prose elsewhere on the page.
+.header {
+  @include grid-span(4, 3);
+
+  margin-bottom: space(12);
+}
+
+// A kicker sitting straight on the cards needs less room than a full trio.
+.header[data-heading="false"] {
+  margin-bottom: space(5);
+}
+
+.cards {
+  display: grid;
+  gap: space(8);
+  grid-column: 1 / -1;
+  align-items: start;
+
+  @for $count from 3 through 4 {
+    &[data-columns="#{$count}"] {
+      grid-template-columns: repeat(#{$count}, minmax(0, 1fr));
+    }
+  }
+
+  // A pair does not take the full width. The two cards sit on the page's own
+  // columns -- 2/span 3 and 5/span 3 of the eight -- so column 1 and column 8
+  // stay clear and the pair is inset from both edges.
+  //
+  // subgrid rather than a second repeat(8): the cards adopt the section's real
+  // tracks instead of a copy that would have to be kept in step with
+  // content-section by hand. The price is that column-gap has to be handed back
+  // to the page gutter -- the 40px `gap` above is the subgrid's own and would
+  // shift every track off the grid it is meant to be sitting on. Row gap keeps
+  // the 40px, because rows are this component's spacing and not the page's.
+  &[data-columns="2"] {
+    grid-template-columns: subgrid;
+    column-gap: $grid-gutter;
+
+    // Keyed on odd/even rather than the first two children, so a pair layout
+    // holding more than two cards wraps onto the same two columns instead of
+    // stacking everything after the second into column 2.
+    > *:nth-child(odd) {
+      grid-column: 2 / span 3;
+    }
+
+    > *:nth-child(even) {
+      grid-column: 5 / span 3;
+    }
+
+    // The tablet collapse lives here rather than with the others below: once
+    // the template stops being a subgrid the placements above have to go too,
+    // or they address tracks this grid no longer has and generate implicit
+    // columns off the single one it does. Both selectors are named to match the
+    // specificity they are undoing.
+    @include respond(tablet) {
+      grid-template-columns: minmax(0, 1fr);
+
+      > *:nth-child(odd),
+      > *:nth-child(even) {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+
+  @include respond(tablet) {
+    &[data-columns="3"],
+    &[data-columns="4"] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+// No hover state. A raise on hover promises the card does something when
+// clicked, and a card is not a link. QuestionCTA keeps its lift because the
+// whole sticky genuinely is one.
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+// No fixed ratio: the artwork is exported at 2x, so it is shown at its own
+// proportions and simply scaled to the column. A cover crop was cutting the
+// screenshots, which are the content here rather than decoration.
+.frame {
+  display: block;
+  margin-bottom: space(5);
+  overflow: hidden;
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-square;
+  background-color: $bg-raised;
+}
+
+.media {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+// An icon is not artwork, so it does not take the column. It is drawn at a
+// fixed 40px -- space(8) on the 5px scale -- and the frame shrinks to it.
+//
+// The chrome comes off with it. The border and raised fill exist to hold a
+// screenshot that would otherwise bleed into the page; around a 40px glyph they
+// would read as a bordered chip, and these icons are stroked edge to edge in
+// their viewBox, so there is no padding to keep them off that border.
+//
+// Sized on both the frame and the media because an SVG with no intrinsic
+// dimensions -- which is what WordPress reports -- otherwise fills whatever box
+// it is given.
+.frame[data-icon="true"] {
+  width: space(8);
+  height: space(8);
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+
+  .media {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.cardTitle {
+  @include subheading;
+}
+
+.cardBody {
+  @include paragraph;
+
+  margin-top: space(3);
+}
+

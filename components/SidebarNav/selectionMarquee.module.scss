@@ -1,0 +1,51 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.marquee {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba($color-lavender, 0.06);
+}
+
+.ants {
+  display: block;
+  overflow: visible;
+}
+
+.antsRect {
+  fill: none;
+  stroke: $bg-node;
+  stroke-width: 1;
+  stroke-dasharray: 6 4;
+
+  @include motion-safe {
+    animation: march 1.4s linear infinite;
+  }
+}
+
+// Slow marching ants. One dash cycle is 10 units, so the loop is seamless.
+@keyframes march {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+.chip {
+  @include mono-small;
+
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: space(1) space(2);
+  color: $color-text-invert;
+  background-color: $bg-node;
+  white-space: nowrap;
+  transform: translateY(-100%);
+}

@@ -1,0 +1,94 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.section {
+  @include content-section;
+
+  padding-top: space(12);
+  padding-bottom: space(12);
+}
+
+.figure {
+  grid-column: 1 / -1;
+}
+
+
+// BROWSER CHROME --------------------------------------------------------------
+
+.chrome {
+  display: flex;
+  gap: space(1.6);
+  align-items: center;
+  padding: space(2.4) space(3);
+  background-color: $bg-raised;
+  border: 1px solid $color-border-subtle;
+  border-bottom: 0;
+  border-radius: $radius-tab $radius-tab 0 0;
+}
+
+.dot {
+  width: space(2);
+  height: space(2);
+  border-radius: 50%;
+  background-color: $color-border-soft;
+}
+
+.figure[data-frame="true"] .frameInner {
+  border: 1px solid $color-border-subtle;
+  border-radius: 0 0 $radius-square $radius-square;
+}
+
+// MEDIA -----------------------------------------------------------------------
+
+.frameInner {
+  position: relative;
+  overflow: hidden;
+  border-radius: $radius-square;
+}
+
+.media {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.caption {
+  @include mono-small;
+
+  margin-top: space(3);
+  color: $color-text-soft;
+}
+
+// ZOOM LENS -------------------------------------------------------------------
+
+// Size and offset are set by the component: the same numbers drive the
+// background maths, so keeping them in one place is what stops the magnified
+// image and the circle it sits in disagreeing.
+.lens {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  border: 1px solid $color-border-strong;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  box-shadow: 0 0 0 1px rgba($color-black, 0.4);
+}
+
+.frameInner[data-zoom="true"] {
+  @media (hover: hover) and (pointer: fine) {
+    cursor: crosshair;
+  }
+}
+
+// No pointer to follow, and nothing lost without it.
+@media not all and (hover: hover) {
+  .lens {
+    display: none;
+  }
+}
+
+@include reduced-motion {
+  .lens {
+    display: none;
+  }
+}

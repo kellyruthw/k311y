@@ -1,0 +1,420 @@
+@use "sass:map";
+@use "sass:math";
+@use "variables" as v;
+@use "functions" as f;
+
+// =============================================================================
+// MIXINS
+// =============================================================================
+
+// RESPONSIVE ------------------------------------------------------------------
+
+/// Desktop-first breakpoint. Named tiers live in $breakpoints.
+/// Unlike an if/else chain, an unknown name fails the build instead of
+/// silently emitting `@media (max-width: null)`.
+@mixin respond($breakpoint) {
+  @if not map.has-key(v.$breakpoints, $breakpoint) {
+    @error "respond(): unknown breakpoint `#{$breakpoint}`. Known: #{map.keys(v.$breakpoints)}.";
+  }
+
+  @media (max-width: map.get(v.$breakpoints, $breakpoint)) {
+    @content;
+  }
+}
+
+/// Opt out of motion. Every animation in the site sits inside one of these.
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+/// Only run when motion is welcome. Use this to ADD animation, so the static
+/// state is always the default and the fallback needs no extra work.
+@mixin motion-safe {
+  @media (prefers-reduced-motion: no-preference) {
+    @content;
+  }
+}
+
+
+// TYPOGRAPHY ------------------------------------------------------------------
+
+/// Linear interpolation between two Figma px sizes across the viewport range.
+///
+/// Sizes are passed as unitless Figma px and emitted as rem, which is what
+/// makes one expression cover both halves of the curve:
+///
+///   BELOW the design width, 1rem is a fixed 16px, so all three bounds are
+///   fixed px and this is the taper it has always been -- $min-size at 550,
+///   $max-size at 1728, interpolated between.
+///
+///   ABOVE it, 1rem tracks the viewport. Substituting rem = 16 * vw / 1728 into
+///   the middle expression collapses it to exactly `$max-size * vw / 1728`,
+///   which is the upper bound's value too. The two agree, so the curve passes
+///   through the design size and out the other side as a pure proportional
+///   zoom with no discontinuity to tune away. That identity is not a
+///   coincidence: it holds because the line was defined to pass through
+///   $max-size at exactly the width the root scaling pivots on.
+///
+/// The upper bound still does real work past the ceiling, where the root stops
+/// growing but the raw vw term does not.
+/// `$cap` is an absolute px ceiling a token never exceeds however wide the
+/// screen gets. It is the opt-out from the zoom, for type whose job has a
+/// comfort ceiling as well as a readability floor: chrome and labels are sized
+/// to be read at a glance, not to stay in proportion to a headline. Left null,
+/// a token zooms with everything else.
+///
+/// It bounds the upper end only, so a capped token is identical to an uncapped
+/// one at and below the design width. The cap can only ever take effect above
+/// it, which is why adding one to a token cannot disturb the Figma artboard.
+@mixin fluid-type(
+  $min-size,
+  $max-size,
+  $cap: null,
+  $min-vw: v.$min-vw-base,
+  $max-vw: v.$max-vw-base
+) {
+  $slope: math.div($max-size - $min-size, $max-vw - $min-vw) * 100;
+  $intercept: $min-size - math.div($slope * $min-vw, 100);
+  $fluid: calc(#{$slope}vw + #{f.rem($intercept)});
+
+  // The clamp's bounds are ordered by VALUE, which is not the same as ordering
+  // them by which end of the viewport they belong to.
+  //
+  // $min-size is the 550 end and $max-size the design-width end, and a token is
+  // allowed to DESCEND between them: `meta-note` is 14px on a phone and 12px on
+  // the artboard, because a note set beside a value has to stay legible on a
+  // screen where the layout has stopped helping it.
+  //
+  // Handing that to clamp in declared order would give it a lower bound above
+  // its upper bound, and CSS resolves clamp(MIN, VAL, MAX) as
+  // max(MIN, min(VAL, MAX)) -- MIN would win at every width and flatten the
+  // ramp to one size. Sorting first is what lets a token run either way.
+  $lower: math.min($min-size, $max-size);
+  $upper: math.max($min-size, $max-size);
+
+  @if $cap == null {
+    font-size: clamp(#{f.rem($lower)}, #{$fluid}, #{f.rem($upper)});
+  } @else {
+    // The cap wraps the whole clamp rather than bounding its upper argument,
+    // and it has to.
+    //
+    // CSS resolves clamp(MIN, VAL, MAX) as max(MIN, min(VAL, MAX)), so MIN
+    // wins outright whenever it exceeds MAX. Every bound here is in rem, so
+    // above the design width the LOWER bound is growing too -- `mono` floors
+    // at 13px, which is 19.3px once the root has scaled. Capping only the
+    // upper argument left clamp(19.3px, ..., 16px), and the floor overrode the
+    // ceiling: the token rendered at 19.3px with the cap doing nothing.
+    //
+    // Wrapping instead applies the cap after the curve has resolved, which is
+    // what "never larger than this" actually means.
+    font-size: min(clamp(#{f.rem($lower)}, #{$fluid}, #{f.rem($upper)}), #{$cap}px);
+  }
+}
+
+/// Apply a named entry from the $sizes map.
+@mixin size-token($token) {
+  @if not map.has-key(v.$sizes, $token) {
+    @error "size-token(): unknown size `#{$token}`. Known: #{map.keys(v.$sizes)}.";
+  }
+
+  $size: map.get(v.$sizes, $token);
+  // `cap` is optional, and map.get returns null when a token omits it.
+  @include fluid-type(map.get($size, min), map.get($size, max), map.get($size, cap));
+}
+
+/// The shared shape of a type style.
+@mixin type-style($family, $weight, $line-height, $letter-spacing: v.$ls-none, $uppercase: false) {
+  font-family: $family;
+  font-weight: $weight;
+  line-height: $line-height;
+  letter-spacing: $letter-spacing;
+
+  @if $uppercase {
+    text-transform: uppercase;
+  }
+}
+
+
+// SEMANTIC TYPE ---------------------------------------------------------------
+// Components call these, never the primitives above.
+//
+// The "Figma: Grift ..." notes name the artboard's spec. Grift is no longer the
+// face -- $ff-display is Google Sans Flex -- so read them as the size and
+// weight Figma reports, not as what the browser loads.
+
+/// The Home hero headline, and nothing else. Figma: Grift Bold 90 / 100.
+///
+/// Uncapped, so it keeps growing with the viewport. It is the one piece of type
+/// on the site whose job is to be the size of the screen it opens.
+@mixin display {
+  @include size-token(display);
+  @include type-style(v.$ff-display, v.$weight-bold, v.$lh-110);
+}
+
+/// The H1 of every hero that is not Home's: the case, simple, split and stacked
+/// variants. Named after the `title` field it sets, per lib/schema.md.
+///
+/// The same curve as `display` up to the design width, so 1728 is unchanged and
+/// nothing had to be re-measured against Figma. It parts company above it: a
+/// case study's H1 is a descriptive line introducing a page, not the statement
+/// that opens the site, and it stops at 100px rather than following Home's to
+/// 133. That is the whole reason it is a separate token instead of an argument
+/// to this one -- the cap belongs to the job, and the job has a name.
+@mixin title {
+  @include size-token(title);
+  @include type-style(v.$ff-display, v.$weight-bold, v.$lh-110);
+}
+
+/// The SplitStatement quote. Same face and weight as the display headline but
+/// smaller, because it sets two full lines rather than a short headline.
+@mixin statement {
+  @include size-token(statement);
+  @include type-style(v.$ff-display, v.$weight-bold, v.$lh-110);
+}
+
+/// The hero's second line. Figma: AOT Serial Mono Light 58, -6.96px.
+/// Its highlighted substring is set in $color-text-invert and only becomes
+/// readable once the yellow box wipes in behind it.
+@mixin mono-display {
+  @include size-token(mono-display);
+  @include type-style(v.$ff-mono, v.$weight-light, v.$lh-100, v.$ls-mono-display);
+}
+
+/// Section headings. Figma: Grift SemiBold 40/1.
+/// The footer's availability line is bold and sets its own weight.
+@mixin heading {
+  @include size-token(heading);
+  @include type-style(v.$ff-display, v.$weight-semibold, v.$lh-100);
+}
+
+/// The h3 inside a component: CalloutList card titles, LargeList item titles.
+/// Grift SemiBold 24 / 1.5.
+///
+/// A `heading` at 40 is a section opener and outranks the section header it sits
+/// under, which is what made the LargeList rows read as a stack of headlines.
+/// Its own size token rather than sharing paragraph-large, so retuning lead
+/// paragraphs cannot silently resize every h3 on the site.
+@mixin subheading {
+  @include size-token(subheading);
+  @include type-style(v.$ff-display, v.$weight-semibold, v.$lh-150);
+}
+
+/// Lead paragraphs: the hero and IntroCopy. Grift Regular 24 / 1.5.
+@mixin paragraph-large {
+  @include size-token(paragraph-large);
+  @include type-style(v.$ff-display, v.$weight-light, v.$lh-150);
+}
+
+/// Standard body copy. Grift Regular 18 / 1.5.
+@mixin paragraph {
+  @include size-token(paragraph);
+  @include type-style(v.$ff-display, v.$weight-light, v.$lh-150);
+}
+
+/// Body copy inside a list row. Grift Regular 18 / 1.5.
+///
+/// The same curve as `paragraph` and the same size at every width up to the
+/// artboard. It holds at 18 above it, where `paragraph` grows to 24, because a
+/// row's copy is bounded by the row rather than by the page.
+@mixin paragraph-small {
+  @include size-token(paragraph-small);
+  @include type-style(v.$ff-display, v.$weight-regular, v.$lh-150);
+}
+
+/// The label column of a meta table. Figma: AOT SemiBold 14, -1.12px.
+@mixin meta-label {
+  @include size-token(meta);
+  @include type-style(v.$ff-mono, v.$weight-semibold, v.$lh-100, v.$ls-mono);
+}
+
+/// A meta table value. Figma: Grift Regular 14 / 1.3.
+@mixin meta-value {
+  @include size-token(meta);
+  @include type-style(v.$ff-display, v.$weight-regular, v.$lh-130);
+}
+
+/// The smaller italic second line under a meta value. Figma: Grift Italic 12.
+@mixin meta-note {
+  @include size-token(meta-note);
+  @include type-style(v.$ff-display, v.$weight-regular, v.$lh-130);
+
+  font-style: italic;
+}
+
+/// LargeList numerals. Figma: AOT Light 40.
+@mixin numeral {
+  @include size-token(numeral);
+  @include type-style(v.$ff-mono, v.$weight-light, v.$lh-100, v.$ls-mono);
+}
+
+/// Section kickers and table labels. Figma: AOT Bold 14, uppercase.
+@mixin kicker {
+  @include size-token(mono);
+  @include type-style(v.$ff-mono, v.$weight-bold, v.$lh-100, v.$ls-none, $uppercase: true);
+}
+
+/// The label on a table's tab, e.g. "FEATURED SITES I'VE BUILT".
+/// Its own size token rather than sharing mono-chip, so retuning tabs cannot
+/// silently resize the nav squares.
+@mixin tab-label {
+  @include size-token(tab-label);
+  @include type-style(v.$ff-mono, v.$weight-bold, v.$lh-100, v.$ls-none, $uppercase: true);
+}
+
+/// Nav page squares and count chips. Figma: AOT Bold 15, -1.2px.
+@mixin mono-chip {
+  @include size-token(mono-chip);
+  @include type-style(v.$ff-mono, v.$weight-bold, v.$lh-100, v.$ls-mono);
+}
+
+/// Component chips, nowline items, general mono body. Figma: AOT Medium 14.
+@mixin mono-body {
+  @include size-token(mono);
+  @include type-style(v.$ff-mono, v.$weight-medium, v.$lh-100, v.$ls-mono);
+}
+
+/// Small mono labels. Figma: AOT 13.
+@mixin mono-small {
+  @include size-token(mono-small);
+  @include type-style(v.$ff-mono, v.$weight-regular, v.$lh-100, v.$ls-mono);
+}
+
+/// Copy inside tables. Grift Regular 13.
+/// Column labels deliberately do NOT use this -- they keep the mono kicker,
+/// which is what distinguishes a header from the data under it.
+@mixin table-copy {
+  @include size-token(table-copy);
+  @include type-style(v.$ff-display, v.$weight-regular, v.$lh-130);
+}
+
+/// Outbound links in mono contexts. Figma: AOT SemiBold 14, underlined.
+@mixin mono-link {
+  @include size-token(mono);
+  @include type-style(v.$ff-mono, v.$weight-semibold, v.$lh-100, v.$ls-mono);
+
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+
+/// A select surface: the yellow-into-orange gradient, with the flat yellow left
+/// underneath it as the fallback.
+///
+/// A mixin rather than a bare variable so both halves travel together. Setting
+/// only the image leaves no colour behind it; setting only the colour is what
+/// this replaced.
+@mixin select-fill {
+  background-color: v.$bg-select;
+  background-image: v.$bg-select-fill;
+}
+
+/// The white mono button. Used for the nav's page squares and the footer's
+/// links, which are the same object in Figma: white fill, faint border, 2px
+/// radius, mono caps-height type.
+@mixin mono-button {
+  @include mono-chip;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: f.space(2.4);
+  color: v.$color-text-invert;
+  background-color: v.$bg-invert;
+  border: 1px solid v.$color-border-soft;
+  border-radius: v.$radius-square;
+}
+
+
+// LAYOUT ----------------------------------------------------------------------
+
+// THE LAYOUT GRID -------------------------------------------------------------
+//
+// Figma: 10 columns, stretch, auto width, 30px margin, 30px gutter, on a
+// 1728 artboard.
+//
+// The nav is a fixed 230px and does not participate. So the page grid's real
+// job is to place one edge: content begins at column 3 and then runs to the
+// right edge of the page, with no right margin.
+//
+// At 1728 that works out as:
+//   track   = (1728 - 60 - 270) / 10 = 139.8px
+//   content = 30 + 2 x (139.8 + 30)  = 369.6px from the left
+//   width   = 1728 - 369.6           = 1358.4px
+//
+// which is the 1360-wide content column drawn in the Home frame.
+
+/// Width of one page-grid column, as a live calc so it tracks the viewport.
+@function grid-track() {
+  @return calc(
+    (100% - #{v.$grid-margin * 2} - #{v.$grid-gutter * (v.$grid-columns - 1)}) / #{v.$grid-columns}
+  );
+}
+
+/// Push an element's content to the start of column 3.
+///
+/// The grid figure is the first argument and wins at every width the design was
+/// drawn for. The second is a floor, and it exists because the sidebar does not
+/// participate in the grid: it is a fixed 230px, while column 3 tracks the
+/// viewport, so the two converge as the window narrows and the grid keeps going
+/// after they meet. The inset resolves to `24 + vw/5`, which passes 230 at
+/// about 1030px -- so between there and the tablet breakpoint the content was
+/// not merely close to the panel, it was underneath it:
+///
+///     1025    inset 229    -1px    content behind the panel
+///     1060    inset 236     6px
+///     1130    inset 250    20px    the floor stops mattering here
+///     1230    inset 270    40px
+///     1728    inset 370   140px    the design width
+///
+/// 20px of clearance, held from 1130 down to where the panel becomes a menu and
+/// the whole question goes away. Nothing at or above the design width moves.
+@mixin content-inset {
+  padding-left: max(
+    calc(#{v.$grid-margin} + 2 * (#{grid-track()} + #{v.$grid-gutter})),
+    calc(#{v.$sidebar-width} + #{f.space(4)})
+  );
+
+  // The grid is gone below this, so the inset stops being a column measurement
+  // and becomes a plain page margin -- and a narrower one. See the note on
+  // $grid-margin-mobile.
+  @include respond(tablet) {
+    padding-left: v.$grid-margin-mobile;
+    padding-right: v.$grid-margin-mobile;
+  }
+}
+
+/// A content section: the 8 columns its children lay out on.
+///
+/// Deliberately does NOT apply content-inset. The inset is the page's job, set
+/// once on <main>, because a case study wraps its sections in a bordered panel
+/// that is itself inset -- if sections carried it too they would be indented
+/// twice inside that panel.
+@mixin content-section {
+  display: grid;
+  grid-template-columns: repeat(v.$content-columns, minmax(0, 1fr));
+  column-gap: v.$grid-gutter;
+}
+
+/// Place a child across `$span` of the 8 content columns.
+@mixin grid-span($span, $start: auto) {
+  grid-column: #{$start} / span #{$span};
+
+  @include respond(tablet) {
+    grid-column: 1 / -1;
+  }
+}
+
+/// Visually hidden but available to screen readers.
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

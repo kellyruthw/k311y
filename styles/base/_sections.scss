@@ -1,0 +1,60 @@
+@use "../abstracts" as *;
+
+// =============================================================================
+// SECTION RHYTHM
+// The vertical space between sections, once the layout is one column.
+// =============================================================================
+//
+// At the design width every component carries its own vertical padding, tuned
+// to what it is: a SplitStatement wants space(30) around it and a MediaCopy
+// wants space(12), and those differences are the design. On a phone they stop
+// being differences and start being holes -- 300px between two sentences is not
+// emphasis, it is a scroll.
+//
+// The gap between two sections is also never one number there. It is the sum of
+// one section's padding-bottom and the next one's padding-top, written in two
+// files that do not know about each other, so tuning it component by component
+// means thirteen rules that each have to be read together with the ones on
+// either side of them.
+//
+// Below `tablet` this replaces all of that with one gap. Every section gets it
+// on top and bottom, and every section that FOLLOWS another gives its top back,
+// so any two neighbours are separated by exactly one $section-gap and never two.
+// The first section on a page keeps its top padding and the last keeps its
+// bottom, which is what holds the run off the nav and the footer.
+
+$section-gap: space(8); // 40px
+
+// SPECIFICITY, deliberately.
+//
+// `main [data-component]` is one element plus one attribute, which outranks the
+// plain `.section` in every module -- and it has to, because the order global
+// and module stylesheets land in the bundle is not something this file can rely
+// on. Equal specificity would make the winner depend on the bundler.
+//
+// It also scopes the rule to page content for free: sections live inside <main>
+// on every route, and SiteFooter is a sibling of it, so the footer is excluded
+// without having to name it.
+//
+// TO OPT OUT, count against the rule you are actually fighting -- the two below
+// do not have the same weight, and assuming they did has already cost one bug:
+//
+//   main [data-component]                      (0,1,1)   beaten by (0,2,0)
+//   main [data-component] + [data-component]   (0,2,1)   needs (0,3,0)
+//
+// A doubled class clears the first and loses the second, because their class
+// columns tie and `main` breaks it. So a component overriding padding-BOTTOM
+// needs two classes, while one overriding padding-TOP on a section that follows
+// another needs three, or two plus an attribute. SplitStatement does the latter
+// and says so; MediaCopy's run-of-video rule clears both at (0,4,0) already.
+
+@include respond(tablet) {
+  main [data-component] {
+    padding-top: $section-gap;
+    padding-bottom: $section-gap;
+  }
+
+  // main [data-component] + [data-component] {
+  //   padding-top: 0;
+  // }
+}

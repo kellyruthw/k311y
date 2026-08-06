@@ -1,0 +1,106 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.section {
+  @include content-section;
+
+  padding-top: space(16);
+  padding-bottom: space(16);
+}
+
+// Placement only. What the tab looks like now comes from components/UI/Tab,
+// which this is handed to as a className -- so the fill, rule, radius and
+// padding are the same object here as on a table, the footer and the hero.
+.tab {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+// One link, not a card containing one: a single tab stop and a single hit area.
+.card {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: 1fr minmax(0, space(76));
+  gap: space(10);
+  align-items: center;
+  padding: space(6) 0 space(9) space(2);
+  border: 1px solid $color-border-subtle;
+  background: $bg-page;
+
+  @include respond(tablet) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: space(6);    
+    padding: space(6) 0 space(2) space(2);
+  }
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: space(3);
+}
+
+.name {
+  @include kicker;
+
+  color: $color-text-soft;
+}
+
+.title {
+  @include heading;
+}
+
+.action {
+  display: flex;
+  gap: space(3);
+  align-items: center;
+  margin-top: space(3);
+}
+
+.actionLabel {
+  @include mono-body;
+}
+
+.arrow {
+  width: space(7);
+  height: space(7);
+  flex-shrink: 0;
+
+  @include motion-safe {
+    transition: transform 0.3s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+}
+
+.frame {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 5 / 3;
+  border-radius: $radius-square;
+  background-color: $bg-raised;
+}
+
+.media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  @include motion-safe {
+    transition: transform 0.5s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover,
+  .card:focus-visible {
+    background-color: $bg-raised;
+
+    .arrow {
+      transform: translateX(#{space(1)});
+    }
+
+    .media {
+      transform: scale(1.04);
+    }
+  }
+}

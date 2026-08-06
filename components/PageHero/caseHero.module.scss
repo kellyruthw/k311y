@@ -1,0 +1,91 @@
+// abstracts are auto-prepended by next.config.ts.
+// The case page's bordered shell provides the outer inset, so this hero lays
+// out on the 8 content columns directly rather than re-applying it.
+
+.hero {
+  display: grid;
+  grid-template-columns: repeat($content-columns, minmax(0, 1fr));
+  column-gap: $grid-gutter;
+  align-items: start;
+  padding-top: space(8);
+  padding-bottom: space(10);
+}
+
+// The H1 is the descriptive line, not the entry name.
+.title {
+  @include title;
+
+  grid-column: 1 / span 6;
+  margin-bottom: space(10);
+}
+
+.titleLine {
+  display: block;
+}
+
+// MetaBlock, beside the media. Its own data-component so the nav can light it
+// independently of the hero it sits inside.
+.meta {
+  grid-column: 1 / span 3;
+}
+
+.metaValue {
+  display: block;
+}
+
+// The second authored line: smaller and italic, as drawn.
+.metaNote {
+  @include meta-note;
+
+  display: block;
+  margin-top: space(0.6);
+}
+
+.liveLink {
+  text-decoration: underline;
+  text-underline-position: from-font;
+
+  &:hover {
+    color: $color-text-select;
+  }
+}
+
+.mediaFrame {
+  grid-column: 4 / -1;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: $radius-square;
+  background-color: $bg-raised;
+}
+
+.media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+@include respond(tablet) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .title,
+  .meta,
+  .mediaFrame {
+    grid-column: 1 / -1;
+  }
+
+  // The 50px under the H1 was clearing the MetaBlock sitting BESIDE it on the
+  // 8-column grid. In one column there is nothing beside it any more, and the
+  // meta and media below bring their own spacing, so this was only pushing the
+  // page down.
+  .title {
+    margin-bottom: 0;
+  }
+
+  .mediaFrame {
+    margin-top: space(8);
+  }
+}

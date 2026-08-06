@@ -1,0 +1,66 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.scope {
+  position: relative;
+  grid-column: 1 / -1;
+}
+
+.follower {
+  // Fixed so it tracks the viewport rather than the scrolled table. GSAP writes
+  // x and y as transforms from this origin.
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+
+  // Sits below and right of the pointer, clear of what is being read.
+  margin: space(4) 0 0 space(4);
+
+  width: space(76);
+  overflow: hidden;
+  pointer-events: none;
+
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-square;
+  background-color: $bg-page;
+
+  opacity: 0;
+  transition: opacity 0.18s ease-out;
+
+  &[data-visible="true"] {
+    opacity: 1;
+  }
+
+  img,
+  video {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+// The thumbnail becomes the cursor, so the real one is hidden while over a row
+// that has one. Only where the follower actually appears: with no hover, or
+// under reduced motion, hiding the pointer would leave nothing in its place.
+@media (hover: hover) and (pointer: fine) {
+  .scope :global(tr):has([data-thumb-src]) {
+    cursor: none;
+  }
+}
+
+// No pointer means nothing to follow, so it never renders on touch.
+@media not all and (hover: hover) {
+  .follower {
+    display: none;
+  }
+}
+
+@include reduced-motion {
+  .follower {
+    display: none;
+  }
+
+  .scope :global(tr):has([data-thumb-src]) {
+    cursor: auto;
+  }
+}

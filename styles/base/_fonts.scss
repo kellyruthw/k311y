@@ -1,0 +1,91 @@
+// =============================================================================
+// @FONT-FACE
+// -----------------------------------------------------------------------------
+// Self-hosted, woff2 only, in public/fonts.
+//
+//   Google Sans Flex -> display AND body copy   (variable, OFL)
+//   AOT Serial Mono  -> links, kickers, labels, table text, chips
+//
+// AOT Serial Mono is static: only the weights Figma uses are here, and adding
+// one means adding a woff2 with it, so keep that list honest. It ships no
+// italic in any format, so there is no mono italic face and none should be
+// faked with font-synthesis.
+//
+// Google Sans Flex replaced Grift. It is one variable file per subset rather
+// than five static faces, and it carries two axes this site uses:
+//
+//   wght 300-700   the whole range, so `$weight-semibold` (600) is now a real
+//                  weight. Grift shipped no SemiBold face, so every 600 on the
+//                  site was being snapped or synthesised from 500 or 700.
+//   slnt 0-10      declared as `oblique 0deg 10deg`, which is what lets
+//                  `font-style: italic` resolve to the slant axis instead of
+//                  being faked. Grift had a drawn italic; this is an oblique,
+//                  and that is a real difference in kind -- see `meta-note`,
+//                  the only italic on the site.
+//
+// Latin and latin-ext are separate files with their own unicode-range, which is
+// how Google serves them: latin-ext is only fetched by a page that actually
+// uses one of its characters.
+// =============================================================================
+
+// GOOGLE SANS FLEX -----------------------------------------------------------
+// One file per subset. Both descriptors are RANGES, not values: the browser
+// picks a weight anywhere in 300-700 and a slant anywhere in 0-10 from the same
+// file, so there is nothing to add when a new weight is used.
+
+@font-face {
+  font-family: "Google Sans Flex";
+  src: url("/fonts/GoogleSansFlex-latin.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: oblique 0deg 10deg;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Google Sans Flex";
+  src: url("/fonts/GoogleSansFlex-latinExt.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: oblique 0deg 10deg;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+
+// AOT SERIAL MONO -------------------------------------------------------------
+
+@font-face {
+  font-family: "AOT Serial Mono";
+  src: url("/fonts/AOTSerialMono-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AOT Serial Mono";
+  src: url("/fonts/AOTSerialMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AOT Serial Mono";
+  src: url("/fonts/AOTSerialMono-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AOT Serial Mono";
+  src: url("/fonts/AOTSerialMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

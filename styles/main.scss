@@ -1,0 +1,17 @@
+// =============================================================================
+// MAIN
+// The single global stylesheet, imported once in app/layout.tsx.
+// Order matters: fonts, then reset, then globals, then the section rhythm.
+//
+// Component styles do NOT go here -- they live in co-located *.module.scss
+// files and receive the abstracts automatically via next.config.ts.
+//
+// `sections` is the one exception, and only because what it sets is not any one
+// component's to decide: the space BETWEEN two sections belongs to neither of
+// them. It does not style a component, it spaces the gaps.
+// =============================================================================
+
+@use "base/fonts";
+@use "base/reset";
+@use "base/globals";
+@use "base/sections";

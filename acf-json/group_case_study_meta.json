@@ -1,0 +1,339 @@
+{
+    "key": "group_case_study_meta",
+    "title": "Case Study Meta",
+    "fields": [
+        {
+            "key": "field_case_study_tab_meta",
+            "label": "Meta",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0
+        },
+        {
+            "key": "field_case_study_section_label",
+            "label": "Section label",
+            "name": "section_label",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Shown on this entry's node in the sidebar nav tree, e.g. \"Case study · Headless WordPress\".",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "show_in_graphql": 1
+        },
+        {
+            "key": "field_case_study_client",
+            "label": "Client",
+            "name": "client",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "First line is the value. A second line renders smaller and italic.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "show_in_graphql": 1,
+            "rows": 2,
+            "new_lines": ""
+        },
+        {
+            "key": "field_case_study_role",
+            "label": "Role",
+            "name": "role",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "First line is the value. A second line renders smaller and italic.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Design + build",
+            "show_in_graphql": 1,
+            "rows": 2,
+            "new_lines": ""
+        },
+        {
+            "key": "field_case_study_timeline",
+            "label": "Timeline",
+            "name": "timeline",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "First line is the value. A second line renders smaller and italic.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "34",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Spring 2026",
+            "show_in_graphql": 1,
+            "rows": 2,
+            "new_lines": ""
+        },
+        {
+            "key": "field_case_study_live_url",
+            "label": "Live URL",
+            "name": "live_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "Optional. Adds a link row to the MetaBlock.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "https://",
+            "show_in_graphql": 1
+        },
+        {
+            "key": "field_case_study_stack",
+            "label": "Stack",
+            "name": "stack",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "One technology per row. Renders as chips in the MetaBlock.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "layout": "table",
+            "pagination": 0,
+            "min": 1,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add technology",
+            "rows_per_page": 20,
+            "show_in_graphql": 1,
+            "sub_fields": [
+                {
+                    "key": "field_case_study_stack_item",
+                    "label": "Technology",
+                    "name": "stack_item",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "Next.js",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_case_study_stack",
+                    "show_in_graphql": 1
+                }
+            ]
+        },
+        {
+            "key": "field_case_study_thesis",
+            "label": "Thesis",
+            "name": "thesis",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Optional. The one-sentence belief this project proves. Feeds a SplitStatement on the case page.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "rows": 2,
+            "placeholder": "",
+            "new_lines": "",
+            "show_in_graphql": 1
+        },
+        {
+            "key": "field_case_study_tab_card",
+            "label": "Card",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0
+        },
+        {
+            "key": "field_case_study_card_category",
+            "label": "Card category",
+            "name": "card_category",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Mono eyebrow on the card, e.g. \"Headless WordPress\".",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "40",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "show_in_graphql": 1
+        },
+        {
+            "key": "field_case_study_card_media",
+            "label": "Card media",
+            "name": "card_media",
+            "aria-label": "",
+            "type": "file",
+            "instructions": "Image or mp4. Video renders muted and looped.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "30",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "id",
+            "library": "all",
+            "min_size": "",
+            "max_size": "",
+            "mime_types": "jpg,jpeg,png,webp,mp4",
+            "show_in_graphql": 1
+        },
+        {
+            "key": "field_case_study_sort_order",
+            "label": "Sort order",
+            "name": "sort_order",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Ascending. Ties break on title.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "15",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 10,
+            "min": 0,
+            "max": "",
+            "placeholder": "",
+            "step": 1,
+            "prepend": "",
+            "append": "",
+            "show_in_graphql": 1
+        },
+        {
+            "key": "field_case_study_featured_on_home",
+            "label": "On Home",
+            "name": "featured_on_home",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Show in the WorkCardGrid.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "15",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 1,
+            "ui": 1,
+            "ui_on_text": "Yes",
+            "ui_off_text": "No",
+            "show_in_graphql": 1
+        },
+        {
+            "key": "field_case_study_card_summary",
+            "label": "Card summary",
+            "name": "card_summary",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "The large display title on the card, e.g. \"Content architecture at luxury scale\".",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "rows": 2,
+            "placeholder": "",
+            "new_lines": "",
+            "show_in_graphql": 1
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "case-study"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "show_in_graphql": 1,
+    "graphql_field_name": "caseStudyMeta",
+    "map_graphql_types_from_location_rules": 0,
+    "graphql_types": [
+        "CaseStudy"
+    ],
+    "modified": 1785793230
+}

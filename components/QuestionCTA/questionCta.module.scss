@@ -1,0 +1,186 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.section {
+  @include content-section;
+
+  padding-top: space(24);
+  padding-bottom: space(24);
+}
+
+// A sticky never draws wider than this, so the columns are capped to it when
+// they are not filling the row. 400px, which is space(80) on the 5px scale.
+$note-width: space(80);
+
+.notes {
+  display: grid;
+  gap: space(14);
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  margin:0 space(8);
+
+  @for $count from 1 through 3 {
+    &[data-count="#{$count}"] {
+      grid-template-columns: repeat(#{$count}, minmax(0, 1fr));
+    }
+  }
+
+  // Two notes read as a pair rather than as two ends of a row. Three fill the
+  // width, so a third of it each is also where a note wants to be; two do not,
+  // and 1fr columns pushed them to opposite edges with the gap doing nothing
+  // but separating them.
+  //
+  // The tracks shrink to the sticky's own width and the pair is centred, so
+  // what sits between them is the authored gap and nothing else.
+  &[data-count="2"] {
+    grid-template-columns: repeat(2, minmax(0, #{$note-width}));
+    justify-content: center;
+  }
+
+  @include respond(tablet) {
+    &,
+    &[data-count="2"],
+    &[data-count="3"] {
+      grid-template-columns: minmax(0, 1fr);
+      gap: space(10);
+    }
+  }
+}
+
+// Opposing leans with the middle straightest. Staggered vertically too, so the
+// row reads as notes dropped on a wall rather than three cards in a row.
+.note {
+  --lean: 0deg;
+  max-width: $note-width;
+
+  &[data-lean="left"] {
+    --lean: -3deg;
+
+    margin-top: space(6);
+  }
+
+  &[data-lean="center"] {
+    --lean: -0.75deg;
+  }
+
+  &[data-lean="right"] {
+    --lean: 2.5deg;
+
+    margin-top: space(10);
+
+    @include respond(tablet) {
+      margin-top: space(2);
+    }
+  }
+}
+
+.sticky {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 1;
+  padding: space(9) space(7) space(6);
+  color: $color-text-invert;
+  background-color: $bg-note;
+  transform: rotate(var(--lean));
+
+  @include motion-safe {
+    transition: transform 0.35s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+
+  @include respond(tablet) {
+     aspect-ratio: 3 /2;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sticky:hover,
+  .sticky:focus-visible {
+    transform: rotate(var(--lean)) translateY(#{space(-1.6)});
+  }
+
+  // The corner lifts away from the wall on hover.
+  .sticky:hover::after,
+  .sticky:focus-visible::after {
+    width: space(9);
+    height: space(9);
+  }
+}
+
+// THE PEELED CORNER -----------------------------------------------------------
+// A triangle sitting over the bottom-right corner: page colour on one half,
+// a darker fold on the other.
+
+.sticky::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: space(5);
+  height: space(5);
+  background-image: linear-gradient(
+    to bottom right,
+    rgba($color-black, 0.18) 0 50%,
+    $bg-page 50% 100%
+  );
+
+  @include motion-safe {
+    transition:
+      width 0.35s cubic-bezier(0.2, 0.6, 0.2, 1),
+      height 0.35s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+}
+
+// THE TAPE --------------------------------------------------------------------
+
+.tape {
+  position: absolute;
+  top: space(-3);
+  left: 50%;
+  width: space(22);
+  height: space(6);
+  background-color: rgba($color-white, 0.35);
+  transform: translateX(-50%) rotate(calc(var(--lean) * -2));
+}
+
+// CONTENT ---------------------------------------------------------------------
+
+.question {
+  @include paragraph-large;
+
+  font-weight: $weight-medium;
+}
+
+.action {
+  display: flex;
+  gap: space(3);
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.actionLabel {
+  @include mono-body;
+}
+
+.arrow {
+  width: space(7);
+  height: space(7);
+  flex-shrink: 0;
+
+  @include motion-safe {
+    transition: transform 0.35s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+
+  .sticky:hover &,
+  .sticky:focus-visible & {
+    transform: translateX(#{space(1)});
+  }
+}
+
+.attribution {
+  @include mono-small;
+
+  margin-top: space(3);
+  opacity: 0.45;
+}

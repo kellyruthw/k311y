@@ -1,0 +1,32 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.section {
+  @include content-section;
+
+  padding-top: space(12);
+  padding-bottom: space(12);
+}
+
+.header {
+  @include grid-span(4, 3);
+
+  margin-bottom: space(8);
+}
+
+// A kicker sitting straight on the copy needs less room than a full trio.
+.header[data-heading="false"] {
+  margin-bottom: space(5);
+}
+
+.body {
+  @include grid-span(4, 3);
+
+  display: flex;
+  flex-direction: column;
+  gap: space(6);
+}
+
+.paragraph {
+  @include paragraph;
+}
+

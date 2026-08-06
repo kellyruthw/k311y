@@ -1,0 +1,274 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.section {
+  @include content-section;
+
+  padding-top: space(16);
+  padding-bottom: space(16);
+}
+
+// The wrapper carries the grid placement; the header inside it carries the
+// type. That split is what lets the copy be sticky WITHIN its column without
+// the column itself being the thing that sticks.
+.headerColumn {
+  @include grid-span(6);
+}
+
+.header {
+  margin-bottom: space(10);
+}
+
+// A kicker sitting straight on the rows needs less room than a full trio.
+.header[data-heading="false"] {
+  margin-bottom: space(5);
+}
+
+// Media is optional, and always left. The list is what moves.
+.mediaFrame {
+  @include grid-span(4, 1);
+
+  overflow: hidden;
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-square;
+  background-color: $bg-raised;
+}
+
+// No fixed ratio: the artwork sets its own proportions and scales to the
+// column, the same rule CalloutList's frame follows.
+.media {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+// Bordered as a whole, the same spec-sheet register the tables use.
+.items {
+  grid-column: 1 / -1;
+  border: 1px solid $color-border-subtle;
+}
+
+// With media beside it the list takes the right half, columns 5 to 8.
+// grid-span collapses both to the full width at tablet, so they stack in DOM
+// order with the media on top.
+.items[data-has-media="true"] {
+  @include grid-span(4, 5);
+}
+
+.item {
+  display: grid;
+  grid-template-columns: space(16) 1fr;
+  gap: space(4);
+  align-items: start;
+  padding: space(2);
+  border-bottom: 1px solid $color-border-subtle;
+
+  // The outer border already closes the bottom of the list.
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  @include respond(portrait) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: space(2);
+  }
+}
+
+.numeral {
+  @include numeral;
+
+  color: $color-text-primary;
+}
+
+.itemBody {
+  display: flex;
+  flex-direction: column;
+  gap: space(1);
+  min-width: 0;
+}
+
+.itemTitle {
+  @include subheading;
+}
+
+.itemText {
+  @include paragraph-small;
+
+  + p{
+    margin-top: space(3);
+  }
+}
+
+// A step's own artifact, under its copy. Capped rather than full-bleed: a row
+// is a step in a methodology, and an image that fills it stops the list reading
+// as a list.
+.itemMediaFrame {
+  margin-top: space(3);
+  max-width: space(96);
+  overflow: hidden;
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-square;
+  background-color: $bg-raised;
+}
+
+// No fixed ratio: the artwork sets its own proportions, the same rule the
+// section's own media and CalloutList's frame follow.
+.itemMedia {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+
+// IN A PANEL ==================================================================
+// The tab and bordered shell the tables wear, from `in_panel`. The tab sits
+// outside the panel and draws its top rule, which is Timeline's arrangement --
+// a tab has no bottom border of its own, so a rule on the panel would run
+// straight through it.
+
+.tabRow {
+  display: flex;
+  grid-column: 1 / -1;
+  border-bottom: 1px solid $color-border-subtle;
+}
+
+.panel {
+  @include content-section;
+
+  grid-column: 1 / -1;
+  padding: space(10) space(6);
+  border: 1px solid $color-border-subtle;
+  border-top: 0;
+  background: $bg-page;
+}
+
+// PINNED ======================================================================
+// From `pinned`. The copy narrows to columns 1-2 and holds still; the list
+// takes 4-8 and marks whichever item is at the reading line.
+//
+// `position: sticky`, not a ScrollTrigger pin: the section stays in normal
+// flow, there is no pin-spacer to keep in step with it, and a resize needs no
+// refresh. The only JavaScript is the spy in useActiveItem, which decides which
+// row is current and nothing else.
+
+.section[data-pinned="true"] {
+  // The column is the grid item, and it sits in the same row as the list, so it
+  // stretches to exactly the list's height. THAT is the sticky range: the copy
+  // holds while there is list beside it and releases where the list ends,
+  // instead of carrying on through the section's own bottom padding the way it
+  // did while the header was placed directly.
+  .headerColumn {
+    @include grid-span(3, 1);
+
+    padding-right: space(4);
+  }
+
+  .header {
+    position: sticky;
+
+    // Where the copy comes to rest, and the one number that decides how far
+    // ahead of the first highlight it locks. The spy reads the middle of the
+    // viewport, so raising this brings the two together and lowering it locks
+    // the copy earlier.
+    top: space(24);
+
+    // The trio's own bottom margin is spacing between stacked blocks. Beside
+    // the list there is nothing under it to be spaced from.
+    margin-bottom: 0;
+
+    // Above its own stacking context, so a row's media cannot slide over it.
+    z-index: 1;
+  }
+
+  .items {
+    @include grid-span(5, 4);
+  }
+}
+
+// THE ACTIVE ROW --------------------------------------------------------------
+// The title takes the select colour as its row crosses the reading line, so the
+// yellow travels down the list while the copy beside it holds.
+//
+// Deliberately NOT behind reduced motion. Nothing here moves -- a row is current
+// or it is not -- and telling a reader where they are is an indicator rather
+// than a flourish, which is the same call SidebarNav's scroll-spy makes. Only
+// the transition is gated, so a reduced-motion reader gets the identical
+// highlight arriving instantly instead of fading.
+
+// The same three elements PageHero and SplitStatement use: a wrapper, a box
+// behind it, and the words in front set in the canvas colour. The BOX is what
+// moves, never the text, so nothing reflows as a row becomes current.
+.highlight {
+  position: relative;
+  display: inline-block;
+}
+
+.highlightBox {
+  position: absolute;
+
+  // Bleeds past the text box so the block sits on the letters rather than
+  // stopping at their bounding box. The hero's inset, at the hero's ratios.
+  inset: -0.12em -0.1em -0.08em;
+  @include select-fill;
+
+  // Wipes out of the left, as if the line were being marked up. Scaled to
+  // nothing by default, so an unpinned list pays nothing for it.
+  transform: scaleX(0);
+  transform-origin: left center;
+
+  // NO transition here, and that asymmetry is the point.
+  //
+  // A transition is read from the style the element is moving TO, so declaring
+  // it on the active state below animates the way IN and leaves the way OUT
+  // instant. The row being left goes out at once rather than shrinking back
+  // toward its own left edge -- two boxes travelling in opposite directions
+  // read as the mark being dragged down the list, when what happened is that
+  // one line stopped being current and another started.
+}
+
+.highlightText {
+  position: relative;
+}
+
+.item[data-active="true"] {
+  .highlightBox {
+    transform: scaleX(1);
+
+    @include motion-safe {
+      transition: transform 0.32s cubic-bezier(0.2, 0.6, 0.2, 1);
+    }
+  }
+
+  // Canvas colour, so the words are unreadable until the box has passed over
+  // them. That is the hero's effect exactly, and the reason the box moves and
+  // the type does not.
+  //
+  // Untransitioned in both directions, which it can be now the box leaves
+  // instantly: there is no longer a moment where white type could be caught
+  // over yellow on the way out.
+  .highlightText {
+    color: $color-text-invert;
+  }
+}
+
+// MOBILE ----------------------------------------------------------------------
+// Both arrangements collapse. grid-span already returns the header and the list
+// to the full width, so what is left is to stop the copy sticking: in one
+// column a sticky header would sit over the list it is meant to introduce.
+
+@include respond(tablet) {
+  .section[data-pinned="true"] .header {
+    position: static;
+    margin-bottom: space(10);
+  }
+
+  // grid-span already returns this to the full width. Named only so the pinned
+  // rule cannot leave a 3-column wrapper and its right padding behind.
+  .section[data-pinned="true"] .headerColumn {
+    grid-column: 1 / -1;
+    padding-right: 0;
+  }
+
+  .panel {
+    padding: space(6) space(4);
+  }
+}

@@ -1,0 +1,610 @@
+// abstracts are auto-prepended by next.config.ts.
+
+// Fixed at its own width, outside the 10-column grid. Content begins at column
+// 3, which leaves clearance.
+.panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  width: $sidebar-width;
+  height: 100vh;
+  padding-bottom: space(5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-x: hidden;
+
+  @include respond(tablet) {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: auto;
+    padding-bottom: 0;
+
+    // Both required. The panel scrolls its own overflow on desktop, and either
+    // of those would clip the dropdown, which hangs outside the bar's box.
+    overflow: visible;
+    overflow-x: visible;
+  }
+}
+
+// THE BAR ---------------------------------------------------------------------
+// A wrapper on desktop and nothing more: the wordmark keeps the full width and
+// the panel reads as it always did. On mobile it becomes the nav's resting
+// state, logotype one end and the menu button the other.
+
+.bar {
+  position: relative;
+  z-index: 1;
+}
+
+@include respond(tablet) {
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    @include select-fill;
+  }
+}
+
+// THE MENU BUTTON -------------------------------------------------------------
+// Hidden above tablet, which also takes it out of the tab order.
+
+.menuButton {
+  display: none;
+}
+
+@include respond(tablet) {
+  .menuButton {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: space(1);
+
+    // A 44px target, the minimum comfortable tap size, around a 20px glyph.
+    width: space(8.8);
+    height: space(8.8);
+    padding: space(2.4);
+
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .menuBar {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: $color-text-invert;
+
+    // Around the middle rule, so the two outer ones cross on its centre.
+    transform-origin: center;
+
+    @include motion-safe {
+      transition:
+        transform 0.22s ease,
+        opacity 0.22s ease;
+    }
+  }
+
+  // Three rules become a cross: the outer two rotate onto the middle's line and
+  // the middle fades, so the button reports its own state without a second
+  // glyph to keep in sync.
+  //
+  // space(1) is the gap and the rules are 2px, so each outer rule travels
+  // exactly one gap plus one rule height to reach the centre.
+  .panel[data-menu-open="true"] {
+    .menuBar:first-child {
+      transform: translateY(calc(#{space(1)} + 2px)) rotate(45deg);
+    }
+
+    .menuBar:nth-child(2) {
+      opacity: 0;
+    }
+
+    .menuBar:last-child {
+      transform: translateY(calc(-1 * (#{space(1)} + 2px))) rotate(-45deg);
+    }
+  }
+}
+
+// WORDMARK --------------------------------------------------------------------
+// Outlined type on the yellow bar, matching the Figma treatment.
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: space(8.4);
+  padding: 0 space(2);
+  @include select-fill;
+
+  @include respond(tablet) {
+    background:transparent;
+  }
+
+  img {
+    width: 100%;
+    max-width: space(40.2);
+    height: auto;
+  }
+}
+
+// THE PANEL -------------------------------------------------------------------
+// Purple wraps only the current page and its expanded tree, which is what makes
+// "you are here" legible at a glance.
+
+.tree {
+  flex-grow: 1;
+  padding: space(2) 0;
+}
+
+// 1px on top instead of 10px, but only where the purple actually reaches it.
+//
+// `.page[data-current]` is what paints the block, so when the CURRENT page is
+// the first in the menu that block starts at the very top of the tree and butts
+// into the yellow wordmark bar. 1px is the hairline that keeps the two reading
+// as separate bands rather than one. Everywhere else the current page sits
+// further down, the top of the tree is plain canvas, and 10px is the gap it
+// wants -- which is why this cannot simply be the base value.
+//
+// Asked of the DOM rather than passed down as a "this is Home" prop. The menu
+// is the authored WordPress menu and Home is its first item by construction, so
+// the condition that matters is "the purple starts at the top", not "the route
+// is /". If the menu is ever reordered this follows it.
+.tree:has(> .pages > .page:first-child[data-current="true"]) {
+  padding-top: 1px;
+}
+
+.pages {
+  display: flex;
+  flex-direction: column;
+  gap: space(2.4);
+}
+
+.page {
+  padding: 0 space(2);
+
+  // Symmetric on purpose: with the tree collapsed the panel is just the two
+  // squares, so any difference between top and bottom reads as a stray gap
+  // hanging below the entry.
+  &[data-current="true"] {
+    padding-top: space(2.4);
+    padding-bottom: space(2.4);
+    background-color: $bg-chrome;
+  }
+}
+
+// PAGE SQUARES ----------------------------------------------------------------
+
+// 8px, i.e. 0.5rem, tighter than the 12px `mono-button` sets. Overridden here
+// rather than on the mixin because mono-button is also the footer's link and
+// the split hero's CTA, which are buttons in a page rather than a dense list
+// of them down a 230px panel.
+.square {
+  @include mono-button;
+
+  padding: space(1.6);
+}
+
+// A square and its toggle sit on one line.
+.squareRow,
+.entryRow {
+  display: flex;
+  gap: space(0);
+  align-items: center;
+}
+
+.entryRow {
+  margin: space(2) 0 0 space(4);
+}
+
+// The nested entry square: Case Studies > Ascaya. A breadcrumb, so it is not a
+// link -- you are already here.
+.entry {
+  @include mono-button;
+
+  // Matches .square. It is the same object one level in.
+  padding: space(1.6);
+}
+
+// THE TREE TOGGLE -------------------------------------------------------------
+
+.caret {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: space(6);
+  height: space(6);
+  color: $color-text-invert;
+
+  svg {
+    width: space(4);
+    height: space(4);
+  }
+
+  @include motion-safe {
+    svg {
+      transition: transform 0.3s cubic-bezier(0.2, 0.6, 0.2, 1);
+    }
+  }
+}
+
+// Points up when the tree is open, down when it is collapsed.
+.page[data-open="false"] .caret svg {
+  transform: rotate(180deg);
+}
+
+// Plain type on the panel rather than a chip floating over it.
+//
+// The caret only ever renders inside the current page's purple block, so black
+// is the panel's own text colour here -- the same $color-text-invert the page
+// squares and the diamond labels beside it already use.
+//
+// The border and fill went together with the background. They drew a box, and
+// a box around transparent type reads as an outline someone forgot to fill
+// rather than as a deliberate label.
+//
+// `tab-label` is the tab's own token: AOT Bold 14, uppercase. This is a label
+// naming what a control does, which is the job a tab's label has.
+.tooltip {
+  @include tab-label;
+
+  position: absolute;
+  left: calc(100% + #{space(1.5)});
+  z-index: 2;
+  color: $color-text-invert;
+  background-color: transparent;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  padding-top:space(0.8);
+
+  @include motion-safe {
+    transition: opacity 0.15s ease-out;
+  }
+
+  .caret:hover &,
+  .caret:focus-visible & {
+    opacity: 1;
+  }
+}
+
+// THE COLLAPSE ----------------------------------------------------------------
+// Animating grid-template-rows between 1fr and 0fr collapses to the content's
+// real height without hardcoding one, which max-height would require.
+
+.branchWrap {
+  display: grid;
+  grid-template-rows: 1fr;
+
+  @include motion-safe {
+    transition: grid-template-rows 0.35s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+}
+
+.page[data-open="false"] .branchWrap {
+  grid-template-rows: 0fr;
+}
+
+// min-height: 0 is what lets a grid item shrink below its content; without it
+// the 0fr track has no effect at all. overflow clips what is left.
+.branchWrap > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+// The branch's own top padding sits inside the clipped box, but a collapsed
+// tree should contribute nothing whatsoever, so it goes to zero as well.
+.page[data-open="false"] .branch {
+  padding-top: 0;
+
+  @include motion-safe {
+    transition: padding-top 0.35s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+}
+
+// THE BRANCH ------------------------------------------------------------------
+// Connectors are drawn with borders rather than SVG: a vertical rule down the
+// branch, and a horizontal stub into each node.
+//
+// The vertical rule is drawn PER NODE rather than once down the branch, and
+// that is the fix for a bug worth stating. It used to be one rule on .branch
+// ending at a fixed `bottom: space(4)`, but a stub sits 17px down from its own
+// node's top, so a fixed offset can only ever be correct for one node height:
+//
+//   last node 31px (a bare pill, e.g. QuestionCTA)  the rule stopped 6px SHORT
+//   last node 76px (one carrying a diamond)         it overshot by 39px
+//
+// Each node now draws the segment from the top of its own gap down to its own
+// stub, so the run ends exactly at the last stub whatever that node contains.
+// There is nothing left to tune, and nothing that can drift when a node's
+// height changes.
+
+.branch {
+  position: relative;
+  // Padding, not margin: a margin sits outside the clipped box and would keep
+  // its space when the tree collapses, leaving a band of purple under nothing.
+  margin-left: space(4);
+  padding-top: space(2);
+  padding-left: space(4);
+}
+
+.node {
+  position: relative;
+  margin-top: space(2.4);
+
+  // The stub, from the rule into this node.
+  &::before {
+    content: "";
+    position: absolute;
+    top: space(3.4);
+    left: space(-4);
+    width: space(4);
+    border-top: 1px solid rgba($color-black, 0.35);
+  }
+
+  // This node's length of the vertical rule: up through the gap above it, down
+  // to where its own stub leaves. Consecutive segments meet across the gaps, so
+  // the run reads as one line.
+  &::after {
+    content: "";
+    position: absolute;
+    top: calc(-1 * #{space(2.4)});
+    left: space(-4);
+    height: calc(#{space(2.4)} + #{space(3.4)});
+    border-left: 1px solid rgba($color-black, 0.35);
+  }
+
+  // The first node also covers the branch's own top padding, so the run starts
+  // at the top of the branch -- where it meets the square above it -- rather
+  // than 10px inside it.
+  &:first-child::after {
+    top: calc(-1 * (#{space(2.4)} + #{space(2)}));
+    height: calc(#{space(2.4)} + #{space(2)} + #{space(3.4)});
+  }
+}
+
+// COMPONENT CIRCLES -----------------------------------------------------------
+// Pills, following Figma, despite the handoff calling them circles.
+
+.circle {
+  @include mono-body;
+
+  display: inline-flex;
+  gap: space(1.6);
+  align-items: center;
+  // 8px 12px, i.e. 0.5rem 0.75rem. Off the 5px scale in both axes, as the
+  // page squares' 12px already is -- the pill is sized to its label, and the
+  // label is type rather than layout.
+  padding: space(1.6) space(2.4) space(1.4) space(2.4);
+  color: $color-text-invert;
+  background-color: $bg-node;
+  border: 1px solid $color-border-soft;
+  border-radius: $radius-pill;
+
+  @include motion-safe {
+    transition: background-color 0.18s ease-out;
+  }
+
+  // Hovered: the node being asked about. Draws the marquee.
+  &[data-active="true"] {
+    background-color: $bg-invert;
+  }
+
+  // Scrolled into view: a soft "you are here", with no marquee.
+  &[data-inview="true"]:not([data-active="true"]) {
+    // box-shadow: 0 0 0 1px $bg-invert;
+    background-color: $bg-invert;
+  }
+}
+
+.count {
+  @include mono-small;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: space(3.6);
+  padding: space(0.8) space(1.2) space(0.4) space(1.2);;
+  color: $color-text-primary;
+  background-color: $bg-chrome;
+  border-radius: $radius-pill;
+  position: relative;
+}
+
+// CPT-FED DIAMONDS ------------------------------------------------------------
+
+.diamond {
+  position: relative;
+  display: flex;
+  gap: space(2);
+  align-items: center;
+  margin: space(3) 0 0 space(6);
+}
+
+.diamondShape {
+  width: space(6);
+  height: space(6);
+  flex-shrink: 0;
+  background-color: $bg-node;
+  border: 1px solid $color-border-soft;
+  transform: rotate(45deg);
+}
+
+.diamondLabel {
+  @include mono-small;
+
+  color: $color-text-invert;
+
+  // Optical, not structural: the rotated diamond reads high against the label's
+  // cap height, so the text drops off the 5px scale by 2px to sit with it.
+  // In rem because it is an adjustment to type, and has to keep pace with the
+  // diamond it is aligning to.
+  position: relative;
+  top: rem(2);
+}
+
+// COLOPHON --------------------------------------------------------------------
+// Parked, not dead. The link is hidden in SidebarNav until /colophon exists;
+// this stays so restoring it is one element of JSX rather than a rebuild.
+
+.colophon {
+  @include kicker;
+
+  flex-shrink: 0;
+  padding: 0 space(4.8);
+  color: $color-text-primary;
+}
+
+// MOBILE ======================================================================
+// The panel stops being a layers panel and becomes a menu.
+//
+// The component tree goes, and the reason is that it cannot work here: its whole
+// idiom is hover -- point at a node, the matching sections light up and the
+// marquee draws. A touch screen has no pointer to hover with, so every node
+// would be a control whose primary behaviour is unreachable. `display: none`
+// rather than a visual hiding, so it leaves the accessibility tree with it and
+// a screen-reader user is not walked through a tree nobody can use.
+//
+// SelectionMarquee needs no change to match: it draws only from `hovered`, and
+// with the tree gone from the DOM there is nothing left that can set it.
+
+@include respond(tablet) {
+  // The dropdown. Absolute, so opening it lays the menu OVER the page rather
+  // than shoving the page down under it -- the reader's place in the content
+  // should not move because they opened a menu and then closed it again.
+  // Plain `.tree`, deliberately. Naming the `:has()` selector here as well --
+  // which an earlier version did, to reset one padding -- drags EVERY
+  // declaration in this block up to five classes' worth, including
+  // `grid-template-rows: 0fr`. That then outranks the open state below, which
+  // is two classes and an attribute, and the menu cannot open at all. Only on
+  // Home, because that is the only page where the `:has()` matches.
+  //
+  // The padding it was there for is reset on its own, further down, where it
+  // can carry the specificity it needs without taking the rest with it.
+  .tree {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: -1;
+
+    flex-grow: 0;
+    padding: 0;
+
+    // White, not the panel's purple. $bg-invert is the semantic name for it --
+    // the same token the page squares are filled with on desktop, which is what
+    // the menu rows are, opened out to the full width of the screen.
+    background-color: $bg-invert;
+
+    // The slide. A grid row measured in fr is the one way to transition to a
+    // content height without naming that height in advance, and naming it is
+    // what breaks the moment the menu gains or loses a page.
+    //
+    // Not full height, per the brief: the row resolves to exactly the links
+    // inside it.
+    display: grid;
+    grid-template-rows: 0fr;
+
+    @include motion-safe {
+      transition: grid-template-rows 0.28s ease;
+    }
+  }
+
+  // Sits behind the bar rather than in front, so the menu appears to come out
+  // from under it. z-index alone would not do it: .bar needs its own stacking
+  // position, which is what the `z-index: 1` up there is for.
+  // The desktop hairline is a `:has()` rule, so undoing it needs to match that
+  // weight -- but ONLY for padding-top. Nothing else in the dropdown is stated
+  // at this specificity, so nothing else can outrank a state rule.
+  .tree:has(> .pages > .page:first-child[data-current="true"]) {
+    padding-top: 0;
+  }
+
+  .panel[data-menu-open="true"] .tree {
+    grid-template-rows: 1fr;
+  }
+
+  // The clipping half of the fr trick. The row is the outer box; this is what
+  // hides the links while it is closed.
+  //
+  // `visibility` as well as the clip, and it is not decoration. A 0fr row still
+  // contains focusable anchors: without this, tabbing off the menu button walks
+  // straight into a menu nobody can see, and a screen reader announces a list
+  // that is shut. visibility:hidden takes the subtree out of both the tab order
+  // and the accessibility tree, and a child can still opt back in if one ever
+  // needs to.
+  //
+  // The zero-duration transition is a delay, not an animation. Hiding waits for
+  // the slide to finish, so the links do not blink out before the row has
+  // closed over them; showing has no delay, so they are focusable the instant
+  // the menu is asked for.
+  .pages {
+    overflow: hidden;
+    gap: 0;
+    visibility: hidden;
+    transition: visibility 0s linear 0.28s;
+  }
+
+  .panel[data-menu-open="true"] .pages {
+    visibility: visible;
+    transition: visibility 0s linear 0s;
+  }
+
+  // Home is the logotype in the bar, so listing it again is offering the same
+  // destination twice in one control. Dropped by position rather than by href:
+  // the menu is the primary WordPress menu in its authored order, and its first
+  // item is Home by construction.
+  .page:first-child {
+    display: none;
+  }
+
+  .page {
+    padding: 0;
+
+    // The purple "you are here" block is the panel's device, and it has nothing
+    // to mark here: the menu is closed on arrival and every row is already a
+    // sibling of the page you are on. aria-current still carries it.
+    &[data-current="true"] {
+      padding: 0;
+      background-color: transparent;
+    }
+  }
+
+  // The row that holds the square. It is a flex container on desktop so the
+  // square and its tree toggle sit on one line -- but the toggle is hidden
+  // here, and a lone flex ITEM sizes to its own content. That is what kept the
+  // rules below stopping at the end of each word instead of crossing the menu.
+  // As a block, .square is a block-level flex container and fills the width.
+  .squareRow {
+    display: block;
+  }
+
+  // Full-width rows rather than buttons in a column: a menu item on a phone is
+  // the whole row, so the rule under it runs edge to edge and the whole band is
+  // the tap target, not just the label.
+  .square {
+    display: flex;
+    justify-content: flex-start;
+
+    padding: space(3.2) space(4);
+    background-color: transparent;
+    border: 0;
+    border-top: 1px solid rgba($color-black, 0.35);
+    border-radius: 0;
+    color: $color-text-invert;
+  }
+
+  // Everything below the page list belongs to the tree.
+  .caret,
+  .entryRow,
+  .branchWrap,
+  .colophon {
+    display: none;
+  }
+}

@@ -1,0 +1,261 @@
+// abstracts are auto-prepended by next.config.ts.
+
+// Card gap is 40px in Figma, wider than the 30px page gutter, so cards breathe
+// against each other more than columns do.
+$card-gap: space(8);
+$section-gap: space(2);
+
+// Media frames, taken from Figma. Decimals rather than a `w / h` pair because
+// Sass reads the slash as division; the source dimensions are in the comments.
+$media-ratio-large: 1.6667; // 650 x 390
+$media-ratio-small: 1.0769; // 420 x 390
+
+.section {
+  @include content-section;
+
+  padding-top: space(16);
+  padding-bottom: space(16);
+}
+
+// TABS ------------------------------------------------------------------------
+
+.tabs {
+  display: flex;
+  grid-column: 1 / -1;
+  border-bottom: 1px solid $color-border-subtle;
+  gap: space(2);
+}
+
+// The tab itself is components/UI/Tab now -- fill, rule, radius, padding and the
+// active/inactive states all live there. What was here was a third copy of it,
+// at a third padding again. Only the strip that holds them belongs to this
+// component.
+
+// PANELS ----------------------------------------------------------------------
+
+.panel {
+  grid-column: 1 / -1;
+  border: 1px solid $color-border-subtle;
+  border-top: 0;
+  gap: $card-gap;
+  display: flex;
+  flex-direction: column;
+  background-color: $bg-page;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.row {
+  display: grid;
+  gap: $card-gap;
+  margin-top: $section-gap;
+  padding: 0 $section-gap $card-gap $section-gap;
+
+  // Two large cards, then the remainder below, as drawn in Figma.
+  &[data-size="large"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  // The small row divides by however many cards it actually holds, so a
+  // partial row fills its width instead of leaving empty slots. Three is the
+  // Figma case and the fallback once there are enough cards to wrap.
+  &[data-size="small"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    @for $count from 1 through 6 {
+      &[data-count="#{$count}"] {
+        grid-template-columns: repeat(#{$count}, minmax(0, 1fr));
+      }
+    }
+  }
+
+  // One column, both rows.
+  //
+  // The third selector is the one doing the work, and its shape is deliberate.
+  // The @for loop above emits `[data-size="small"][data-count="N"]` -- a class
+  // and two attributes, (0,3,0) -- so a rule written with one attribute here
+  // loses to it however late it appears. That is why the row of two stacked and
+  // the row of three did not: only the small row has a per-count override, and
+  // only it outranked the stacking rule.
+  //
+  // Matching that weight exactly and sitting later in the same stylesheet makes
+  // this win deterministically, without escalating into a doubled class. The
+  // first two stay for a row that somehow renders without a count.
+  @include respond(tablet) {
+
+    &[data-size="large"],
+    &[data-size="small"],
+    &[data-size][data-count] {
+      grid-template-columns: minmax(0, 1fr);
+      padding-bottom:0;
+
+      &:last-of-type {
+        padding-bottom: $card-gap;
+      }
+    }
+
+    // In one column the two rows read as a single list of cards, so the step
+    // between them has to be the step between cards -- $card-gap and nothing
+    // else. It was $card-gap plus this row's own $section-gap, which put 50px
+    // between cards 2 and 3 and 40px everywhere else: an irregularity with
+    // nothing behind it once the rows are no longer rows.
+    //
+    // Only between them. The first row keeps its margin, which is the panel's
+    // top inset rather than a gap.
+    & + & {
+      margin-top: 0;
+    }
+  }
+}
+
+// CARD ------------------------------------------------------------------------
+
+.card {
+  min-width: 0;
+}
+
+.cardLink {
+  display: flex;
+  flex-direction: column;
+}
+
+/// The media sits in a fixed frame and scales inside it, so the card itself
+/// never moves and the grid stays still on hover.
+.frame {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: $media-ratio-large;
+  border-radius: $radius-square;
+  background-color: $bg-raised;
+
+  // Small cards are nearly square: same 390 height across a narrower card.
+  .card[data-size="small"] & {
+    aspect-ratio: $media-ratio-small;
+  }
+
+  // Once every card is one column wide, "narrower card" is no longer true and
+  // the ratio that followed from it stops describing anything: at full width a
+  // 1.08 frame is half as tall again as the 1.67 ones above it, so a single
+  // list of cards changes shape halfway down for a reason the reader cannot
+  // see. One ratio, because there is now one column.
+  //
+  // Same selector as the rule above, so the same (0,3,0), winning on source
+  // order within this stylesheet.
+  @include respond(tablet) {
+    // $bg-raised is a 6% white tint, chosen for a card a third of the grid wide
+    // where it reads as an edge rather than an area. At one column the frame is
+    // the full content width and that same tint becomes a large grey rectangle:
+    // visible around any media that does not fill the ratio, and visible as a
+    // pale block before the image decodes. Black puts the media straight onto
+    // the canvas, which is what .panel behind it already is.
+    //
+    // Declared ahead of the nested rule below rather than after it -- Sass
+    // hoists a declaration that follows a nested selector and warns about it.
+    background-color: $bg-page;
+
+    .card[data-size="small"] & {
+      aspect-ratio: $media-ratio-large;
+    }
+  }
+}
+
+.media,
+.mediaEmpty {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  @include motion-safe {
+    transition: transform 0.5s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+
+  .cardLink:hover .media,
+  .cardLink:focus-visible .media {
+    transform: scale(1.04);
+  }
+
+  .cardLink:hover .sticky,
+  .cardLink:focus-visible .sticky {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// THE ANNOTATION STICKY -------------------------------------------------------
+// Rotates in at the corner on hover, carrying the entry's stack as chips.
+
+.sticky {
+  position: absolute;
+  right: space(3);
+  bottom: space(3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(1.5);
+  justify-content: flex-end;
+  max-width: 70%;
+  padding: space(2.5);
+  pointer-events: none;
+  background-color: $bg-note;
+  border-radius: $radius-square;
+
+  // Rises into place, square to the card. No rotation.
+  opacity: 0;
+  transform: translateY(#{space(2)});
+
+  @include motion-safe {
+    transition:
+      opacity 0.28s ease-out,
+      transform 0.28s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+}
+
+.chip {
+  @include mono-small;
+
+  padding: space(0.8) space(1.6);
+  color: $color-text-invert;
+  background-color: $bg-invert;
+  border-radius: $radius-square;
+}
+
+// CARD TEXT -------------------------------------------------------------------
+
+.eyebrow {
+  display: flex;
+  gap: space(4);
+  align-items: baseline;
+  margin-top: space(6);
+}
+
+.name,
+.category {
+  @include mono-body;
+}
+
+.category {
+  color: $color-text-soft;
+}
+
+.title {
+  @include paragraph-large;
+  line-height: 1.2;
+
+  margin-top: space(4);
+
+  @include respond(tablet) {
+    margin-top: space(2);
+  }
+
+  .card[data-size="small"] & {
+    @include size-token(mono-display);
+
+    font-size: clamp(rem(18), 1.2vw + rem(12), rem(22));
+  }
+}

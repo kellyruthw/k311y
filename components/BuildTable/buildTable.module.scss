@@ -1,0 +1,408 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.section {
+  @include content-section;
+
+  padding-top: space(20);
+  padding-bottom: space(12);
+}
+
+.table {
+  grid-column: 1 / -1;
+}
+
+// ROW HOVER -------------------------------------------------------------------
+// Only rows that actually do something: one with a link, or one with a
+// thumbnail to reveal. A row with neither stays inert, so the highlight always
+// means "there is something here".
+//
+// Laid on as a gradient rather than a background-colour: the row's black has to
+// stay opaque or the canvas dot grid shows through the tint.
+
+// Width as well as pointer, for the reason ThumbCursor states: a narrowed
+// desktop window still answers yes to both pointer queries, and below this the
+// rows are cards in a deck rather than rows in a table -- where a full-width
+// row tint has nothing to tint.
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .section :global(tr):has(a):hover,
+  .section :global(tr):has([data-thumb-src]):hover {
+    background-image: linear-gradient($bg-raised-strong, $bg-raised-strong);
+  }
+}
+
+// SITE CELL -------------------------------------------------------------------
+
+.site {
+  position: relative;
+  display: inline-flex;
+  gap: space(1.5);
+  align-items: baseline;
+}
+
+.siteName {
+  white-space: nowrap;
+}
+
+.marker {
+  font-style: normal;
+  line-height: 1;
+}
+
+.markerBlue {
+  color: $color-marker-wicked;
+}
+
+.markerPink {
+  color: $color-marker-milkbutter;
+}
+
+.markerGreen {
+  color: $color-marker-dmm;
+}
+
+// THUMBNAIL -------------------------------------------------------------------
+// On a pointer device the row only DECLARES its media and ThumbCursor draws it
+// at the cursor, so this carries the data attributes and shows nothing. The
+// deck below turns the same element into the card's media, since a touch screen
+// has no hover to reveal it with.
+
+.thumbSource {
+  display: none;
+}
+
+.thumbMedia {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// The anchor around the media, where the row has somewhere to go. It fills its
+// cell so the whole image is the target rather than the glyph-sized box an
+// inline anchor would collapse to.
+.thumbLink {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+// The Media column is the deck's alone. Above `tablet` the thumbnail is a hover
+// affordance ThumbCursor draws at the pointer, so the column renders nothing --
+// header included, which is what the data-column on <th> is for.
+.table [data-column="Media"] {
+  display: none;
+}
+
+// LINKS -----------------------------------------------------------------------
+
+.link {
+  @include mono-link;
+
+  white-space: nowrap;
+
+  &:hover {
+    color: $color-text-select;
+  }
+}
+
+// FOOTER ----------------------------------------------------------------------
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(6) space(10);
+  align-items: flex-start;
+  justify-content: space-between;
+  grid-column: 1 / -1;
+  margin-top: space(5);
+}
+
+.caption {
+  @include mono-small;
+
+  max-width: space(110);
+  color: $color-text-soft;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(3) space(7);
+  padding-right:space(10);
+  align-items: baseline;
+
+  @include respond(tablet) {
+    padding-right: 0;
+  }
+}
+
+.legendItem {
+  display: inline-flex;
+  gap: space(1.5);
+  align-items: baseline;
+}
+
+.legendVia,
+.legendLink {
+  @include mono-small;
+}
+
+.legendLink {
+  text-decoration: underline;
+  text-underline-position: from-font;
+
+  &:hover {
+    color: $color-text-select;
+  }
+}
+
+// THE DECK ====================================================================
+// Below `tablet` the 31 rows become a horizontally swipeable deck of cards
+// instead of 31 stacked ones. Table draws no card transform here -- it is told
+// `mobile="deck"` and steps aside -- so everything below starts from the plain
+// table rules rather than having to out-specify a second layout.
+//
+// Native scroll-snap, not a drag script: real momentum, works with a trackpad,
+// keyboard-scrollable, and it costs no JavaScript.
+//
+// Element selectors, because `tr`, `tbody` and `td` are the primitive's markup
+// and its class names are hashed into another module. `[data-column]` is a real
+// attribute every cell carries, so ordering the card reads as the column names
+// rather than as nth-child arithmetic.
+
+@include respond(tablet) {
+  .table {
+    // The tab and the box below it are siblings in Table's wrapper. As a block
+    // the tab is inline-level, which puts a baseline gap under it and floats
+    // the outline off the label it is supposed to be joined to. A flex column
+    // removes the line box; align-items keeps the tab its own width while the
+    // deck still stretches.
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    // No border. It was drawn when the deck sat inset inside it, where it read
+    // as the table's outline; with the cards flush to the edges it became a
+    // second rule 1px outside each card's own, which is a doubled hairline
+    // rather than a frame. The tab still has nothing between it and the first
+    // card, so the two go on reading as one sheet -- the line the tab sits on
+    // is now that card's top border instead of the box's.
+    :global(table) {
+      display: block;
+      align-self: stretch;
+      width: 100%;
+      border: 0;
+      background-color: transparent;
+    }
+
+    // Headers go: a deck has no columns to head. Kept in the accessibility tree
+    // rather than removed, the same as the card layout does it.
+    :global(thead) {
+      @include visually-hidden;
+    }
+
+    :global(tbody) {
+      display: flex;
+      gap: space(2);
+      padding: 0;
+
+      // The deck runs off the side of the screen rather than stopping at the
+      // content column. `<main>` insets the page by $grid-margin-mobile, so
+      // giving that back as a negative margin puts the track's right edge on
+      // the viewport's -- the next card is then cut by the edge of the screen,
+      // which is what says there is more of it.
+      //
+      // Right only. The left edge stays where the content is, so the first card
+      // still lines up under the tab, and extending by exactly the inset means
+      // the track reaches the viewport edge without passing it -- no horizontal
+      // scroll on the page itself.
+      margin-right: calc(-1 * #{$grid-margin-mobile});
+
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+
+      // `stretch` is the flex default and is wanted here: every card takes the
+      // height of the tallest, so the deck reads as one band rather than a
+      // ragged edge that shifts on every swipe. What varies between them is
+      // copy length -- a one-word note against three lines of stack -- and the
+      // card absorbs that below its text rather than in its own height.
+      align-items: stretch;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    // THE CARD
+    :global(tr) {
+      display: flex;
+      flex: 0 0 86%;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: space(1.4) space(1.6);
+      scroll-snap-align: start;
+
+      // The cards are equal height now, so every one has slack in it. This is
+      // what decides where that slack goes: the first line stays at the top and
+      // the last -- the link -- is held against the bottom edge, so the action
+      // sits on the same line across the whole deck instead of wherever that
+      // card's copy happened to end.
+      //
+      // `margin-top: auto` does not do this. In a WRAPPING flex container an
+      // auto margin resolves against the item's own line, not the container, so
+      // it would move the link within its line and never push the line down.
+      align-content: space-between;
+
+      padding: space(2.8);
+      background-color: $bg-page;
+      border: 1px solid $color-border-subtle;
+      border-radius: $radius-square;
+      box-shadow: 0 #{space(2)} #{space(4.4)} rgba($color-black, 0.55);
+    }
+
+    // A card with no image is not shown at all.
+    //
+    // Derived, not authored: the media cell renders the `[data-thumb-src]`
+    // element only when the row carries a thumbnail, so this asks the row
+    // whether it has one rather than needing a flag on it. 9 of the 31 rows
+    // are hidden by it -- see the note in lib/schema.md, because losing rows
+    // on one breakpoint is a content decision rather than a style.
+    :global(tr:not(:has([data-thumb-src]))) {
+      display: none;
+    }
+
+    // THE CELLS. Borders and padding are the table's, and a card has neither.
+    :global(td) {
+      display: block;
+      padding: 0;
+      border: 0;
+
+      &:empty {
+        display: none;
+      }
+    }
+
+    // THE CARD'S FOUR LINES.
+    //
+    // A wrapping flex row, not a column, which is what puts two cells on one
+    // line without wrapping them in a div the table has no way to render:
+    // a cell at 100% basis takes a line of its own, and the auto-width ones
+    // pair up on the line between.
+    //
+    //     [ media                    ]
+    //     2026  Ascaya ✦
+    //     Luxury community, Las Vegas
+    //     Build · Headless WP · Next.js · GSAP
+    //     Case study
+    //
+    // `order` is named by column rather than counted, so reordering the table
+    // on desktop cannot silently reshuffle the card.
+    :global([data-column="Media"]) {
+      // Explicitly, and it is not redundant. The desktop rule that hides this
+      // column is a class plus an attribute; the `td { display: block }` above
+      // is a class plus an ELEMENT and loses to it, so without this line the
+      // deck's media column stays hidden along with the desktop one.
+      display: block;
+
+      order: 1;
+      width: 100%;
+      aspect-ratio: 1.6667; // 650 x 390, the WorkCardGrid media ratio
+      overflow: hidden;
+      border-radius: $radius-square;
+      background-color: $bg-raised;
+      margin-bottom: space(1.2);
+    }
+
+    // The year leads its line, in the select colour, tabular so 2013-2015 and
+    // 2026 line up down the deck.
+    :global([data-column="Year"]) {
+      @include mono-small;
+
+      order: 2;
+      width: auto;
+      color: $color-text-select;
+      font-variant-numeric: tabular-nums;
+    }
+
+    // Takes the rest of the year's line.
+    :global([data-column="Site"]) {
+      order: 3;
+      flex: 1;
+      min-width: 0;
+    }
+
+    :global([data-column="Notes"]) {
+      order: 4;
+      width: 100%;
+    }
+
+    // Role and stack read as one line: "Build · Headless WP · Next.js · GSAP".
+    // They are separate columns, so the middot is drawn between them rather
+    // than authored into either.
+    :global([data-column="Role"]),
+    :global([data-column="Stack"]) {
+      @include mono-small;
+
+      width: auto;
+      color: $color-text-soft;
+    }
+
+    :global([data-column="Role"]) {
+      order: 5;
+    }
+
+    :global([data-column="Stack"]) {
+      order: 6;
+      flex: 1;
+      min-width: 0;
+    }
+
+    // Only when there is a role in front of it. A design-only row has no stack
+    // and a stack-only row would otherwise open with a stray separator.
+    :global([data-column="Role"]:not(:empty) + [data-column="Stack"]::before) {
+      content: "·";
+      margin-right: space(1.2);
+    }
+
+    :global([data-column="Link"]) {
+      order: 7;
+      width: 100%;
+      margin-top: space(1.2);
+    }
+  }
+
+  // The site name, in the mono the prototype set it in rather than the Grift
+  // the table's cells inherit. `mono-chip` is AOT Bold 14 -- the same token the
+  // nav squares use, which is what a name reading as a label wants.
+  .site {
+    @include mono-chip;
+
+    display: inline-flex;
+    gap: space(1.5);
+    align-items: baseline;
+  }
+
+  .siteName {
+    white-space: normal;
+  }
+
+  // The media is its own column now, so this element is only ever the frame
+  // around it. It carries the ThumbCursor data attributes at every width.
+  .thumbSource {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  // Yellow, and not underlined: on a card it is the action rather than a link
+  // inside a sentence.
+  .link {
+    @include mono-small;
+
+    color: $color-text-select;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+}

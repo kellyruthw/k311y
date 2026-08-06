@@ -1,0 +1,196 @@
+// abstracts are auto-prepended by next.config.ts.
+
+// The background-media hero: media as a backdrop on columns 3 to 8, copy over
+// it on columns 1 to 4, H1 across 1 to 7. Figma node 128:554.
+//
+// `height`, where split and stacked both use `min-height`, and the departure is
+// deliberate. Those two argue that a fixed height clips when the copy outgrows
+// it, and they are right about themselves. Here the CTA is an in-page anchor
+// pointing a reader onward, so it has to be on screen -- a height that grows
+// with the copy is exactly the failure this variant exists to avoid.
+//
+// The risk is bounded rather than ignored: the copy column is bottom-anchored,
+// so a shorter viewport eats the empty space above the H1 before it touches
+// anything readable, and the fixed height is released below `tablet`.
+
+.hero {
+  @include content-section;
+
+  position: relative;
+  align-content: end;
+
+  // dvh second, so a browser without it keeps the vh line. On a phone vh is the
+  // measurement TALLER than the visible area, which would push the CTA under
+  // the URL bar -- the one thing this hero is fixed-height to prevent.
+  height: 100vh;
+  height: 100dvh;
+
+  // 165px, the gap under the CTA in the frame. Being padding on the bottom of
+  // an end-aligned grid, this is the distance the copy holds off the floor.
+  padding-bottom: space(33);
+}
+
+// THE BACKDROP ----------------------------------------------------------------
+// Absolute so it takes no grid row, but placed on grid columns so it lands on
+// the same 8 columns everything else does. 1698 in the frame is exactly where
+// content column 8 ends, so this is on the grid, not bled to the viewport edge.
+
+.mediaLayer {
+  position: absolute;
+  z-index: 0;
+  grid-column: 4 / span 5;
+
+  // Matching the frame's 30px inset from the top. The bottom needs no inset:
+  // the scrim is solid canvas well before it, so where the asset actually ends
+  // is not visible, and a measured value there would be a number to maintain
+  // for no rendered difference.
+  top: space(6);
+  bottom: 0;
+
+  // Both required, and not obvious.
+  //
+  // An absolutely positioned grid child DOES take its grid area as its
+  // containing block, so `grid-column` above is honoured. But the inline
+  // offsets still default to `auto`, and an abspos box with auto insets and
+  // auto width shrink-to-fits around its contents rather than filling that
+  // area. The image then sized to its own intrinsic width instead of to the
+  // columns above -- placement correct, geometry wrong, and nothing in the CSS
+  // looking obviously at fault.
+  //
+  // Pinning both edges makes the width definite, which is what `width: 100%`
+  // on .media is measuring against.
+  inset-inline: 0;
+
+  overflow: hidden;
+}
+
+// Deliberately NOT on .hero. Clipping the section would hide copy that
+// overflowed a short viewport instead of letting it spill where it can be seen
+// and fixed. Only the media is clipped.
+.media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// Transparent at the top to solid canvas at 88% of the height, so the copy over
+// the lower half reads against black rather than photograph.
+//
+// Fixed to the variant rather than authored: an opacity field would be a knob
+// whose only correct setting is the one the design already made.
+.scrim {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to bottom, rgba($color-black, 0) 0%, $color-black 88%);
+}
+
+// THE COPY --------------------------------------------------------------------
+
+// Two grid children, not one, because they span different widths: the H1 runs
+// across 7 columns and the paragraph under it across 4, as the frame draws
+// them. Nesting the H1 in the copy column and widening it with grid-track()
+// does NOT work -- the 100% in that function resolves against whatever box it
+// is used in, so inside a 4-column child it measures 4 columns and quietly
+// returns the wrong track width. On the grid, there is nothing to compute.
+.head {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / span 7;
+
+  margin-bottom: space(6);
+}
+
+.copy {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / span 4;
+}
+
+// Mirrored, not merely swapped: the head still runs 7 columns, but ends at
+// column 8 rather than starting at column 1, so it leans away from the media
+// the same way it does when the media is on the right.
+.hero[data-media-side="left"] {
+  .mediaLayer {
+    grid-column: 1 / span 5;
+  }
+
+  .head {
+    grid-column: 2 / span 7;
+  }
+
+  .copy {
+    grid-column: 5 / span 4;
+  }
+}
+
+.kicker {
+  @include kicker;
+
+  margin-bottom: space(4);
+  color: $color-text-soft;
+}
+
+.title {
+  @include title;
+}
+
+// Authored lines are separate elements, so each one is simply a block.
+.titleLine {
+  display: block;
+}
+
+// Prose renders one <p> per authored line.
+.intro {
+  @include paragraph-large;
+
+  & + & {
+    margin-top: space(5);
+  }
+}
+
+// The same treatment stacked gives it: plain type in the select colour, 60px
+// below the paragraph, at the nearest token to the frame's 18px mono.
+.cta {
+  @include mono-chip;
+
+  display: inline-block;
+  margin-top: space(12);
+  color: $color-text-select;
+  text-decoration: underline;
+  text-underline-position: from-font;
+
+  &:hover {
+    color: $color-text-primary;
+  }
+}
+
+// MOBILE ----------------------------------------------------------------------
+// The fixed height goes: a backdrop, a 90px headline, a paragraph and a CTA do
+// not share a phone screen, and holding 100vh here would guarantee the clipping
+// the desktop case is arranged to avoid.
+//
+// The media stops being a backdrop and becomes a block above the copy, because
+// a photograph behind text at this width is a contrast problem rather than a
+// composition.
+
+@include respond(tablet) {
+  .hero {
+    display: block;
+    height: auto;
+
+    // Spaced by the global section rhythm on mobile, not here. See
+    // styles/base/_sections.scss.
+  }
+
+  .mediaLayer,
+  .hero[data-media-side="left"] .mediaLayer {
+    position: static;
+    height: 45vh;
+    margin-bottom: space(12);
+  }
+
+  .scrim {
+    display: none;
+  }
+}

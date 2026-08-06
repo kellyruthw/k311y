@@ -1,0 +1,149 @@
+// abstracts are auto-prepended by next.config.ts.
+
+// The split hero: a full-height opener, media on 4 of the 8 content columns and
+// copy on the other 4.
+//
+// min-height rather than height. A hero that is exactly 100vh clips the moment
+// the copy is longer than the viewport -- a long title, a large font size, a
+// short laptop -- and there is nothing the editor could do about it from
+// WordPress. This way 100vh is the floor and the section grows if it must.
+
+.hero {
+  @include content-section;
+
+  align-items: center;
+  min-height: 100vh;
+
+  // Enough that the copy never touches the nav above or the section below when
+  // the viewport is short and the 100vh floor stops applying.
+  padding-top: space(20);
+  padding-bottom: space(20);
+}
+
+// Both halves are placed explicitly rather than left to source order, so the
+// DOM keeps reading copy-then-media whichever side the media is on. Flipping
+// the layout should not reorder the page for a screen reader.
+.copy {
+  grid-column: 1 / span 4;
+}
+
+.mediaFrame {
+  grid-column: 5 / span 4;
+}
+
+.hero[data-media-side="left"] {
+  .copy {
+    grid-column: 5 / span 4;
+  }
+
+  .mediaFrame {
+    grid-column: 1 / span 4;
+  }
+}
+
+// THE COPY HALF ---------------------------------------------------------------
+
+.kicker {
+  @include kicker;
+
+  margin-bottom: space(4);
+  color: $color-text-soft;
+}
+
+.title {
+  @include title;
+}
+
+// Authored lines are separate elements, so each one is simply a block.
+.titleLine {
+  display: block;
+}
+
+// Prose renders one <p> per authored line. The margin sits on every paragraph
+// rather than only the first, so it spaces them from each other as well as from
+// the title above.
+.intro {
+  @include paragraph-large;
+
+  margin-top: space(8);
+  max-width: space(150);
+}
+
+// The 60px the CTA sits below the intro. On the CTA rather than under the
+// paragraph, so it cannot leave a hanging gap when no CTA is authored.
+//
+// space(12) is 60px on the 5px scale. The value is stated once here; nothing
+// else in the hero needs to know it.
+.cta {
+  @include mono-button;
+
+  margin-top: space(12);
+
+  // The button is already black on white, so hover moves the fill rather than
+  // the text: yellow type on a white button is the one combination in this
+  // palette that fails to read. Same fill, same idiom as the highlight box.
+  background-image: $bg-select-fill-off;
+
+  @include motion-safe {
+    transition: background-image 0.18s ease-out;
+  }
+
+  &:hover {
+    // The gradient, faded in rather than swapped in.
+    //
+    // background-image cannot cross-fade from nothing, so the resting state
+    // carries the SAME gradient at zero alpha. Two gradients of the same shape
+    // interpolate, which is what lets this ease the way the flat colour used
+    // to. A browser that declines to interpolate simply snaps, which is what a
+    // plain image swap would have done everywhere.
+    background-image: $bg-select-fill;
+  }
+}
+
+// THE MEDIA HALF --------------------------------------------------------------
+
+.mediaFrame {
+  overflow: hidden;
+  border-radius: $radius-square;
+  background-color: $bg-raised;
+
+  // Capped so the media cannot force the section past its 100vh floor on a wide
+  // viewport, where 4 columns is a lot of width and a tall asset would push the
+  // copy off screen.
+  max-height: 80vh;
+}
+
+.media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// MOBILE ----------------------------------------------------------------------
+// The split stops being a split: copy first, then media, each on the full width.
+// 100vh goes with it, since two stacked halves in one viewport leaves neither
+// enough room to be worth reading.
+
+@include respond(tablet) {
+  .hero {
+    align-items: start;
+    min-height: 0;
+
+    // No padding here. On mobile a hero is spaced by the global section
+    // rhythm in styles/base/_sections.scss, the same as everything else --
+    // which is also what holds the gap to the section under it at 40px.
+  }
+
+  .copy,
+  .mediaFrame,
+  .hero[data-media-side="left"] .copy,
+  .hero[data-media-side="left"] .mediaFrame {
+    grid-column: 1 / -1;
+  }
+
+  .mediaFrame {
+    margin-top: space(12);
+    max-height: none;
+  }
+}

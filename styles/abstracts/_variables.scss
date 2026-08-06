@@ -1,0 +1,287 @@
+@use "functions" as f;
+
+// =============================================================================
+// TOKENS
+// -----------------------------------------------------------------------------
+// Values read from Figma: file pxGuXqgJdSpBMKa0Z7Q1tO, Home frame 1:2.
+// That file has no colour variables yet, so these were sampled off the artboard.
+// Anything still unconfirmed is marked TBD and should be corrected here, once.
+//
+// Measurements are written as the px Figma reports and emitted as rem, so the
+// whole design scales above the artboard width from one declaration in
+// styles/base/_globals.scss. Read `f.rem(230)` as "230px in Figma".
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// SEMANTIC COLOUR LAW  (from the build handoff -- these are rules, not defaults)
+//
+//   yellow  = the thing not to miss. Highlight box in the display layer,
+//             coloured text in body copy. Roughly ONE body use per page.
+//             As a SURFACE it is a gradient into $color-orange, left to right.
+//             As TEXT or a stroke it stays the flat yellow: a gradient needs
+//             area to be read as one, and a 1px rule or a letterform has none.
+//   purple  = component / system chrome only. Never content.
+//   markers = agency attribution only. Never decoration.
+// -----------------------------------------------------------------------------
+
+
+// RAW PALETTE ----------------------------------------------------------------
+// Sampled hex. Do not reference these in components; use the semantic names.
+
+$color-black: #000000; // canvas. True black, not near-black.
+$color-white: #ffffff;
+
+$color-yellow: #fdff6f; // wordmark highlight, hero reveal box, nowline cursor
+$color-orange: #eeb16b; // the far end of every select fill -- see $bg-select-fill
+$color-purple: #b489eb; // sidebar panel
+$color-lavender: #e5c9fc; // component chips + nav diamonds
+$color-sky: #a6d7fc; // QuestionCTA stickies
+
+$color-grey-dot: #848484; // grid dot ink, used at 10% opacity
+
+// Agency markers
+$color-marker-wicked: #1f9fd2;
+$color-marker-milkbutter: #e253a4;
+$color-marker-dmm: #91e82e;
+
+
+// SEMANTIC ALIASES -----------------------------------------------------------
+// These are what components reference.
+
+// Surfaces
+$bg-page: $color-black;
+$bg-raised: rgba($color-white, 0.06); // table label tabs, BuildTable shell
+$bg-raised-strong: rgba($color-white, 0.1); // nowline CURRENTLY tab
+$bg-chrome: $color-purple; // sidebar panel
+$bg-node: $color-lavender; // component chips, diamonds
+// A select SURFACE is a gradient, left to right, yellow into orange. Anything
+// with area gets $bg-select-fill; $bg-select stays the flat colour underneath it
+// and is what the two places that cannot take an image still use -- a focus
+// outline, which is a stroke rather than a fill, and ::selection, which browsers
+// refuse to paint a background-image on at all.
+$bg-select: $color-yellow; // the flat colour: strokes, ::selection, and the fallback
+$bg-select-fill: linear-gradient(to right, $color-yellow, $color-orange);
+
+// The same gradient at zero alpha. Browsers interpolate between two gradients
+// of the same shape, so a hover that goes from this to $bg-select-fill fades in
+// rather than snapping -- which a plain background-image swap does.
+$bg-select-fill-off: linear-gradient(
+  to right,
+  rgba($color-yellow, 0),
+  rgba($color-orange, 0)
+);
+$bg-note: $color-sky; // stickies
+$bg-invert: $color-white; // nav page squares, count chips
+
+// Text
+$color-text-primary: $color-white;
+$color-text-soft: rgba($color-white, 0.65); // TBD -- confirm against Figma
+$color-text-invert: $color-black; // on white squares / lavender chips
+$color-text-select: $color-yellow;
+
+// Borders
+$color-border-strong: $color-white; // tab outlines, popovers
+$color-border-soft: rgba($color-white, 0.2); // chips, squares, diamonds
+$color-border-subtle: rgba($color-white, 0.1); // table rules
+
+// Canvas grid
+$color-grid-dot: rgba($color-grey-dot, 0.1);
+$grid-pitch: f.space(10); // measured 49.1px in Figma -> 50px
+$grid-dot-size: f.space(1); // measured 5.4px in Figma -> 5px
+
+
+// TYPOGRAPHY -----------------------------------------------------------------
+
+$ff-display: "Google Sans Flex", system-ui, sans-serif; // headlines AND body copy
+$ff-mono: "AOT Serial Mono", ui-monospace, monospace; // links, kickers, labels, tables, chips
+
+$weight-light: 300;
+$weight-regular: 400;
+$weight-medium: 500;
+$weight-semibold: 600;
+$weight-bold: 700;
+
+$lh-100: 1;
+$lh-110: 1.1;
+$lh-130: 1.3; // table copy: compact rows that still wrap legibly
+$lh-150: 1.5;
+
+// Mono tracking is a consistent -0.08em in Figma
+// (-1.2px at 15px, -1.12px at 14px).
+$ls-mono: -0.08em;
+
+// The hero's second line is tracked much tighter: -6.96px at 58px.
+$ls-mono-display: -0.12em;
+
+$ls-none: 0;
+
+// Fluid type anchors. 1728 is the Figma frame width, so at 1728px the
+// rendered size equals the Figma size exactly.
+//
+// These two anchor the TAPER, which only runs below the design width. Between
+// 550 and 1728 the curve is deliberately non-uniform: display type falls 90 to
+// 40 (x0.44) while body copy falls only 18 to 16 (x0.89). That is not an
+// oversight to be tidied into one slope. Body and UI text has an absolute
+// readability floor that does not care how wide the screen is, and the small
+// tokens are already sitting on it at the design width -- table copy is 14px
+// and mono-small is 13px, with no headroom to give back. Display type at 90px
+// has plenty. A uniform slope downward puts table copy at 8px on a laptop.
+$min-vw-base: 550;
+$max-vw-base: 1728;
+
+// Where the upward zoom stops. Above the design width there is no readability
+// floor to respect -- nothing is at risk of being too small -- so the design
+// scales proportionally instead of tapering, and every token grows in lockstep.
+// The constraint is asymmetric, which is why the behaviour is.
+//
+// Past this width the page holds still rather than growing without limit: at
+// 5120 an unbounded zoom would set the hero at 267px.
+$scale-ceiling: 2560;
+
+// SIZE TOKENS (min/max in px) ------------------------------------------------
+// max = the value in Figma. min = the mobile end of the clamp.
+//
+// "Grift" in the comments below names the FIGMA SPEC, not what renders. The
+// artboard is set in Grift and these sizes and weights were measured off it;
+// the site now sets them in Google Sans Flex, which replaced Grift as
+// $ff-display. The numbers are still the numbers Figma reports -- what changed
+// is the face they are applied to, and the two do not share metrics, so an
+// apparent size may want retuning even where the figure is unchanged.
+// An optional `cap` is an absolute px ceiling the token never passes, however
+// wide the screen. It bounds the top end only, so a capped token renders
+// identically to an uncapped one at and below 1728 -- see fluid-type().
+$sizes: (
+  display: (min: 32, max: 90), // Grift Bold 90/100 -- hero headline lead
+  title: (min: 38, max: 80, cap: 80), // every hero H1 that is not Home's
+  // The steepest taper on the site: 65 down to 20, where `display` only falls
+  // to 40. A statement earns its size from the room around it, and on a phone
+  // there is none -- at 28 it was wrapping to five or six lines, which turns a
+  // held sentence into a paragraph and loses the one thing it was for.
+  //
+  // Both faces follow this. SplitStatement's mono highlight sets weight and
+  // tracking but no size of its own, so it inherits the quote's and the two
+  // stay locked together at every width.
+  statement: (min: 20, max: 65), // Grift Bold 65 -- SplitStatement quote
+  mono-display: (min: 28, max: 58), // AOT Light 58 -- hero headline tail
+  heading: (min: 26, max: 40), // Grift SemiBold 40/1 -- section headings
+  subheading: (min: 18, max: 24), // Grift SemiBold 24/1.5 -- card + list item h3s
+  numeral: (min: 28, max: 40), // AOT Light 40 -- LargeList numerals
+  paragraph-large: (min: 18, max: 24), // Grift Regular 24/1.5 -- hero + intro
+  // Capped, where the headline tokens above it are not, because prose is not
+  // sized by the composition. A headline is as big as the page it opens, so it
+  // scales with it. A paragraph is sized to be read a line at a time, and past
+  // roughly 24px the eye starts working line by line instead of taking the
+  // measure in. The column keeps widening either way, so the line stays as
+  // long as it was drawn -- what stops growing is the type, not the measure.
+  paragraph: (min: 16, max: 18, cap: 24), // Grift Regular 18/1.5 -- standard body copy
+  // The same 16-to-18 curve as `paragraph`, and identical to it at every width
+  // the artboard covers. They part company only ABOVE the design width, where
+  // this holds at 18 and `paragraph` goes on to 24.
+  //
+  // That is the whole distinction, and it is a real one: `paragraph` is a
+  // page's prose, sized to be read a line at a time and growing with the
+  // measure it sits in. This is copy inside a row -- set against a numeral and
+  // a title in a bordered register -- where the row's other parts stop growing
+  // and body copy that kept going would end up the largest thing in it.
+  paragraph-small: (min: 16, max: 18, cap: 18), // Grift Regular 18/1.5 -- copy inside a list row
+  // Flat at 14 across the whole taper, rather than easing down to 13. A meta
+  // value is the readable half of a label/value pair, so it has nothing to give
+  // back at the small end -- and holding it here is what keeps it at or above
+  // `meta-note` at every width, now that the note climbs to 14 on a phone.
+  // Losing that ordering would put the annotation above the thing annotated.
+  meta: (min: 14, max: 14), // Grift Regular 14/1.3 -- meta table values
+  // The one token that runs the other way: 14px at the small end against 12px
+  // on the artboard. A note sits beside a value as the quieter of the two, and
+  // on a wide screen the layout says so on its behalf. On a phone the rows have
+  // stacked and that arrangement is gone, so the note has to hold its own
+  // legibility instead of borrowing it -- 11px in a stacked list is a footnote
+  // to nothing. fluid-type sorts the bounds, so the descent is honest.
+  meta-note: (min: 14, max: 12), // Grift Italic 12/1.3 -- meta table notes
+  // THE SMALL MONO TOKENS, all capped at 16.
+  //
+  // The test for a cap is not the face, it is what the type is sized BY.
+  // Display type is sized by the composition -- a headline is as big as the
+  // page it opens -- so it stays in proportion and zooms. Chrome and prose are
+  // sized to be READ, at a glance or a line at a time, and a measurement in
+  // that job answers to the eye rather than to the layout. So it stops.
+  //
+  // Every small mono token is chrome, which is why they all cap: AOT Serial
+  // Mono is the site's label face, given to links, kickers, labels, table text
+  // and chips. The two mono tokens NOT capped are the two doing display work
+  // instead of labelling -- `mono-display` is the hero's second line and
+  // `numeral` is a LargeList's oversized figures, both above, both zooming.
+  //
+  // The same test is what caps `paragraph` and `table-copy`, which are Grift.
+  mono-chip: (min: 14, max: 14, cap: 16), // AOT Bold 14, nav squares + count chips
+  tab-label: (min: 12, max: 12, cap: 14), // AOT Bold 14, the label on a table tab
+  mono: (min: 13, max: 13, cap: 16), // AOT 13, labels, kickers, nowline, legend
+  mono-small: (min: 12, max: 13, cap: 16), // AOT 13, small mono labels
+  // Bounded at BOTH ends, and for the same reason at each: table copy is data
+  // in a dense grid, read by scanning down a column rather than along a line,
+  // so it behaves like chrome even though it is set in the content face. Past
+  // about 20px a table starts reading as a slide; under 14px a cell stops being
+  // scannable, which is the only thing a table is for.
+  //
+  // Flat at 14 across the taper, like `meta` above it. A table is where the
+  // small tokens meet -- values, notes and cell copy sit inside one grid -- and
+  // on a phone, where the rows have stacked and the columns are gone, none of
+  // them can afford to shrink below the point where the reader has to work.
+  table-copy: (min: 14, max: 14, cap: 18), // Grift Regular 14, copy inside tables
+);
+
+
+// LAYOUT ---------------------------------------------------------------------
+
+// The Figma layout grid: 10 columns, stretch, auto width.
+// Margin and gutter are both 30px, which is space(6) on the 5px scale.
+$grid-columns: 10;
+$grid-gutter: f.space(6);
+$grid-margin: f.space(6);
+
+// The page margin once the grid collapses, at `tablet` and below.
+//
+// 10px rather than the 30px the desktop grid uses. On a phone the margin stops
+// being a column of breathing room and becomes a third of the text measure:
+// the same 30px that reads as generous beside a 139px track is expensive
+// against a 390px screen, where it is the difference between a line breaking
+// and not. Applied by content-inset, which is the only thing that draws it.
+$grid-margin-mobile: f.space(2);
+
+// The sidebar occupies columns 1 and 2; content runs from column 3 to 10.
+$content-start: 3;
+$content-columns: 8;
+
+$sidebar-width: f.rem(230);
+
+$radius-square: f.rem(2); // nav page squares
+$radius-tab: f.rem(8); // table label tabs (top corners only)
+$radius-pill: f.rem(34); // component chips
+
+// BORDERS AND HAIRLINES ------------------------------------------------------
+//
+// Everything above scales with the viewport. Borders deliberately do not, and
+// stay written as literal `1px` at their call sites.
+//
+// A border is not part of the composition, it is the thinnest line the display
+// can draw. Scaled to 1.48px it lands between device pixels and renders as a
+// soft grey smear rather than a rule, which is worse at every width than the
+// crisp hairline it replaced. The same goes for the 2px focus outline in
+// _globals.scss.
+
+
+// BREAKPOINTS ----------------------------------------------------------------
+// Desktop-first max-width tiers, matching the ascaya-next naming so the two
+// projects read the same.
+//
+// These stay in px and must. A length in a media query resolves against the
+// INITIAL root font size, not the scaled one, so rem here would neither track
+// the zoom nor read as the viewport width it is named for. px is both correct
+// and the only unit that says what it means.
+$breakpoints: (
+  mobile: 500px,
+  portrait: 768px,
+  tablet: 1024px,
+  small-laptop: 1280px,
+  laptop: 1470px,
+  desktop: 1728px,
+);

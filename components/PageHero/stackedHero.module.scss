@@ -1,0 +1,165 @@
+// abstracts are auto-prepended by next.config.ts.
+
+// The stacked hero: H1 across 7 of the 8 columns, then media and copy in a row
+// beneath it, 4 columns each.
+//
+// min-height rather than height, for the reason splitHero states: a hero fixed
+// at exactly 100vh clips the moment its copy outgrows the viewport, and there
+// is nothing an editor could do about that from WordPress.
+
+.hero {
+  @include content-section;
+
+  // The media/copy row takes whatever the H1 leaves, so the section fills the
+  // viewport without either part being measured against it.
+  grid-template-rows: auto 1fr;
+  align-items: start;
+  min-height: 100vh;
+
+  padding-top: space(20);
+  padding-bottom: space(20);
+}
+
+// Kicker and title together, so the hero is always exactly two rows and the
+// `1fr` above reliably belongs to the media/copy row. An optional kicker as its
+// own grid child would add a third.
+.head {
+  @include grid-span(7);
+
+  margin-bottom: space(16);
+}
+
+.kicker {
+  @include kicker;
+
+  margin-bottom: space(4);
+  color: $color-text-soft;
+}
+
+.title {
+  @include title;
+}
+
+// Authored lines are separate elements, so each one is simply a block.
+.titleLine {
+  display: block;
+}
+
+// THE ROW ---------------------------------------------------------------------
+// Both halves are placed explicitly rather than left to source order, so the
+// DOM keeps reading title, media, copy whichever side the media is on.
+
+.mediaFrame {
+  grid-column: 1 / span 4;
+
+  overflow: hidden;
+  border-radius: $radius-square;
+  background-color: $bg-raised;
+
+  // Capped so a tall asset cannot push the copy beside it off the screen the
+  // 100vh floor was meant to fill.
+  max-height: 70vh;
+}
+
+.copy {
+  grid-column: 5 / span 4;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  // Sits on the bottom of the hero. The media row is the `1fr` above, so the
+  // bottom of this row is the bottom of the section: the copy hangs off the
+  // floor of the viewport while the H1 holds the top.
+  align-self: end;
+
+  // 530px is space(106) on the 5px scale, centred in whatever the 4 columns
+  // come to. The auto margins are horizontal only, so align-self still owns
+  // the vertical.
+  max-width: space(106);
+  margin: 0 auto;
+
+  // The 60px inset either side, as drawn.
+  padding-inline: space(12);
+}
+
+.hero[data-media-side="right"] {
+  .mediaFrame {
+    grid-column: 5 / span 4;
+  }
+
+  .copy {
+    grid-column: 1 / span 4;
+  }
+}
+
+.media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// THE COPY --------------------------------------------------------------------
+
+// Prose renders one <p> per authored line, each a flex item, so the margin
+// spaces them from each other as well as from the top of the column.
+.intro {
+  @include paragraph-large;
+
+  max-width: space(150);
+
+  & + & {
+    margin-top: space(5);
+  }
+}
+
+// Plain type in the select colour, not the white mono-button split uses: this
+// one is a quiet aside under a paragraph rather than the close of a statement.
+// Figma sets it at 18px mono, which $sizes has no entry for, so it takes the
+// nearest token rather than adding one.
+//
+// space(12) is the 60px the design puts between the paragraph and the CTA.
+.cta {
+  @include mono-chip;
+
+  margin-top: space(12);
+  color: $color-text-select;
+  text-decoration: underline;
+  text-underline-position: from-font;
+
+  &:hover {
+    color: $color-text-primary;
+  }
+}
+
+// MOBILE ----------------------------------------------------------------------
+// One column, in reading order, and the 100vh floor goes: three stacked blocks
+// in a single viewport leaves none of them enough room.
+
+@include respond(tablet) {
+  .hero {
+    grid-template-rows: none;
+    min-height: 0;
+
+    // Spaced by the global section rhythm on mobile, not here. See
+    // styles/base/_sections.scss.
+  }
+
+  .mediaFrame,
+  .copy,
+  .hero[data-media-side="right"] .mediaFrame,
+  .hero[data-media-side="right"] .copy {
+    grid-column: 1 / -1;
+  }
+
+  .mediaFrame {
+    max-height: none;
+  }
+
+  .copy {
+    // 60px either side of a full-width column is most of a phone.
+    padding-inline: 0;
+    margin-top: space(12);
+  }
+}

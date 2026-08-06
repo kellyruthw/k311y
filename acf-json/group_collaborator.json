@@ -1,0 +1,77 @@
+{
+    "key": "group_collaborator",
+    "title": "Collaborator",
+    "fields": [
+        {
+            "key": "field_collaborator_company_url",
+            "label": "Company URL",
+            "name": "company_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "Where the legend entry links to.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "70",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "https://",
+            "show_in_graphql": 1
+        },
+        {
+            "key": "field_collaborator_marker_colour",
+            "label": "Marker colour",
+            "name": "marker_colour",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Every collaboration uses the same star glyph. Only the colour changes.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "30",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "blue": "Blue",
+                "pink": "Pink",
+                "green": "Green"
+            },
+            "default_value": "blue",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "show_in_graphql": 1
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "taxonomy",
+                "operator": "==",
+                "value": "collaborator"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "show_in_graphql": 1,
+    "graphql_field_name": "collaboratorFields",
+    "map_graphql_types_from_location_rules": 0,
+    "graphql_types": [
+        "Collaborator"
+    ],
+    "modified": 1785737523
+}

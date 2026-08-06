@@ -1,0 +1,240 @@
+@use "sass:math";
+@use "../abstracts" as *;
+
+// =============================================================================
+// GLOBALS
+// Element defaults, the canvas grid, and the site-wide motion opt-out.
+// =============================================================================
+
+$grid-dot-radius: math.div($grid-dot-size, 2);
+
+// -----------------------------------------------------------------------------
+// THE SCALE
+// The one declaration the entire design scales from.
+//
+// Every length in the site is a rem, so setting the root sets all of them at
+// once: type, padding, gutters, the sidebar, radii, the canvas grid. Below the
+// design width this is a flat 16px, which is why 1728 still renders exactly the
+// Figma artboard and nothing about the taper below it has changed. Above it the
+// root tracks the viewport, so a wider screen gets the design zoomed rather than
+// the design stranded in the middle of more room.
+//
+// The three bounds, with $max-vw-base at 1728 and $scale-ceiling at 2560:
+//
+//     16px          the floor, holding everything at or under the design width
+//     0.9259vw      16/1728 -- passes through exactly 16px AT 1728, so the two
+//                   halves meet with no step
+//     23.7px        2560 x 16/1728 -- the ceiling, x1.48
+//
+// Kelly's own read of the hero confirmed the slope before it was written: at
+// 2500 this puts the 90px headline at 130px.
+// -----------------------------------------------------------------------------
+
+$scale-slope: math.div($root-font-size, $max-vw-base);
+
+html {
+  font-size: clamp(
+    #{$root-font-size}px,
+    #{$scale-slope * 100}vw,
+    #{$scale-slope * $scale-ceiling}px
+  );
+
+  background-color: $bg-page;
+}
+
+body {
+  // Components own their own type via the mixins in abstracts/_mixins.scss.
+  // Only the family and colour are inherited from here.
+  font-family: $ff-display;
+  font-weight: $weight-regular;
+  color: $color-text-primary;
+  background-color: transparent;
+}
+
+// -----------------------------------------------------------------------------
+// THE CANVAS GRID
+// Two fixed layers behind everything, so they stay put while the page scrolls:
+// the dots, and a mask over them that fades the grid out toward both edges.
+//
+// Drawn as gradients rather than shipping the Figma raster: they stay crisp at
+// any zoom, cost no request, and recolour from a single token.
+// Figma measurements: 49.1px pitch, 5.4px dots, #848484 at 10% opacity.
+//
+// Pseudo-elements rather than markup, and there is a reason beyond tidiness: a
+// real div would have to be rendered by app/layout.tsx, which means every route
+// carries an element that exists only to be looked through. ::before and ::after
+// belong to the canvas itself.
+//
+// The painting order is what makes the pair work, and it is not arbitrary.
+// Both sit at z-index 0; among equal z-indexes, ::before paints first and
+// ::after last, so the mask lands on the dots. `body > *` is element-only -- it
+// does not match a pseudo-element -- so the page's own content keeps z-index 1
+// and stays above both.
+// -----------------------------------------------------------------------------
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle,
+    $color-grid-dot $grid-dot-radius,
+    transparent $grid-dot-radius
+  );
+  background-size: $grid-pitch $grid-pitch;
+}
+
+// The mask. Opaque canvas at both edges, clear through the middle, so the grid
+// reads as a band down the centre of the page rather than running edge to edge.
+//
+// `rgba($color-black, 0)` rather than the `transparent` keyword. They are the
+// same colour, but stating it keeps the ramp unambiguous: a gradient
+// interpolates in premultiplied space, and naming the canvas colour at zero
+// alpha says the fade is to THIS black rather than to nothing in particular.
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  // Four stops, not three. A single clear point at 50% put the grid at full
+  // strength on one line and attenuated it everywhere else; holding it clear
+  // from 25% to 75% gives the dots a middle half to actually be visible in, and
+  // turns each edge into a fade rather than the tail of one long ramp.
+  background-image: linear-gradient(
+    to right,
+    $color-black 0%,
+    rgba($color-black, 0) 25%,
+    rgba($color-black, 0) 75%,
+    $color-black 100%
+  );
+}
+
+// Everything the app renders sits above the grid layer.
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+// -----------------------------------------------------------------------------
+// THE PRE-ANIMATION STATE
+//
+// Everything on this site server-renders in its FINISHED state, which is what
+// makes the no-JS and reduced-motion cases correct for free. The cost is a
+// flash: the browser paints that finished state, then hydration runs and GSAP
+// sets the start state, so an element is briefly visible before it arrives.
+//
+// This hides the elements GSAP is about to take over, in CSS, so the start
+// state is what paints in the first place. It is deliberately NOT a blanket
+// rule -- it names only the hooks whose components set an explicit end value,
+// because a `gsap.from()` reads the current value as its destination and would
+// animate 0 to 0 against this. PageHero uses set()+to(), WorkCardGrid uses
+// fromTo(); SplitStatement and Timeline still use from() and are not listed.
+//
+// Inside motion-safe, so a reader who asked for less motion gets the finished
+// state painted directly, with nothing to reveal and nothing that can fail to
+// be revealed.
+//
+// The <noscript> block in app/layout.tsx undoes all of it. With scripting off
+// there is no GSAP to reveal anything, and content that never appears is worse
+// than content that never moved.
+// -----------------------------------------------------------------------------
+
+@include motion-safe {
+  // The hero's lead, tail, paragraph and nowline. The box is excluded: GSAP
+  // scales it rather than fading it, so hiding it here would leave it hidden
+  // for good -- nothing in that timeline ever sets its opacity back.
+  [data-hero-part]:not([data-hero-part="box"]),
+  // The WorkCardGrid section and its cards.
+  [data-enter],
+  [data-work-card],
+  // QuestionCTA's stickies. The LI, not the sticky inside it -- see the note in
+  // that component about the rotation it would otherwise overwrite.
+  [data-note],
+  // The simple hero's body. The CONTAINER, not its parts: the intro paragraphs
+  // come from the shared Prose component and carry no hook of their own, so the
+  // block is held back as one and its timeline hides the parts the moment it
+  // takes over.
+  [data-hero-simple],
+  // LargeList's head and its rows.
+  [data-list-head],
+  [data-list-item],
+  // The background-media hero's two copy columns, held as containers for the
+  // same reason the simple hero's body is: the intro comes from Prose and
+  // carries no hook of its own.
+  [data-bg-copy],
+  // MediaCopy's two halves.
+  [data-media-half],
+  [data-copy-half],
+  // TextSection and CalloutList hold the whole block back and reveal their own
+  // parts, so that SectionHeader and Prose -- shared by four other components
+  // between them -- do not have to grow a hook to be animated.
+  [data-enter-block] {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  // The highlight box wipes in from nothing, so its start state is a transform
+  // rather than an opacity. It is inside the tail, which is hidden above, so it
+  // needs no opacity of its own.
+  [data-hero-part="box"] {
+    transform: scaleX(0);
+  }
+
+  // IntroCopy's words rest at 30% until the scroll lights them. Not zero, and
+  // not in the hidden group above: unlit text is still text. Read ahead of the
+  // wave it is legible, and if the animation never runs the paragraph is dim
+  // rather than missing.
+  [data-word] {
+    opacity: 0.3;
+  }
+
+  // The background-media hero's backdrop, uncovered from the bottom edge up.
+  // A clip rather than an opacity: the picture is at full strength the whole
+  // way and it is the visible REGION that grows, so nothing fades and nothing
+  // is scaled out of proportion.
+  [data-bg-media] {
+    clip-path: inset(100% 0% 0% 0%);
+  }
+
+  // The footer's block waits a full height below its place. Also a transform
+  // rather than an opacity: it is a slide, not a fade, and it is the footer's
+  // own overflow that keeps it out of sight rather than being invisible.
+  [data-footer-rise] {
+    transform: translateY(100%);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// FOCUS
+// Visible, and never removed. Accessibility target is 100.
+// -----------------------------------------------------------------------------
+
+:focus-visible {
+  outline: 2px solid $bg-select;
+  outline-offset: 2px;
+}
+
+::selection {
+  color: $color-text-invert;
+  background-color: $bg-select;
+}
+
+// -----------------------------------------------------------------------------
+// MOTION
+// The safety net underneath every per-component gate. Components should still
+// use the motion-safe mixin to ADD animation, so the static state is default.
+// -----------------------------------------------------------------------------
+
+@include reduced-motion {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

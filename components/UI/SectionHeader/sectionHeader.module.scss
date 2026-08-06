@@ -1,0 +1,29 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.kicker {
+  @include kicker;
+
+  margin-bottom: space(4);
+  color: $color-text-soft;
+}
+
+.heading {
+  @include heading;
+}
+
+.headingLine {
+  display: block;
+}
+
+.intro {
+  @include paragraph;
+
+  margin-top: space(5);
+  max-width: space(150);
+}

@@ -1,0 +1,44 @@
+@use "sass:math";
+
+// =============================================================================
+// FUNCTIONS
+// =============================================================================
+
+/// Strip the unit from a value so it can be used in raw calc() maths.
+@function strip-unit($value) {
+  @return math.div($value, ($value * 0 + 1));
+}
+
+/// The root size every rem on this site resolves against, and the hinge the
+/// whole scale turns on.
+///
+/// Below the design width html's font-size is exactly this, so 1rem is 16px and
+/// every token resolves to the precise px it was drawn at in Figma. Above the
+/// design width the root grows with the viewport and every rem grows with it,
+/// which is what turns a wider screen into a zoom of the design rather than the
+/// same design with more room around it. See styles/base/_globals.scss.
+$root-font-size: 16;
+
+/// Convert a Figma px measurement to rem.
+///
+/// Tokens stay WRITTEN in px, because px is what Figma reports and what the
+/// comments throughout these files cite. Only the emitted unit changes. Reading
+/// `rem(230)` as "230px in Figma" is the intended reading.
+///
+/// Borders and hairlines deliberately do NOT go through this -- see the note in
+/// _variables.scss under LAYOUT.
+@function rem($px) {
+  @return math.div(strip-unit($px), $root-font-size) * 1rem;
+}
+
+/// The 5px spacing scale. Every gap, pad and offset in the site goes through
+/// this, so `space(6)` is the 30px Figma drew and there are no stray magic
+/// numbers.
+/// Figma is already drawn on this grid: 1360 content width, 30px BuildTable
+/// rows, 50px canvas grid pitch.
+///
+/// Emitted in rem, so a value that reads as 30px at the design width scales
+/// with everything else above it.
+@function space($n) {
+  @return rem($n * 5);
+}

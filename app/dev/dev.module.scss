@@ -1,0 +1,180 @@
+// abstracts are auto-prepended by next.config.ts -- no @use needed.
+
+.main {
+  max-width: space(240);
+  margin: 0 auto;
+  padding: space(16) space(8) space(30);
+}
+
+// The scratch page's own H1. Named apart from the `.title` specimen further
+// down, which is the type token of that name.
+.pageTitle {
+  @include display;
+}
+
+.section {
+  margin-top: space(24);
+}
+
+.sectionLabel {
+  @include kicker;
+
+  padding-bottom: space(3);
+  border-bottom: 1px solid $color-border-strong;
+  color: $color-text-primary;
+}
+
+.sectionNote {
+  @include mono-body;
+
+  margin-top: space(3);
+  color: $color-text-soft;
+}
+
+// COLOUR ----------------------------------------------------------------------
+
+.swatches {
+  display: grid;
+  gap: space(2);
+  margin-top: space(5);
+}
+
+.swatch {
+  display: grid;
+  grid-template-columns: space(10) space(50) 1fr;
+  gap: space(4);
+  align-items: center;
+
+  @include respond(tablet) {
+    grid-template-columns: space(10) 1fr;
+    row-gap: space(1);
+  }
+}
+
+.chip {
+  width: space(10);
+  height: space(10);
+  border: 1px solid $color-border-soft;
+  border-radius: $radius-square;
+}
+
+// One class per token, so the swatch is painted by the token itself and this
+// page cannot drift from the real values.
+.canvas { background-color: $bg-page; }
+.select {
+  @include select-fill;
+}
+.chrome { background-color: $bg-chrome; }
+.node { background-color: $bg-node; }
+.note { background-color: $bg-note; }
+.markerWicked { background-color: $color-marker-wicked; }
+.markerMilkbutter { background-color: $color-marker-milkbutter; }
+.markerDmm { background-color: $color-marker-dmm; }
+
+.swatchName {
+  @include mono-body;
+}
+
+.swatchNote {
+  @include mono-small;
+
+  color: $color-text-soft;
+}
+
+// TYPE ------------------------------------------------------------------------
+
+.specimens {
+  display: grid;
+  gap: space(8);
+  margin-top: space(6);
+}
+
+.specimen {
+  display: grid;
+  gap: space(2);
+}
+
+.specimenSpec {
+  @include mono-small;
+
+  color: $color-text-soft;
+}
+
+.display {
+  @include display;
+}
+
+.title {
+  @include title;
+}
+
+.statement {
+  @include statement;
+}
+
+.paragraphLarge {
+  @include paragraph-large;
+}
+
+.kicker {
+  @include kicker;
+}
+
+.tabLabel {
+  @include tab-label;
+}
+
+.tableCopy {
+  @include table-copy;
+}
+
+.monoChip {
+  @include mono-chip;
+}
+
+.monoBody {
+  @include mono-body;
+}
+
+.monoSmall {
+  @include mono-small;
+}
+
+.monoLink {
+  @include mono-link;
+}
+
+// SPACING ---------------------------------------------------------------------
+
+.spacing {
+  display: grid;
+  gap: space(1);
+  margin-top: space(5);
+}
+
+.spacingRow {
+  display: grid;
+  grid-template-columns: space(20) 1fr space(14);
+  gap: space(4);
+  align-items: center;
+}
+
+.spacingLabel,
+.spacingValue {
+  @include mono-small;
+
+  color: $color-text-soft;
+}
+
+.spacingBar {
+  height: space(2);
+  @include select-fill;
+
+  // One rule per step keeps the widths honest to the scale rather than
+  // computing them in JS, where they would drift from space().
+  @for $i from 1 through 12 {
+    &[data-step="#{$i}"] {
+      width: space($i);
+    }
+  }
+}

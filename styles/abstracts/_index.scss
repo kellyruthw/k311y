@@ -1,0 +1,11 @@
+// =============================================================================
+// ABSTRACTS BARREL
+// -----------------------------------------------------------------------------
+// Auto-prepended to every *.module.scss by next.config.ts, which is why this
+// file must never emit CSS. Only variables, functions and mixins belong here.
+// @font-face and element defaults live in styles/base/ instead.
+// =============================================================================
+
+@forward "variables";
+@forward "functions";
+@forward "mixins";

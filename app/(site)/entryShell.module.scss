@@ -1,0 +1,75 @@
+// abstracts are auto-prepended by next.config.ts.
+
+// The shell both detail post types wear: a case study and a project are the
+// same object as far as the page is concerned, one bordered panel with a tab on
+// top of it, the same idiom as a table. In Figma the tab sits at x=370 and the
+// panel runs the full 8 content columns beneath it.
+//
+// Shared from here rather than copied into each route, so the two cannot drift
+// into looking like different kinds of page.
+
+.shell {
+  @include content-inset;
+
+  padding-top: space(15);
+  // None: the footer sets the distance to itself, so the gap is stated once.
+  padding-bottom: 0;
+}
+
+.tabRow {
+  display: flex;
+}
+
+// 10px inside the border, as drawn. The border is the page's own frame, so it
+// wraps every section rather than each one drawing its own.
+.panel {
+  padding: space(2);
+  border: 1px solid $color-border-subtle;
+  background-color: $bg-page;
+
+  // The last section stops at the panel's own 10px inset instead of adding its
+  // section rhythm on top, which would leave a gap at the bottom edge that no
+  // other side has. Matched on position, so nothing has to know it is last.
+  > :last-child {
+    padding-bottom: space(0);
+  }
+}
+
+// After the panel, before the footer. NextCase is its own block with its own
+// tab, so it sits beside the entry rather than inside it.
+// Matches the footer's own padding-top, so NextCase sits the same distance
+// from the panel above it as from the footer below it.
+.trailing {
+  margin-top: space(24);
+
+  // NextCase carries its own section rhythm; without this the panel, the block
+  // and the footer each contribute padding and the gap reads as a hole.
+  > :first-child {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+// MOBILE ----------------------------------------------------------------------
+
+@include respond(tablet) {
+  // 40px, which is what every other route already starts with: their <main>
+  // sets no top padding at all and the first section takes the global 40px
+  // rhythm. This shell was adding 75px of its own on top of that, so a case
+  // study began nearly twice as far down the screen as an About page.
+  //
+  // Stated as a value rather than removed, because unlike those routes the
+  // first thing in here is the tab, which is not a section and gets no rhythm
+  // of its own -- at 0 it would sit flush against the nav bar.
+  .shell {
+    padding-top: space(8);
+  }
+
+  // 60px between the panel and the NextCase block below it, down from 120.
+  // That figure matches the footer's own padding-top so the block sits an equal
+  // distance from the panel above and the footer below -- a symmetry worth
+  // keeping, but not at desktop scale on a phone.
+  .trailing {
+    margin-top: space(12);
+  }
+}

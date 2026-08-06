@@ -1,0 +1,131 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.hero {
+  @include content-section;
+
+  padding-top: space(29);
+  padding-bottom: space(20);
+}
+
+.headline {
+  @include grid-span(7);
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.lead {
+  @include display;
+}
+
+// Authored lines are separate elements, so each one is simply a block.
+.leadLine {
+  display: block;
+}
+
+.tail {
+  @include mono-display;
+  margin-top: space(4);
+
+  @include respond(tablet) {
+    margin-top: space(2);
+  }
+}
+
+// THE HIGHLIGHT ---------------------------------------------------------------
+// The marked words are set in the canvas colour, so they are invisible against
+// the page until the yellow box sits behind them. The box is a separate element
+// rather than a background so it can be wiped in from the left on scroll.
+
+.highlight {
+  position: relative;
+  display: inline-block;
+}
+
+.highlightBox {
+  position: absolute;
+  inset: -0.15em -0.12em -0.1em;
+  @include select-fill;
+
+  // Drawn by default, which is the no-JS and reduced-motion state. GSAP sets
+  // scaleX to 0 on mount and wipes it back to 1 from this origin.
+  transform-origin: left center;
+}
+
+.highlightText {
+  position: relative;
+  color: $color-text-invert;
+}
+
+// THE SIMPLE VARIANT ----------------------------------------------------------
+// The freestanding header a prose page opens with. One grid child holding three
+// stacked blocks, rather than the home hero's headline/paragraph/nowline split
+// across the grid -- there is nothing here to sit beside.
+//
+// Padding is inherited from .hero above and not overridden, so About opens at
+// the same distance below the nav as Home does. That is the one relationship
+// worth keeping while the prose-page hero is still an open docket item.
+
+.simpleBody {
+  @include grid-span(6);
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.simpleKicker {
+  @include kicker;
+
+  margin-bottom: space(4);
+  color: $color-text-soft;
+}
+
+.simpleTitle {
+  @include title;
+}
+
+// Authored lines are separate elements, so each one is simply a block.
+.simpleTitleLine {
+  display: block;
+}
+
+// The lead style, matching the home hero's paragraph: this is a lead, not body
+// copy. Capped at the same measure SectionHeader uses so an intro cannot run
+// the full six columns at 24px.
+//
+// Prose renders one <p> per authored line, and each is a flex item, so the
+// margin spaces the first off the title and the rest off each other.
+.simpleIntro {
+  @include paragraph-large;
+
+  margin-top: space(5);
+  max-width: space(150);
+}
+
+// -----------------------------------------------------------------------------
+
+.paragraph {
+  @include paragraph-large;
+  @include grid-span(4);
+
+  margin-top: space(16);
+  @include respond(tablet) {
+    margin-top:space(8);
+  }
+}
+
+// Still a flex row with one child: it keeps the table sized to its content
+// rather than stretching across all 5 columns, which is what a block would do.
+.nowline {
+  @include grid-span(5);
+
+  display: flex;
+  align-items: flex-end;
+  margin-top: space(16);
+
+  @include respond(small-laptop) {
+    @include grid-span(8);
+  }
+}

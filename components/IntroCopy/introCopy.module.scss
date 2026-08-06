@@ -1,0 +1,58 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.section {
+  @include content-section;
+
+  padding-top: space(20);
+  padding-bottom: space(12);
+}
+
+// MOBILE ----------------------------------------------------------------------
+// The gap below this section is not one number, it is two: this section's
+// padding-bottom plus the padding-top of whatever follows. At the design width
+// that is space(12) + space(12), which reads as a section break on a wide page
+// and as a hole on a phone.
+//
+// 40px total, which is not an arbitrary tightening -- it is `space(8)`, the
+// exact gap MediaCopy already puts between its own copy and its media once the
+// two stack. IntroCopy is followed by a MediaCopy on every case study, so this
+// makes the step from the intro's last paragraph to the first image read the
+// same as every copy-to-media step after it.
+//
+// Taking the whole 40 here and zeroing the neighbour, rather than splitting it,
+// keeps the number legible: one declaration says what the gap is.
+//
+// Reaching a sibling from this file is deliberate and has precedent -- MediaCopy
+// sets its own run-of-video spacing the same way. `[data-component]` is an
+// attribute every section renders, so it is not module-scoped and needs no
+// import; and being one class plus one attribute it outranks the neighbour's own
+// `.section` rule regardless of which stylesheet the bundler emits first.
+// No mobile block. The 40px this section used to claim on either side of itself
+// is now the rhythm every section gets, in styles/base/_sections.scss -- one
+// rule for the whole page rather than each component negotiating with the two
+// beside it.
+
+.kicker {
+  @include kicker;
+  @include grid-span(2);
+
+  color: $color-text-soft;
+}
+
+.body {
+  @include grid-span(6);
+
+  display: flex;
+  flex-direction: column;
+  gap: space(6);
+}
+
+.paragraph {
+  @include paragraph-large;
+}
+
+// Inline, inside the prose. It inherits the paragraph's type and only changes
+// colour, so lifting a phrase never disturbs the line it sits in.
+.emphasis {
+  color: $color-text-select;
+}

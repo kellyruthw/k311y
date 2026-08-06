@@ -1,0 +1,139 @@
+{
+    "key": "group_site_footer",
+    "title": "Site Footer",
+    "fields": [
+        {
+            "key": "field_site_footer_tab_label",
+            "label": "Tab label",
+            "name": "tab_label",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "The small tab above the footer.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "30",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "HIRE ME",
+            "maxlength": "",
+            "placeholder": "HIRE ME",
+            "prepend": "",
+            "append": "",
+            "show_in_graphql": 1
+        },
+        {
+            "key": "field_site_footer_availability_line",
+            "label": "Availability line",
+            "name": "availability_line",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "70",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Currently open to design engineering roles.",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "show_in_graphql": 1
+        },
+        {
+            "key": "field_site_footer_links",
+            "label": "Links",
+            "name": "links",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "Rendered as mono buttons. Use a mailto: link for email.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "layout": "table",
+            "pagination": 0,
+            "min": 1,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add link",
+            "rows_per_page": 20,
+            "show_in_graphql": 1,
+            "sub_fields": [
+                {
+                    "key": "field_site_footer_link_label",
+                    "label": "Label",
+                    "name": "link_label",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "40",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "kellyruthw@gmail.com",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_site_footer_links",
+                    "show_in_graphql": 1
+                },
+                {
+                    "key": "field_site_footer_link_url",
+                    "label": "URL",
+                    "name": "link_url",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "60",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "mailto:kellyruthw@gmail.com",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_site_footer_links",
+                    "show_in_graphql": 1
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "site-footer"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "show_in_graphql": 1,
+    "graphql_field_name": "siteFooterFields",
+    "map_graphql_types_from_location_rules": 1,
+    "modified": 1785737523
+}

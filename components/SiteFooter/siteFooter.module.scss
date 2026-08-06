@@ -1,0 +1,72 @@
+// abstracts are auto-prepended by next.config.ts.
+
+.footer {
+  @include content-inset;
+
+  padding-top: space(24);
+  // None. The footer is the bottom edge of the page, and the left rule runs all
+  // the way down to it.
+  padding-bottom: 0;
+
+  // Clips the entrance, and it is what makes "from off the screen" safe. A
+  // transformed element still contributes to the document's scrollable area,
+  // so holding the block a full height below its place without clipping would
+  // hand the reader an extra screen of empty page to scroll through before it
+  // moved. The wrapper inside takes the space in normal flow; the block travels
+  // within it; the document's height never changes. See SiteFooter.tsx.
+  overflow: hidden;
+
+  @include respond(tablet) {
+    padding-top: space(12);
+  }
+}
+
+// The tab that sat here was a fourth copy of components/UI/Tab. The comment it
+// carried said "the same idiom as a table's tab" -- it is now literally the same
+// component, so it cannot drift from one again.
+
+.body {
+  // The trailing space carries the left rule past the buttons to the page edge,
+  // as drawn in Figma, rather than stopping it short at the last link.
+  padding: space(6) 0 space(9) space(2);
+  border-top: 1px solid $color-border-subtle;
+  border-left: 1px solid $color-border-subtle;
+    background-color: $bg-page;
+}
+
+.availability {
+  @include heading;
+
+  max-width: space(255);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(3.2);
+  margin-top: space(9);
+}
+
+.link {
+  @include mono-button;
+
+  background-image: $bg-select-fill-off;
+
+  @include motion-safe {
+    transition:
+      background-color 0.18s ease-out,
+      background-image 0.18s ease-out;
+  }
+
+  &:hover,
+  &:focus-visible {
+    // The gradient, faded in rather than swapped in.
+    //
+    // background-image cannot cross-fade from nothing, so the resting state
+    // carries the SAME gradient at zero alpha. Two gradients of the same shape
+    // interpolate, which is what lets this ease the way the flat colour used
+    // to. A browser that declines to interpolate simply snaps, which is what a
+    // plain image swap would have done everywhere.
+    background-image: $bg-select-fill;
+  }
+}

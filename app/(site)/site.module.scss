@@ -1,0 +1,8 @@
+// The page provides the content inset once; sections lay out on the 8 columns
+// inside it. The nav is fixed at its own width and sits outside all of it.
+
+.main {
+  @include content-inset;
+
+  min-height: 100vh;
+}

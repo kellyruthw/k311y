@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComponentTreeInteractive — behavior prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ------------------------------------------------------------------
+   TOKENS — placeholder values from the style tile.
+   Swap this entire block for your design system when it exists.
+------------------------------------------------------------------- */
+:root {
+  --paper: #F6F1E7;
+  --ink: #211F1A;
+  --ink-soft: #55503F;
+  --clay: #B0512F;
+  --moss: #6F7D5C;
+  --line: #C9BFA8;
+  --card: #FFFDF8;
+  --font-display: 'Fraunces', serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-body: system-ui, -apple-system, sans-serif;
+  --radius: 10px;
+  --speed: 180ms;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  padding: 2.5rem clamp(1rem, 4vw, 3rem);
+}
+
+header.demo-head { max-width: 1200px; margin: 0 auto 2rem; }
+header.demo-head .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--clay);
+  margin-bottom: 0.5rem;
+}
+header.demo-head h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  line-height: 1.2;
+  max-width: 34ch;
+}
+header.demo-head p {
+  margin-top: 0.6rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  max-width: 58ch;
+  line-height: 1.6;
+}
+
+/* ---- Layout: tree | page preview ---- */
+.stage {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(300px, 420px) 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .stage { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------------------------
+   THE TREE
+   Shapes follow the sitemap key: square = page,
+   circle = flexible component, diamond = sub-component.
+------------------------------------------------------------------- */
+.tree {
+  position: sticky;
+  top: 2rem;
+}
+.tree .pane-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin-bottom: 1rem;
+}
+
+.node {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: border-color var(--speed), background var(--speed), transform var(--speed);
+  text-align: center;
+  padding: 0.55rem 0.9rem;
+}
+.node:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+
+.node--page { border-radius: 4px; font-weight: 500; }
+.node--flex { border-radius: 999px; }
+.node--sub {
+  border-radius: 4px;
+  transform: rotate(45deg);
+  width: 78px; height: 78px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+}
+.node--sub span { transform: rotate(-45deg); font-size: 11px; }
+
+.node.is-lit,
+.node:hover {
+  border-color: var(--clay);
+  background: #FBE9E0;
+}
+.node--sub.is-lit,
+.node--sub:hover { transform: rotate(45deg) scale(1.06); }
+
+/* tree scaffolding lines */
+.tree-root { display: flex; justify-content: center; margin-bottom: 0; }
+.stem { width: 1px; height: 22px; background: var(--line); margin: 0 auto; }
+.branches {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-left: 1px solid var(--line);
+  margin-left: 50%;
+  transform: translateX(-0.5px);
+  padding-left: 0;
+  width: 50%;
+}
+/* Simpler vertical list w/ elbow connectors */
+.branch-list { list-style: none; margin-top: 0; }
+.branch-list > li {
+  position: relative;
+  padding-left: 28px;
+  margin-top: 10px;
+}
+.branch-list > li::before {
+  content: "";
+  position: absolute;
+  left: 10px; top: -14px; bottom: 50%;
+  border-left: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  width: 12px;
+  border-bottom-left-radius: 8px;
+}
+.branch-list > li:first-child::before { top: -22px; }
+.branch-list .sub-holder {
+  margin: 12px 0 6px 46px;
+  position: relative;
+}
+.branch-list .sub-holder::before {
+  content: "";
+  position: absolute;
+  left: -18px; top: -6px; bottom: 50%;
+  border-left: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  width: 14px;
+  border-bottom-left-radius: 8px;
+}
+
+/* ------------------------------------------------------------------
+   THE PAGE PREVIEW
+   A wireframe of the Home page; each section maps to a tree node
+   via data-section / data-target.
+------------------------------------------------------------------- */
+.preview {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.preview .pane-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+.page-scroll { max-height: 72vh; overflow-y: auto; padding: 1rem; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  .page-scroll { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+
+.sec {
+  border: 1px dashed transparent;
+  border-radius: 8px;
+  padding: 1.1rem;
+  margin-bottom: 0.75rem;
+  position: relative;
+  transition: border-color var(--speed), background var(--speed);
+  cursor: default;
+}
+.sec .chip {
+  position: absolute;
+  top: -9px; right: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--clay);
+  color: var(--card);
+  border-radius: 999px;
+  padding: 2px 8px;
+  opacity: 0;
+  transition: opacity var(--speed);
+  pointer-events: none;
+}
+.sec.is-lit { border-color: var(--clay); background: #FBE9E0; }
+.sec.is-lit .chip { opacity: 1; }
+
+/* wireframe internals */
+.wf-hero { padding: 2.2rem 1rem; text-align: center; }
+.wf-hero .wf-title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+  max-width: 26ch;
+  margin: 0 auto 0.4rem;
+}
+.wf-hero .wf-sub { color: var(--ink-soft); font-size: 0.8rem; max-width: 40ch; margin: 0 auto; }
+.wf-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; color: var(--moss); margin-bottom: 4px; }
+.wf-h { font-family: var(--font-display); font-size: 1.05rem; font-weight: 450; }
+.wf-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+.wf-card {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  padding: 8px;
+  transition: border-color var(--speed), background var(--speed);
+}
+.wf-card.is-lit { border-color: var(--clay); background: #FBE9E0; }
+.wf-card .ph { background: var(--line); border-radius: 4px; height: 44px; margin-bottom: 6px; opacity: 0.55; }
+.wf-card .ln { height: 7px; border-radius: 4px; background: var(--line); margin-top: 4px; }
+.wf-card .ln.short { width: 60%; }
+.wf-strip { display: flex; gap: 14px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 10px; color: var(--ink-soft); }
+.wf-strip span { border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; background: var(--paper); }
+.wf-thesis {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.15rem;
+  text-align: center;
+  padding: 0.8rem 1.4rem;
+  color: var(--ink);
+}
+.wf-qcta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.wf-qcta .cell {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  padding: 10px;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+.wf-qcta .cell b { display: block; color: var(--ink); font-size: 0.8rem; margin-bottom: 2px; font-weight: 600; }
+.wf-qcta .cell .lnk { color: var(--clay); font-family: var(--font-mono); font-size: 10px; }
+.wf-footer { text-align: center; font-family: var(--font-mono); font-size: 10px; color: var(--ink-soft); padding: 0.6rem; }
+</style>
+</head>
+<body>
+
+<header class="demo-head">
+  <div class="eyebrow">ComponentTreeInteractive · behavior prototype</div>
+  <h1>Hover the content model. The page answers.</h1>
+  <p>Left: the Home page's component tree, drawn with the sitemap key (square = page, circle = flexible component, diamond = sub-component). Right: the page those components power. Hover or focus either side — its counterpart lights up. Swap the token block for your design system and feed the tree from GraphQL later.</p>
+</header>
+
+<div class="stage">
+
+  <!-- ============ TREE ============ -->
+  <nav class="tree" aria-label="Component tree">
+    <div class="pane-label">CONTENT MODEL — HOME</div>
+
+    <div class="tree-root">
+      <button class="node node--page" data-target="page" aria-describedby="hint">Home</button>
+    </div>
+    <div class="stem"></div>
+
+    <ul class="branch-list">
+      <li><button class="node node--flex" data-target="hero">PageHero</button></li>
+      <li><button class="node node--flex" data-target="sectionheader">SectionHeader</button></li>
+      <li>
+        <button class="node node--flex" data-target="workcards">WorkCardGrid</button>
+        <div class="sub-holder">
+          <button class="node node--sub" data-target="card"><span>Card</span></button>
+        </div>
+      </li>
+      <li><button class="node node--flex" data-target="strip">BuildsStrip</button></li>
+      <li><button class="node node--flex" data-target="thesis">ThesisLine</button></li>
+      <li><button class="node node--flex" data-target="qcta">QuestionCTA</button></li>
+    </ul>
+    <p id="hint" class="pane-label" style="margin-top:1rem;">HOVER / FOCUS A NODE</p>
+  </nav>
+
+  <!-- ============ PAGE PREVIEW ============ -->
+  <div class="preview">
+    <div class="pane-label">K311Y.COM — HOME (WIREFRAME)</div>
+    <div class="page-scroll" data-section="page">
+
+      <section class="sec wf-hero" data-section="hero">
+        <span class="chip">PageHero</span>
+        <div class="wf-title">I design content systems — then build the sites and the CMS that run them.</div>
+        <div class="wf-sub">From Figma to field architecture. Currently: Heartcore Studio, Palette Town, and whatever I'm building for love this month.</div>
+      </section>
+
+      <section class="sec" data-section="sectionheader">
+        <span class="chip">SectionHeader</span>
+        <div class="wf-eyebrow">SELECTED WORK</div>
+        <div class="wf-h">Five case studies, one argument.</div>
+      </section>
+
+      <section class="sec" data-section="workcards">
+        <span class="chip">WorkCardGrid</span>
+        <div class="wf-cards">
+          <div class="wf-card" data-section="card"><div class="ph"></div><div class="ln"></div><div class="ln short"></div></div>
+          <div class="wf-card" data-section="card"><div class="ph"></div><div class="ln"></div><div class="ln short"></div></div>
+          <div class="wf-card" data-section="card"><div class="ph"></div><div class="ln"></div><div class="ln short"></div></div>
+        </div>
+      </section>
+
+      <section class="sec" data-section="strip">
+        <span class="chip">BuildsStrip</span>
+        <div class="wf-strip">
+          <span>Ascaya</span><span>Harland West Hollywood</span><span>Treasure Island SF</span><span>+ more</span>
+        </div>
+      </section>
+
+      <section class="sec" data-section="thesis">
+        <span class="chip">ThesisLine</span>
+        <div class="wf-thesis">"The content model is a user interface, and the editor is the user."</div>
+      </section>
+
+      <section class="sec" data-section="qcta">
+        <span class="chip">QuestionCTA ×2</span>
+        <div class="wf-qcta">
+          <div class="cell"><b>Curious how all of this comes together?</b><span class="lnk">LEARN HOW I WORK →</span></div>
+          <div class="cell"><b>Want to see what I make when it's just me?</b><span class="lnk">VISIT PALETTE TOWN →</span></div>
+        </div>
+      </section>
+
+      <div class="wf-footer" >CURRENTLY OPEN TO DESIGN ENGINEERING ROLES</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   Two-way highlight.
+   Tree nodes carry data-target; page sections carry data-section.
+   Hover/focus either → both light. Tree hover also scrolls the
+   section into view inside the preview pane.
+------------------------------------------------------------------- */
+(function () {
+  const nodes = document.querySelectorAll('.node[data-target]');
+  const scrollPane = document.querySelector('.page-scroll');
+
+  function sectionsFor(key) {
+    if (key === 'page') return [...document.querySelectorAll('.sec')]; // page node = everything
+    return [...document.querySelectorAll('[data-section="' + key + '"]')];
+  }
+  function nodeFor(key) {
+    return document.querySelector('.node[data-target="' + key + '"]');
+  }
+
+  function light(key, on) {
+    const node = nodeFor(key);
+    if (node) node.classList.toggle('is-lit', on);
+    sectionsFor(key).forEach(el => el.classList.toggle('is-lit', on));
+  }
+
+  // Tree → page
+  nodes.forEach(node => {
+    const key = node.dataset.target;
+    const enter = () => {
+      light(key, true);
+      if (key !== 'page') {
+        const first = sectionsFor(key)[0];
+        if (first && first.closest('.page-scroll')) {
+          first.scrollIntoView({ block: 'nearest' });
+        }
+      }
+    };
+    const leave = () => light(key, false);
+    node.addEventListener('mouseenter', enter);
+    node.addEventListener('mouseleave', leave);
+    node.addEventListener('focus', enter);
+    node.addEventListener('blur', leave);
+  });
+
+  // Page → tree
+  document.querySelectorAll('[data-section]').forEach(sec => {
+    const key = sec.dataset.section;
+    if (key === 'page') return;
+    sec.addEventListener('mouseenter', e => { e.stopPropagation(); light(key, true); });
+    sec.addEventListener('mouseleave', e => { e.stopPropagation(); light(key, false); });
+  });
+})();
+</script>
+</body>
+</html>
