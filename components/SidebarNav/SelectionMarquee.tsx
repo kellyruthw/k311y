@@ -31,25 +31,45 @@ export default function SelectionMarquee({
   /** How that name is written on the chip. */
   label: string | null;
 }) {
-  const [boxes, setBoxes] = useState<Box[]>([]);
+  /**
+   * The measurement, stored WITH the component it was taken for.
+   *
+   * The pair is the point. Previously this was a bare `Box[]`, and the effect
+   * cleared it with `setBoxes([])` whenever `component` went null -- which is
+   * the thing `react-hooks/set-state-in-effect` flagged, correctly. A state
+   * write to describe something render can already see is a second source of
+   * truth, and it costs an extra render pass to apply.
+   *
+   * Render can see it: the guard below already returns null when there is no
+   * component, so the cleared array was never what made the overlay disappear.
+   *
+   * Keeping the name alongside the boxes fixes a real glitch as well as the
+   * lint. Selecting a different component re-renders with the NEW name before
+   * the effect has re-measured, so for one frame the old component's boxes were
+   * drawn wearing the new one's chip. Comparing the two discards that frame
+   * instead of painting it.
+   *
+   * The measurement itself stays in an effect and has to: `getBoundingClientRect`
+   * needs a laid-out DOM, so it cannot be derived during render. That is the
+   * distinction the rule is drawing, not "never call setState in an effect".
+   */
+  const [measured, setMeasured] = useState<{ component: string; boxes: Box[] } | null>(null);
 
   useEffect(() => {
-    if (!component) {
-      setBoxes([]);
-      return;
-    }
+    if (!component) return;
 
     const targets = Array.from(
       document.querySelectorAll<HTMLElement>(`[data-component="${component}"]`),
     );
 
     const measure = () => {
-      setBoxes(
-        targets.map((el) => {
+      setMeasured({
+        component,
+        boxes: targets.map((el) => {
           const rect = el.getBoundingClientRect();
           return { top: rect.top, left: rect.left, width: rect.width, height: rect.height };
         }),
-      );
+      });
     };
 
     measure();
@@ -64,6 +84,11 @@ export default function SelectionMarquee({
       window.removeEventListener("resize", measure);
     };
   }, [component]);
+
+  // Only the measurement that belongs to the component being asked for. A
+  // stale one -- from the previously selected component, or left behind when
+  // the selection cleared -- reads as no boxes, and the guard below drops it.
+  const boxes = measured?.component === component ? measured.boxes : [];
 
   if (!component || !boxes.length) return null;
 

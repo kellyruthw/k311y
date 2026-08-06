@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -113,7 +113,16 @@ function Card({ card, size }: { card: WorkCard; size: "large" | "small" }) {
 }
 
 export default function WorkCardGrid(props: WorkCardGridProps) {
-  const tabs = props.tabs ?? [];
+  /**
+   * Memoised for the anchor effect below, which depends on it.
+   *
+   * `props.tabs ?? []` looks free and is not: when `tabs` is absent the `??`
+   * builds a NEW empty array every render, React compares effect dependencies
+   * by reference, and `[] !== []` -- so the effect tore down and re-registered
+   * its anchor listener on every single render. Only on the empty path, which
+   * is why nothing ever looked wrong.
+   */
+  const tabs = useMemo(() => props.tabs ?? [], [props.tabs]);
   const [active, setActive] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
   /** Set by the ScrollTrigger once the section has actually been seen. */
