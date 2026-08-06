@@ -24,6 +24,20 @@
 .DS_Store
 *.pem
 
+# The .docx the tailored cuts are written from. Same reasoning as the JSON
+# below: they name the companies they were aimed at. Ignoring the built content
+# while committing the source it was built from would have been a fig leaf.
+# Nothing reads these -- _content-source/ is authoring notes for humans, not a
+# build input -- so ignoring them costs nothing.
+/_content-source/*.docx
+
+# job-tailored resume cuts (see lib/resume/variants.ts)
+# These name the companies they were written for. They are read off disk rather
+# than imported precisely so that ignoring them cannot break a build: nothing
+# imports them, the directory is simply empty on a clone and on the deploy, and
+# the routes that serve them do not exist in production at all.
+/content/resume-variants/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

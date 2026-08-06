@@ -1,4 +1,5 @@
 import { fetchGraphQL } from "@/lib/graphql";
+import { baseResume } from "@/lib/resume/base";
 
 /**
  * The sitemap's data, gathered from WordPress but shaped by this app's routes.
@@ -32,11 +33,20 @@ export interface SitemapEntry {
  * `uri` is how WordPress names the same page, used only to look its timestamp
  * up. Home is "/" on both sides; the others carry WP's trailing slash, which
  * this site's routes do not.
+ *
+ * `modified` is the other way to answer the same question, for a route whose
+ * content is not in the CMS at all. Exactly one of the two should be set; a
+ * route with neither is still valid XML, it simply carries no lastmod.
  */
-const STATIC_ROUTES: { path: string; uri: string }[] = [
+const STATIC_ROUTES: { path: string; uri?: string; modified?: string }[] = [
   { path: "/", uri: "/" },
   { path: "/about", uri: "/about/" },
   { path: "/process", uri: "/process/" },
+  // /resume has no WordPress page behind it -- its content is a typed file in
+  // lib/resume -- so there is nothing to look up, and the content file carries
+  // its own date. That is the honest source: the file IS the resume, so the
+  // commit that changes it is the moment the resume changed.
+  { path: "/resume", modified: baseResume.updated },
 ];
 
 /**
@@ -113,7 +123,9 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
 
   const staticEntries: SitemapEntry[] = STATIC_ROUTES.map((route) => ({
     path: route.path,
-    lastModified: toDate(pageDates.get(route.uri)),
+    lastModified: toDate(
+      route.modified ?? (route.uri ? pageDates.get(route.uri) : undefined),
+    ),
   }));
 
   const entryFor = (prefix: string) => (node: SlugNode) => ({

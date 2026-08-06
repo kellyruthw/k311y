@@ -119,6 +119,83 @@ body > * {
 }
 
 // -----------------------------------------------------------------------------
+// THE SHEET OPT-OUT
+// One route is not a canvas.
+//
+// /resume is a document designed for paper first: a white sheet with near-black
+// text, in both media, while every other route keeps the grid. It renders
+// <main data-doc="resume"> as a direct child of body, and these rules key off
+// that attribute.
+//
+// An ATTRIBUTE on the page's own <main>, not a class on <body>: body carries no
+// className, and app/layout.tsx is the only layout on this site, so a nested
+// layout has nothing to add one to.
+//
+// The rules live HERE, in the file that draws the grid, rather than as
+// :global() overrides inside components/Resume/resume.module.scss. That is
+// cascade reliability, not filing preference. `body::before` is (0,0,2) and
+// :global() adds no specificity, so a module rule would TIE it -- and the
+// winner would then be whichever stylesheet the bundler emitted last. Turbopack
+// merges CSS chunks "in any order" by default, and Next's own CSS guide warns
+// that ordering can differ between `next dev` and `next build`. Staking a
+// page's legibility on that is a bet.
+//
+// Here it needs no bet, for two independent reasons: these rules come after the
+// ones they undo in the same stylesheet, so source order settles it, AND :has()
+// takes the specificity of its argument, so they win at (0,1,2) regardless of
+// order.
+//
+// Where :has() is unsupported the page still reads correctly: the sheet paints
+// its own opaque white over the full viewport, so the grid is covered rather
+// than removed and only the overscroll gutter stays black. On paper nothing is
+// at risk either way -- the print block below kills the pseudo-elements
+// unconditionally, on every route.
+// -----------------------------------------------------------------------------
+
+html:has(> body > [data-doc="resume"]) {
+  background-color: $paper-page;
+}
+
+body:has(> [data-doc="resume"]) {
+  color: $color-ink;
+
+  // Off, not transparent. These are two fixed layers over the whole viewport,
+  // and an invisible layer is still a layer: it would keep taking paint, and in
+  // print it would keep being stamped onto every page.
+  &::before,
+  &::after {
+    display: none;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// PRINT
+// Site-wide, and deliberately not scoped to the resume.
+//
+// The canvas grid and its edge mask are both `position: fixed`, and a fixed
+// element in paged media is painted on EVERY page. Left alone, a printed page 2
+// arrives with a dot grid and a black edge gradient stamped over it. No route
+// wants that on paper, so this is unconditional -- which also means it cannot be
+// defeated by a :has() the browser did not implement.
+// -----------------------------------------------------------------------------
+
+@media print {
+  html {
+    // In paged media `vw` resolves against the PAGE BOX rather than the window,
+    // so the 0.9259vw term is about 6.5px inside a letter page and the clamp's
+    // 16px floor already wins. Pinned anyway, so that "what is 1rem on paper" is
+    // a number stated in a file rather than the accident of a floor.
+    font-size: #{$root-font-size}px;
+    background-color: $color-white;
+  }
+
+  body::before,
+  body::after {
+    display: none;
+  }
+}
+
+// -----------------------------------------------------------------------------
 // THE PRE-ANIMATION STATE
 //
 // Everything on this site server-renders in its FINISHED state, which is what

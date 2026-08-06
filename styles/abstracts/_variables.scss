@@ -86,6 +86,22 @@ $color-border-subtle: rgba($color-white, 0.1); // table rules
 
 // Canvas grid
 $color-grid-dot: rgba($color-grey-dot, 0.1);
+
+// THE PRINTED SHEET ----------------------------------------------------------
+// The one surface on this site that is not the black canvas.
+//
+// /resume is a document and it is designed for paper: near-black on white, in
+// both media. Near-black rather than $color-black because a laser printer lays
+// true black as a heavy key that fills the counters of 10pt type -- the canvas
+// can afford #000 at 90px, a resume cannot at 10.
+//
+// These are the only tokens on the site that assume a white ground, so they are
+// named for the sheet rather than joining the semantic set above. Nothing
+// outside components/Resume should reference them.
+$color-ink: #111111; // body copy on the sheet
+$color-ink-soft: #3d3d3d; // role meta lines, the clients line
+$color-rule: #cccccc; // the hairline under a section heading
+$paper-page: $color-white; // the sheet itself
 $grid-pitch: f.space(10); // measured 49.1px in Figma -> 50px
 $grid-dot-size: f.space(1); // measured 5.4px in Figma -> 5px
 

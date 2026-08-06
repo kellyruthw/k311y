@@ -1,0 +1,27 @@
+// =============================================================================
+// RESUME PRINT
+// The half of the resume's styling that cannot be scoped.
+//
+// A plain global stylesheet rather than part of resume.module.scss, for exactly
+// one reason: @page has no selector, so a CSS module cannot localise it.
+// Emitted from the module it would still be a global rule -- it would just be a
+// global rule filed somewhere that claims not to be one.
+//
+// Imported only by the resume routes, so it never reaches another route's CSS.
+// The App Router allows a global stylesheet to be imported by any page, which
+// the Pages Router did not; this is the case that allowance exists for.
+//
+// One thing NO stylesheet can set: Chrome's "Headers and footers" checkbox,
+// which is what prints the URL and the date into the margins. Suppressing those
+// is a hard requirement in the handoff, and the print dialog is the only place
+// to do it. See the checklist in _content-source/resume-build-handoff.md.
+// =============================================================================
+
+@page {
+  size: letter;
+
+  // 0.5in top and bottom, 0.6in left and right. The handoff's floor is 0.4in and
+  // this is deliberately above it: a laser printer's own non-printable margin is
+  // typically 0.25in, and a sheet fed slightly askew eats most of the rest.
+  margin: 0.5in 0.6in;
+}

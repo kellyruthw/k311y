@@ -1,0 +1,389 @@
+// abstracts are auto-prepended by next.config.ts -- no @use needed.
+
+// =============================================================================
+// THE SHEET
+// The one module on this site that does not scale with the viewport.
+//
+// Every length here is ABSOLUTE: pt for type, px for space. Neither resolves
+// against html's font-size, so the sheet renders identically at 1280 and at
+// 2560, and the browser at 100% zoom shows exactly what comes out of a printer.
+// That 1:1 relationship is the whole print-first thesis, and it removes the
+// entire class of "it looked right on screen and printed wrong" bugs.
+//
+// The site's semantic type mixins are deliberately not used, and cannot be.
+// Each one routes through fluid-type(), which emits calc(Xvw + Yrem):
+//
+//   vw  -- in paged media this resolves against the PAGE BOX rather than the
+//          window. A letter page at 0.6in margins is 7.3in, about 700px, so
+//          every fluid token would print at or near its 550px mobile floor.
+//   rem -- fails the other way on screen. Above 1728 the root climbs to 23.7px,
+//          so anything written in space() would grow 1.48x on a large monitor
+//          while a pt type size held still, and the sheet would drift out of
+//          proportion at exactly the width it gets reviewed on.
+//
+// The 5px spacing scale survives, in px. See flat().
+// =============================================================================
+
+/// The site's 5px spacing scale, emitted in px rather than rem.
+///
+/// space() returns rem and tracks the root above 1728. A sheet of paper does not
+/// get bigger when you buy a wider monitor. Read `flat(4)` exactly as you would
+/// read `space(4)`: 20px, four steps of the 5px grid.
+@function flat($n) {
+  @return $n * 5px;
+}
+
+// TYPE SCALE, in points -------------------------------------------------------
+// The handoff sets body at 9.5-10.5pt and caps the page at 3 sizes beyond the
+// name, with weight doing the hierarchy. This is that: 4 distinct sizes below
+// the name, and the half point between body and a role title is deliberate --
+// it separates them without reading as a size change.
+$pt-name: 26pt;
+$pt-title: 11pt; // "Design Engineer" under the name
+$pt-body: 10pt; // bullets, the summary, skill values
+$pt-entry: 10.5pt; // a role title
+$pt-meta: 9pt; // "Company · Location · Dates", the clients line, contact
+$pt-kicker: 8.5pt; // EXPERIENCE / SKILLS / EDUCATION
+
+$sheet-lh: 1.4; // body and bullets
+$sheet-lh-lead: 1.45; // the summary, which is the longest measure on the page
+$sheet-lh-tight: 1.25; // headers and single-line meta
+
+// THE DENSITY DIAL ------------------------------------------------------------
+// The handoff's instruction when the resume runs long is "tighten spacing before
+// touching content". This block is that tightening, grouped here rather than
+// scattered through the rules so the pass is one edit in one place with the
+// relationships visible while you make it.
+// Tightened once, when two of the longer tailored cuts pushed Education onto a third
+// page. Both moves take space from INSIDE a role and leave the space BETWEEN
+// roles alone, so the hierarchy reads better tight than it did loose: a header
+// now sits with its own bullets, and $gap-entry is the only large gap in the
+// Experience section. The next lever, if a longer cut ever needs one, is
+// $gap-block; after that it is line-height, and only then content.
+$gap-block: flat(3); // between the masthead, summary and sections
+$gap-section-head: flat(3); // section heading to its first entry
+$gap-entry: flat(3); // between roles -- deliberately NOT reduced
+$gap-entry-inner: flat(1); // inside a role header
+$gap-header-bullets: flat(1); // role header to its first bullet
+$gap-bullet: flat(1); // between bullets
+
+.sheet {
+  width: 8.5in; // the paper, on screen, at 1:1
+  max-width: 100%;
+  min-height: 100vh; // covers the canvas where :has() is unsupported
+  margin: 0 auto;
+  padding: 0.5in 0.6in; // the @page margin, mirrored for the screen preview
+
+  display: flex;
+  flex-direction: column;
+  gap: $gap-block;
+
+  color: $color-ink;
+  background-color: $paper-page;
+
+  font-family: $ff-display;
+  font-weight: $weight-regular;
+  font-size: $pt-body;
+  line-height: $sheet-lh;
+
+  // Nothing on this sheet may hyphenate or break inside a word. Both put a line
+  // break in the middle of a token in the PDF's text layer with nothing to
+  // signal it, so "Warpechowski" copy-pastes as two words -- and the acceptance
+  // test is that copy-paste reproduces the resume verbatim.
+  //
+  // overflow-wrap is an UNDO: styles/base/_reset.scss sets break-word on every
+  // heading and paragraph site-wide, which is right for a headline over an image
+  // and wrong for a document.
+  hyphens: none;
+  overflow-wrap: normal;
+
+  word-break: normal;
+
+  // A KNOWN LIMIT, measured rather than assumed, recorded so the next person
+  // does not spend the same hour on it.
+  //
+  // `hyphens: none` only disables AUTOMATIC hyphenation. An existing hyphen is
+  // still a line-break opportunity, so a compound like "Figma-file" can wrap as
+  // "Figma-" / "file" -- and any extractor that de-hyphenates then rejoins it
+  // as "Figmafile". The hyphen IS in the PDF; it is the reader that eats it.
+  // `pdftotext file.pdf -` does this; `pdftotext -layout` does not.
+  //
+  // There is no CSS fix. `word-break: keep-all` was tried and does nothing here:
+  // Chrome applies it to CJK only, and the break still happened with it set.
+  // The remedies are both content-side -- a non-breaking hyphen (U+2011) in the
+  // affected word, or rewording -- so they belong to whoever owns the copy, not
+  // to this stylesheet.
+  //
+  // Check after any content change:
+  //   pdftotext -enc UTF-8 -layout resume.pdf - | grep -- '-$'
+  // Anything it prints is a compound that will be corrupted by a de-hyphenating
+  // parser. As of the last run: 0 hits on the base resume.
+
+  // Screen only, and written out rather than using respond().
+  //
+  // respond() emits `@media (max-width: N)` with NO media type, and in paged
+  // media a max-width query is evaluated against the page box -- about 700px
+  // inside a letter page. Both `tablet` (1024) and `portrait` (768) therefore
+  // MATCH ON PAPER. Any responsive rule in this file has to say `screen` or it
+  // is a print rule wearing a disguise.
+  @media screen and (max-width: 900px) {
+    width: 100%;
+    padding: flat(8) flat(4);
+  }
+}
+
+// MASTHEAD --------------------------------------------------------------------
+
+.masthead {
+  display: flex;
+  flex-direction: column;
+  gap: flat(1);
+}
+
+.name {
+  font-size: $pt-name;
+  font-weight: $weight-medium;
+  line-height: 1.05;
+  // Mild, and nowhere near $ls-mono's -0.08em. Heavy negative tracking makes
+  // Chrome emit per-glyph positioning offsets, and PDF text extractors infer
+  // word boundaries from horizontal gaps -- which is the classic cause of joined
+  // words in pdftotext output. This is the most important string on the page to
+  // extract correctly, so it stays light.
+  letter-spacing: -0.02em;
+}
+
+.title {
+  font-size: $pt-title;
+  font-weight: $weight-regular;
+  line-height: $sheet-lh-tight;
+  color: $color-ink-soft;
+}
+
+.contact {
+  margin-top: flat(1);
+  font-family: $ff-mono;
+  // AOT Serial Mono ships no 400 face. Asking for $weight-regular here would
+  // silently resolve to the 300 Light. See styles/base/_fonts.scss.
+  font-weight: $weight-medium;
+  font-size: $pt-meta;
+  line-height: $sheet-lh-tight;
+  // Explicitly zero, not $ls-mono. See the note on .name.
+  letter-spacing: 0;
+}
+
+.link {
+  // styles/base/_reset.scss strips underlines site-wide. On a document they are
+  // the only affordance a link has, and on paper they are the only signal that
+  // the address is worth typing.
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.summary {
+  font-size: $pt-body;
+  line-height: $sheet-lh-lead;
+  // A comfortable measure for the one long paragraph on the page. In px so it
+  // does not track the root; roughly 68 characters at 10pt.
+  max-width: 6.6in;
+}
+
+// SECTIONS --------------------------------------------------------------------
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $gap-entry;
+}
+
+.sectionHeading {
+  font-family: $ff-mono;
+  font-weight: $weight-semibold;
+  font-size: $pt-kicker;
+  line-height: 1;
+  // POSITIVE tracking, and emphatically not $ls-mono. Caps need opening up, and
+  // positive gaps are the safe direction for a PDF text extractor.
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color-ink-soft;
+
+  padding-bottom: flat(1.4);
+  margin-bottom: $gap-section-head - $gap-entry;
+
+  // A border, not a background. Chrome suppresses background-color unless
+  // "Background graphics" is ticked in the print dialog, and prints borders
+  // either way. Every rule on this sheet is drawn this way for that reason.
+  border-bottom: 1px solid $color-rule;
+}
+
+// ROLES -----------------------------------------------------------------------
+
+.entry {
+  display: flex;
+  flex-direction: column;
+}
+
+.entryHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $gap-entry-inner;
+}
+
+.entryTitle {
+  font-size: $pt-entry;
+  font-weight: $weight-semibold;
+  line-height: $sheet-lh-tight;
+}
+
+.entryMeta {
+  font-size: $pt-meta;
+  line-height: $sheet-lh-tight;
+  color: $color-ink-soft;
+}
+
+.bullets {
+  margin-top: $gap-header-bullets;
+  padding-left: flat(3);
+
+  // styles/base/_reset.scss removes list markers site-wide. Restored here
+  // because a resume's bullets are structure, not decoration.
+  //
+  // MEASURED, because the obvious assumption is wrong: Chrome does NOT put the
+  // marker into the PDF's text layer. Printing this page and running
+  // `pdftotext -enc UTF-8` returns zero U+2022 -- the disc is painted without a
+  // Unicode mapping. So the markers are a VISUAL delimiter only.
+  //
+  // That is fine, and the reason to keep them is unchanged: in the extracted
+  // text each bullet still lands on its own line, which is what a parser
+  // segments on, and on paper the discs are what stop 5 claims reading as one
+  // paragraph. The <ul>/<li> in the DOM carries the semantics for anything
+  // reading the HTML rather than the PDF.
+  list-style: disc outside;
+
+  li {
+    font-size: $pt-body;
+    line-height: $sheet-lh;
+  }
+
+  li + li {
+    margin-top: $gap-bullet;
+  }
+
+  li::marker {
+    color: $color-ink-soft;
+  }
+}
+
+.clients {
+  margin-top: $gap-bullet;
+  font-size: $pt-meta;
+  line-height: $sheet-lh-tight;
+  color: $color-ink-soft;
+}
+
+// SKILLS ----------------------------------------------------------------------
+
+.skills {
+  display: grid;
+  // A fixed label column so the values start on one line down the block. The
+  // widest label is "Frameworks".
+  grid-template-columns: 5.6em 1fr;
+  gap: flat(1) flat(3);
+}
+
+.skillLabel {
+  font-family: $ff-mono;
+  font-weight: $weight-medium; // no 400 face exists
+  font-size: $pt-meta;
+  line-height: $sheet-lh;
+  letter-spacing: 0;
+  color: $color-ink-soft;
+}
+
+.skillItems {
+  font-size: $pt-body;
+  line-height: $sheet-lh;
+}
+
+// EDUCATION -------------------------------------------------------------------
+
+.education {
+  font-size: $pt-body;
+  line-height: $sheet-lh;
+}
+
+// =============================================================================
+// PRINT
+// @page itself lives in app/resume/print.scss -- it has no selector, so a CSS
+// module cannot localise it.
+// =============================================================================
+
+@media print {
+  .sheet {
+    // @page owns the margin now, so the sheet gives back the padding it used to
+    // fake the page on screen. Width and min-height go with it: the page box is
+    // the width, and a min-height in vh inside paged media is a second page of
+    // whitespace.
+    width: auto;
+    max-width: none;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+
+    // Nothing on this sheet DEPENDS on this -- every rule is a border, and the
+    // ground is the paper's own white -- so it is a guarantee rather than a
+    // dependency, and it exists so a restrained accent added later cannot
+    // silently vanish on paper. Scoped to the sheet, never to `*`: forcing
+    // exact globally is how a print stylesheet ends up laying a full-bleed key.
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  // BREAK DISCIPLINE ----------------------------------------------------------
+  //
+  // A job is never split. `.entry` is the whole <article>, so its header, its
+  // bullets and its clients line cross a page boundary together or not at all.
+  // A role title stranded at the foot of a page with its evidence overleaf is
+  // the failure this exists to prevent.
+  .entry,
+  .skills,
+  .education {
+    break-inside: avoid;
+  }
+
+  // A single bullet split across a boundary reads as two separate claims.
+  .bullets li {
+    break-inside: avoid;
+  }
+
+  // A section heading never ends a page.
+  //
+  // Chrome honours break-after: avoid on block boxes, but its support is the
+  // weakest of the four break properties. If an orphaned "SKILLS" ever appears
+  // at a page foot, the fix is structural rather than more CSS: wrap the heading
+  // and the section's first entry in one element and give THAT break-inside:
+  // avoid, which Chrome has always honoured. Do not reach for that until you
+  // have seen the orphan -- it costs a wrapper element for a problem that may
+  // not exist.
+  .sectionHeading,
+  .entryHeader {
+    break-after: avoid;
+  }
+
+  // The summary is the one multi-line paragraph on the sheet. It sits near the
+  // top of page 1 and should never be near a boundary, but stating the intent
+  // costs nothing.
+  .summary {
+    orphans: 2;
+    widows: 2;
+  }
+
+  // Deliberately NO `content: attr(href)` after links.
+  //
+  // Printing a link's URL after it is the standard print-stylesheet idiom and it
+  // is wrong here: it injects "(https://k311y.com)" into the PDF's text layer
+  // between two sentences, and the acceptance test is a verbatim round-trip. The
+  // links stay real anchors and stay underlined; a reader holding paper types
+  // the address off the contact line, which is what it is for.
+}
