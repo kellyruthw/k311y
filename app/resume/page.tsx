@@ -28,7 +28,7 @@ import "./print.scss";
  * tailoring its search result stay one edit.
  */
 
-const TITLE = `Resume / ${baseResume.name}`;
+const TITLE = `Resume |git st ${baseResume.name}`;
 
 export const metadata: Metadata = {
   title: TITLE,

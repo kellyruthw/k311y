@@ -29,12 +29,6 @@
   margin-top: space(8);
 }
 
-// Inline, so the comma sits tight against the last word rather than dropping
-// onto a row of its own.
-.comma {
-  display: inline;
-}
-
 // HIGHLIGHT -------------------------------------------------------------------
 // Same treatment as the hero: the words sit in the canvas colour and are only
 // legible because the yellow box is behind them.

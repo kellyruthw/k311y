@@ -51,7 +51,7 @@ export const baseResume: ResumeContent = {
       location: "Los Angeles, CA",
       dates: "June 2019 - July 2021",
       bullets: [
-        "Led UX/UI for a 0-1 privacy compliance product with 10+ major features spanning GDPR and CCPA workflows; refined a custom design system with engineering built on reusable components.",
+        "Led UX/UI for a 0-to-1 privacy compliance product with 10+ major features spanning GDPR and CCPA workflows; refined a custom design system with engineering built on reusable components.",
         "Pitched, designed, and built the headless marketing site (React, GraphQL, WordPress) to improve SEO and site performance.",
       ],
       clientsLine:
@@ -72,7 +72,7 @@ export const baseResume: ResumeContent = {
       location: "Los Angeles, CA",
       dates: "Nov 2018 - Feb 2019",
       bullets: [
-        "Built micro-sites promoting TV shows for Amazon, Focus Features, and ABC. An interactive Redbox signup experience drove 30k+ conversions in its first week.",
+        "Built microsites promoting TV shows for Amazon, Focus Features, and ABC. An interactive Redbox signup experience drove 30k+ conversions in its first week.",
       ],
     },
     {
@@ -81,7 +81,7 @@ export const baseResume: ResumeContent = {
       location: "Culver City, CA",
       dates: "Jan 2017 - Aug 2017",
       bullets: [
-        "Designed the UX/UI for a 0-1 desktop app with live streaming, messaging, and search, connecting fans with celebrities and creators through microtransactions.",
+        "Designed the UX/UI for a 0-to-1 desktop app with live-streaming, messaging, and search, connecting fans with celebrities and creators through microtransactions.",
       ],
     },
     {
@@ -95,7 +95,7 @@ export const baseResume: ResumeContent = {
     },
     {
       title: "Marketing Designer & Developer",
-      company: "TigerConnect",
+      company: "TigerText (now TigerConnect)",
       location: "Santa Monica, CA",
       dates: "Sept 2015 - Sept 2016",
       bullets: [

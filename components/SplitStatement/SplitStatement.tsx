@@ -91,7 +91,6 @@ export default function SplitStatement(props: SplitStatementProps) {
 
         const quote = root.querySelector("[data-statement-part='quote']");
         const parts = Array.from(root.querySelectorAll<HTMLElement>("[data-statement-line]"));
-        const comma = root.querySelector("[data-statement-part='comma']");
         if (!quote || !parts.length) return;
 
         const timeline = gsap.timeline({
@@ -114,9 +113,6 @@ export default function SplitStatement(props: SplitStatementProps) {
             0,
           );
         });
-
-        // The comma only makes sense once the halves read as one sentence.
-        if (comma) timeline.from(comma, { autoAlpha: 0, duration: 0.15 }, 0.85);
       });
 
       return () => mm.revert();
@@ -136,8 +132,7 @@ export default function SplitStatement(props: SplitStatementProps) {
       <blockquote className={styles.quote} data-statement-part="quote">
         {lines.map((line, index) => (
           // The animated element is the wrapper, not the text: transforms have
-          // no effect on an inline box, and the comma has to travel with the
-          // words it belongs to.
+          // no effect on an inline box.
           <span key={line} className={styles.line} data-statement-line={index}>
             {segment(line, phrases).map((piece, pieceIndex) =>
               piece.highlighted ? (
@@ -149,12 +144,6 @@ export default function SplitStatement(props: SplitStatementProps) {
                 <span key={pieceIndex}>{piece.text}</span>
               ),
             )}
-
-            {index === 0 && lines.length > 1 ? (
-              <span className={styles.comma} data-statement-part="comma" aria-hidden>
-                ,
-              </span>
-            ) : null}
           </span>
         ))}
       </blockquote>

@@ -82,7 +82,7 @@ Clients include: GoDaddy, Uptempo, FitOn, VidMob, Samesurf, The Famous Group
 **Developer, Founding Product Designer**
 TerraTrue · Los Angeles, CA · June 2019 - July 2021
 
-- Led UX/UI for a 0-1 privacy compliance product with 10+ major features spanning GDPR and CCPA workflows; refined a custom design system with engineering built on reusable components.
+- Led UX/UI for a 0-to-1 privacy compliance product with 10+ major features spanning GDPR and CCPA workflows; refined a custom design system with engineering built on reusable components.
 - Pitched, designed, and built the headless marketing site (React, GraphQL, WordPress) to improve SEO and site performance.
 
 Clients include: Robinhood, Roku, Lyft, Wish, OfferUp, Foursquare
@@ -95,12 +95,12 @@ First Media · Los Angeles, CA · March 2019 - June 2019
 **Web Developer & Designer, Contract**
 ATTN: · Los Angeles, CA · Nov 2018 - Feb 2019
 
-- Built micro-sites promoting TV shows for Amazon, Focus Features, and ABC. An interactive Redbox signup experience drove 30k+ conversions in its first week.
+- Built microsites promoting TV shows for Amazon, Focus Features, and ABC. An interactive Redbox signup experience drove 30k+ conversions in its first week.
 
 **Marketing & Product Designer**
 Collide · Culver City, CA · Jan 2017 - Aug 2017
 
-- Designed the UX/UI for a 0-1 desktop app with live streaming, messaging, and search, connecting fans with celebrities and creators through microtransactions.
+- Designed the UX/UI for a 0-to-1 desktop app with live-streaming, messaging, and search, connecting fans with celebrities and creators through microtransactions.
 
 **Senior Frontend Developer**
 OMNI Digital Agency · Torrance, CA · Sept 2016 - Jan 2017
@@ -108,7 +108,7 @@ OMNI Digital Agency · Torrance, CA · Sept 2016 - Jan 2017
 - Led frontend development for high-ticket projects, including a VOD catalog and subscription model; provided technical guidance and managed project scope for a team of Jr. developers.
 
 **Marketing Designer & Developer**
-TigerConnect · Santa Monica, CA · Sept 2015 - Sept 2016
+TigerText (now TigerConnect) · Santa Monica, CA · Sept 2015 - Sept 2016
 
 - Designed and developed Marketo landing pages that generated MQLs for the sales team.
 - Deployed heatmaps to gather user interaction data that informed design and development decisions, cutting the site bounce rate 30%.

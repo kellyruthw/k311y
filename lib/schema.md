@@ -788,8 +788,14 @@ Supersedes both `ThesisLine` (handoff) and `PullQuote` (the current Figma label)
 | variant | select | yes | — | `scroll` \| `static` |
 
 Approved animation (scroll, Home only): halves translate in from opposite sides
-on scrub, lock stacked centre, the joining comma fades in at lock, brief pin.
-`static` has no motion, and is what reduced-motion falls back to.
+on scrub, lock stacked centre, brief pin. `static` has no motion, and is what
+reduced-motion falls back to.
+
+The component no longer inserts a comma between the halves. It used to append
+one to the first line automatically, which read correctly only when the break
+fell at a clause boundary -- on "Claude eliminated the gap between, / deciding
+and shipping features" it landed after a preposition. Punctuation belongs in the
+authored `quote` now, so the line break can fall wherever the sentence wants it.
 
 ## `NextCase`
 Fragment `lib/fragments/caseSections.ts` -> `NextCaseFields` · key prefix `field_next_case_`
