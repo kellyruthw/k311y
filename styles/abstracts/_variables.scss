@@ -167,7 +167,7 @@ $scale-ceiling: 2560;
 // wide the screen. It bounds the top end only, so a capped token renders
 // identically to an uncapped one at and below 1728 -- see fluid-type().
 $sizes: (
-  display: (min: 32, max: 90), // Grift Bold 90/100 -- hero headline lead
+  display: (min: 30, max: 90), // Grift Bold 90/100 -- hero headline lead
   title: (min: 38, max: 80, cap: 80), // every hero H1 that is not Home's
   // The steepest taper on the site: 65 down to 20, where `display` only falls
   // to 40. A statement earns its size from the room around it, and on a phone
