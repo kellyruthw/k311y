@@ -186,7 +186,7 @@
 .square {
   @include mono-button;
 
-  padding: space(1.6);
+  padding: space(1.6) space(1.6) space(1) space(1.6);
 }
 
 // A square and its toggle sit on one line.
@@ -207,7 +207,7 @@
   @include mono-button;
 
   // Matches .square. It is the same object one level in.
-  padding: space(1.6);
+  padding: space(1.6) space(1.6) space(1) space(1.6);
 }
 
 // THE TREE TOGGLE -------------------------------------------------------------
