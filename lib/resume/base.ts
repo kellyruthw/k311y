@@ -82,6 +82,7 @@ export const baseResume: ResumeContent = {
       dates: "Jan 2017 - Aug 2017",
       bullets: [
         "Designed the UX/UI for a 0-to-1 desktop app with live-streaming, messaging, and search, connecting fans with celebrities and creators through microtransactions.",
+        "Designed, developed, and managed the company marketing site, owning it end to end from design through frontend build and ongoing updates.",
       ],
     },
     {
@@ -99,7 +100,7 @@ export const baseResume: ResumeContent = {
       location: "Santa Monica, CA",
       dates: "Sept 2015 - Sept 2016",
       bullets: [
-        "Designed and developed Marketo landing pages that generated MQLs for the sales team.",
+        "Owned all marketing design as the sole designer: app store product marketing, the website, print collateral, and Marketo email campaigns that generated MQLs for the sales team.",
         "Deployed heatmaps to gather user interaction data that informed design and development decisions, cutting the site bounce rate 30%.",
       ],
     },
