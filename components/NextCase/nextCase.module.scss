@@ -67,7 +67,7 @@
   flex-shrink: 0;
 
   @include motion-safe {
-    transition: transform 0.3s cubic-bezier(0.2, 0.6, 0.2, 1);
+    transition: transform $duration-base $ease-standard;
   }
 }
 
@@ -86,11 +86,11 @@
   object-fit: cover;
 
   @include motion-safe {
-    transition: transform 0.5s cubic-bezier(0.2, 0.6, 0.2, 1);
+    transition: transform $duration-slow $ease-standard;
   }
 }
 
-@media (hover: hover) and (pointer: fine) {
+@include hover-capable {
   .card:hover,
   .card:focus-visible {
     background-color: $bg-raised;

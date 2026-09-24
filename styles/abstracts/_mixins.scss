@@ -22,6 +22,55 @@
   }
 }
 
+/// The mirror of respond(): everything WIDER than a tier, starting 1px past it
+/// so the two never both match at the boundary.
+@mixin respond-above($breakpoint) {
+  @if not map.has-key(v.$breakpoints, $breakpoint) {
+    @error "respond-above(): unknown breakpoint `#{$breakpoint}`. Known: #{map.keys(v.$breakpoints)}.";
+  }
+
+  @media (min-width: map.get(v.$breakpoints, $breakpoint) + 1px) {
+    @content;
+  }
+}
+
+/// A real hover: a mouse or trackpad. Touch screens answer no, so a hover
+/// state written in here can never stick after a tap.
+@mixin hover-capable {
+  @media (hover: hover) and (pointer: fine) {
+    @content;
+  }
+}
+
+/// Only where the browser can trim a line box to its letters (text-box-trim).
+///
+/// Mono chrome at line-height 1 carries empty descender room under its label,
+/// which is why the pills and squares have been padded short at the bottom by
+/// eye. Where trim is supported the label's box ends at its cap height and
+/// baseline instead, so padding can be equal and on the grid. Put the trim on
+/// the LABEL -- it applies to block boxes, not to a flex container's bare text
+/// -- and the equal padding on the element around it, both inside this. The
+/// hand-trimmed padding stays outside as the fallback.
+@mixin if-text-trim {
+  @supports (text-box: trim-both cap alphabetic) {
+    @content;
+  }
+}
+
+/// Trim a label's box to cap height and baseline. Use inside if-text-trim.
+@mixin trim-to-caps {
+  text-box: trim-both cap alphabetic;
+}
+
+/// The label span inside a button, tab or pill: trimmed where supported.
+/// Every button on the site wraps its text in one of these, so equal padding
+/// on the button reads as equal around the letters.
+@mixin trimmed-label {
+  @include if-text-trim {
+    @include trim-to-caps;
+  }
+}
+
 /// Opt out of motion. Every animation in the site sits inside one of these.
 @mixin reduced-motion {
   @media (prefers-reduced-motion: reduce) {
@@ -144,10 +193,12 @@
 // face -- $ff-display is Google Sans Flex -- so read them as the size and
 // weight Figma reports, not as what the browser loads.
 
-/// The Home hero headline, and nothing else. Figma: Grift Bold 90 / 100.
+/// The Home hero headline, and nothing else. Grift Bold 90 / 1.1.
 ///
-/// Uncapped, so it keeps growing with the viewport. It is the one piece of type
-/// on the site whose job is to be the size of the screen it opens.
+/// It keeps growing with the viewport past the design width, because its job is
+/// to be the size of the screen it opens -- but only to 100px. Uncapped it
+/// reached 133 at 2560, which was too big. The mono tail under it stops at 80
+/// for the same reason.
 @mixin display {
   @include size-token(display);
   @include type-style(v.$ff-display, v.$weight-bold, v.$lh-110);
@@ -159,8 +210,8 @@
 /// The same curve as `display` up to the design width, so 1728 is unchanged and
 /// nothing had to be re-measured against Figma. It parts company above it: a
 /// case study's H1 is a descriptive line introducing a page, not the statement
-/// that opens the site, and it stops at 100px rather than following Home's to
-/// 133. That is the whole reason it is a separate token instead of an argument
+/// that opens the site, and it stops at 80px rather than following Home's to
+/// 100. That is the whole reason it is a separate token instead of an argument
 /// to this one -- the cap belongs to the job, and the job has a name.
 @mixin title {
   @include size-token(title);
@@ -201,13 +252,13 @@
   @include type-style(v.$ff-display, v.$weight-semibold, v.$lh-150);
 }
 
-/// Lead paragraphs: the hero and IntroCopy. Grift Regular 24 / 1.5.
+/// Lead paragraphs: the hero and IntroCopy. Grift Light 24 / 1.5.
 @mixin paragraph-large {
   @include size-token(paragraph-large);
   @include type-style(v.$ff-display, v.$weight-light, v.$lh-150);
 }
 
-/// Standard body copy. Grift Regular 18 / 1.5.
+/// Standard body copy. Grift Light 18 / 1.5.
 @mixin paragraph {
   @include size-token(paragraph);
   @include type-style(v.$ff-display, v.$weight-light, v.$lh-150);
@@ -218,24 +269,22 @@
 /// The same curve as `paragraph` and the same size at every width up to the
 /// artboard. It holds at 18 above it, where `paragraph` grows to 24, because a
 /// row's copy is bounded by the row rather than by the page.
+///
+/// Regular where `paragraph` is Light, deliberately: in a row it sits beside a
+/// numeral and a semibold title, and the extra weight holds its own there.
 @mixin paragraph-small {
   @include size-token(paragraph-small);
   @include type-style(v.$ff-display, v.$weight-regular, v.$lh-150);
 }
 
-/// The label column of a meta table. Figma: AOT SemiBold 14, -1.12px.
+/// The label column of a meta table. AOT SemiBold 14, -1.12px.
+/// The values beside it are set with `table-copy`.
 @mixin meta-label {
   @include size-token(meta);
   @include type-style(v.$ff-mono, v.$weight-semibold, v.$lh-100, v.$ls-mono);
 }
 
-/// A meta table value. Figma: Grift Regular 14 / 1.3.
-@mixin meta-value {
-  @include size-token(meta);
-  @include type-style(v.$ff-display, v.$weight-regular, v.$lh-130);
-}
-
-/// The smaller italic second line under a meta value. Figma: Grift Italic 12.
+/// The smaller italic second line under a meta value. Grift Italic 12.
 @mixin meta-note {
   @include size-token(meta-note);
   @include type-style(v.$ff-display, v.$weight-regular, v.$lh-130);
@@ -249,10 +298,20 @@
   @include type-style(v.$ff-mono, v.$weight-light, v.$lh-100, v.$ls-mono);
 }
 
-/// Section kickers and table labels. Figma: AOT Bold 14, uppercase.
+/// Section kickers and table labels. AOT Bold 13, uppercase.
 @mixin kicker {
   @include size-token(mono);
   @include type-style(v.$ff-mono, v.$weight-bold, v.$lh-100, v.$ls-none, $uppercase: true);
+}
+
+/// The kicker above a heading, as every hero and SectionHeader sets it: soft,
+/// and held 20px off the line it introduces. One place, so the five headers
+/// that use it cannot drift apart.
+@mixin section-kicker {
+  @include kicker;
+
+  margin-bottom: f.space(4);
+  color: v.$color-text-soft;
 }
 
 /// The label on a table's tab, e.g. "FEATURED SITES I'VE BUILT".
@@ -263,13 +322,13 @@
   @include type-style(v.$ff-mono, v.$weight-bold, v.$lh-100, v.$ls-none, $uppercase: true);
 }
 
-/// Nav page squares and count chips. Figma: AOT Bold 15, -1.2px.
+/// Nav page squares and count chips. AOT Bold 14, -1.12px.
 @mixin mono-chip {
   @include size-token(mono-chip);
   @include type-style(v.$ff-mono, v.$weight-bold, v.$lh-100, v.$ls-mono);
 }
 
-/// Component chips, nowline items, general mono body. Figma: AOT Medium 14.
+/// Component chips, nowline items, general mono body. AOT Medium 13.
 @mixin mono-body {
   @include size-token(mono);
   @include type-style(v.$ff-mono, v.$weight-medium, v.$lh-100, v.$ls-mono);
@@ -281,7 +340,7 @@
   @include type-style(v.$ff-mono, v.$weight-regular, v.$lh-100, v.$ls-mono);
 }
 
-/// Copy inside tables. Grift Regular 13.
+/// Copy inside tables. Grift Regular 14.
 /// Column labels deliberately do NOT use this -- they keep the mono kicker,
 /// which is what distinguishes a header from the data under it.
 @mixin table-copy {
@@ -289,13 +348,26 @@
   @include type-style(v.$ff-display, v.$weight-regular, v.$lh-130);
 }
 
-/// Outbound links in mono contexts. Figma: AOT SemiBold 14, underlined.
+/// Outbound links in mono contexts. AOT SemiBold 13, underlined.
 @mixin mono-link {
   @include size-token(mono);
   @include type-style(v.$ff-mono, v.$weight-semibold, v.$lh-100, v.$ls-mono);
 
   text-decoration: underline;
   text-underline-position: from-font;
+}
+
+/// The SIZE of the title on a small WorkCardGrid card. Only the size: the card
+/// title's face, weight and $lh-120 are shared by both card sizes and set once
+/// on the title itself.
+///
+/// Its own curve rather than a $sizes token, because it is not a fluid-type
+/// ramp: it climbs from 18 and reaches 22 at about 830px, then holds, where a
+/// token from 18 to 22 would not arrive until 1728. A small card is small at
+/// every width, so its title stops growing early. Above the design width it
+/// zooms with the rem like everything else.
+@mixin card-title-small {
+  font-size: clamp(#{f.rem(18)}, 1.2vw + #{f.rem(12)}, #{f.rem(22)});
 }
 
 
@@ -372,7 +444,7 @@
 /// the whole question goes away. Nothing at or above the design width moves.
 @mixin content-inset {
   padding-left: max(
-    calc(#{v.$grid-margin} + 2 * (#{grid-track()} + #{v.$grid-gutter})),
+    calc(#{v.$grid-margin} + #{v.$content-start - 1} * (#{grid-track()} + #{v.$grid-gutter})),
     calc(#{v.$sidebar-width} + #{f.space(4)})
   );
 

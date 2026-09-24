@@ -323,11 +323,11 @@ export default function SidebarNav({
                         requestAnchor(link.hash as string);
                       }}
                     >
-                      {link.label}
+                      <span className={styles.squareLabel}>{link.label}</span>
                     </a>
                   ) : link.isExternal ? (
                     <a href={link.href} className={styles.square} onClick={closeMenu}>
-                      {link.label}
+                      <span className={styles.squareLabel}>{link.label}</span>
                     </a>
                   ) : (
                       <Link
@@ -336,7 +336,7 @@ export default function SidebarNav({
                         aria-current={isCurrent ? "page" : undefined}
                         onClick={closeMenu}
                       >
-                        {link.label}
+                        <span className={styles.squareLabel}>{link.label}</span>
                       </Link>
                     )}
 
@@ -357,7 +357,7 @@ export default function SidebarNav({
                   */}
                   {isCurrent && entryLabel ? (
                     <div className={styles.entryRow}>
-                      <p className={styles.entry}>{entryLabel}</p>
+                      <p className={styles.entry}><span className={styles.squareLabel}>{entryLabel}</span></p>
 
                       {hasTree ? (
                         <TreeToggle
@@ -387,7 +387,9 @@ export default function SidebarNav({
                           >
                             <span className={styles.circleLabel}>{node.label}</span>
                             {node.count > 1 ? (
-                              <span className={styles.count}>{node.count}</span>
+                              <span className={styles.count}>
+                                <span className={styles.countText}>{node.count}</span>
+                              </span>
                             ) : null}
                           </button>
 

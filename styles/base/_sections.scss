@@ -17,13 +17,14 @@
 // means thirteen rules that each have to be read together with the ones on
 // either side of them.
 //
-// Below `tablet` this replaces all of that with one gap. Every section gets it
-// on top and bottom, and every section that FOLLOWS another gives its top back,
-// so any two neighbours are separated by exactly one $section-gap and never two.
-// The first section on a page keeps its top padding and the last keeps its
-// bottom, which is what holds the run off the nav and the footer.
+// Below `tablet` this replaces all of that with one padding. Every section gets
+// it on top and bottom, so any two neighbours are separated by two of them: 80px,
+// the bottom of one plus the top of the next. That doubling is the chosen rhythm,
+// confirmed 2026-09-24, not a rule that went missing.
+// The first section's top and the last section's bottom hold the run off the nav
+// and the footer.
 
-$section-gap: space(8); // 40px
+$section-gap: space(8); // 40px each side, so 80px between sections
 
 // SPECIFICITY, deliberately.
 //
@@ -36,25 +37,12 @@ $section-gap: space(8); // 40px
 // on every route, and SiteFooter is a sibling of it, so the footer is excluded
 // without having to name it.
 //
-// TO OPT OUT, count against the rule you are actually fighting -- the two below
-// do not have the same weight, and assuming they did has already cost one bug:
-//
-//   main [data-component]                      (0,1,1)   beaten by (0,2,0)
-//   main [data-component] + [data-component]   (0,2,1)   needs (0,3,0)
-//
-// A doubled class clears the first and loses the second, because their class
-// columns tie and `main` breaks it. So a component overriding padding-BOTTOM
-// needs two classes, while one overriding padding-TOP on a section that follows
-// another needs three, or two plus an attribute. SplitStatement does the latter
-// and says so; MediaCopy's run-of-video rule clears both at (0,4,0) already.
+// TO OPT OUT, beat (0,1,1): a doubled class (0,2,0) is enough. MediaCopy's
+// run-of-video rule is the one opt-out on the site, at (0,4,0).
 
 @include respond(tablet) {
   main [data-component] {
     padding-top: $section-gap;
     padding-bottom: $section-gap;
   }
-
-  // main [data-component] + [data-component] {
-  //   padding-top: 0;
-  // }
 }

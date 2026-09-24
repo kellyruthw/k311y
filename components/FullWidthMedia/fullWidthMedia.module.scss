@@ -75,7 +75,7 @@
 }
 
 .frameInner[data-zoom="true"] {
-  @media (hover: hover) and (pointer: fine) {
+  @include hover-capable {
     cursor: crosshair;
   }
 }

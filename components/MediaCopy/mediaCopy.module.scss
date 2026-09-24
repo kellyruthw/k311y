@@ -158,10 +158,11 @@
   // The one opt-out from the global section rhythm, and the only rule in this
   // file that still touches section padding.
   //
-  // styles/base/_sections.scss gives every section 40px and takes the top back
-  // from any section that follows another -- but it does that at one element
-  // plus two attributes, and the video-pair rule above is two classes plus two
-  // attributes, so it would go on winning and stack 140px on top of the gap.
+  // styles/base/_sections.scss gives every section 40px top and bottom, at one
+  // element plus one attribute. The video-pair rule above is two classes plus
+  // two attributes, so it would go on winning and put 140px on top instead.
+  // Zeroing it leaves a run of videos 40px apart, tighter than the 80px between
+  // other sections.
   //
   // That space(28) is a wide-screen judgement: two moving blocks beside each
   // other need a still edge between them. Stacked in one column there is no

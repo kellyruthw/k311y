@@ -111,7 +111,7 @@ export default function SiteFooter({ tabLabel, availabilityLine, links }: SiteFo
                 <li key={link.href + link.label}>
                   {isRoute ? (
                     <Link href={link.href} className={styles.link}>
-                      {link.label}
+                      <span className={styles.linkLabel}>{link.label}</span>
                     </Link>
                   ) : (
                     <a
@@ -120,7 +120,7 @@ export default function SiteFooter({ tabLabel, availabilityLine, links }: SiteFo
                       target={opensAway ? "_blank" : undefined}
                       rel={opensAway ? "noreferrer" : undefined}
                     >
-                      {link.label}
+                      <span className={styles.linkLabel}>{link.label}</span>
                     </a>
                   )}
                 </li>

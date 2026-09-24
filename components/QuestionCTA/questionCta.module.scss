@@ -85,7 +85,7 @@ $note-width: space(80);
   transform: rotate(var(--lean));
 
   @include motion-safe {
-    transition: transform 0.35s cubic-bezier(0.2, 0.6, 0.2, 1);
+    transition: transform $duration-base $ease-standard;
   }
 
   @include respond(tablet) {
@@ -93,7 +93,7 @@ $note-width: space(80);
   }
 }
 
-@media (hover: hover) and (pointer: fine) {
+@include hover-capable {
   .sticky:hover,
   .sticky:focus-visible {
     transform: rotate(var(--lean)) translateY(#{space(-1.6)});
@@ -126,8 +126,8 @@ $note-width: space(80);
 
   @include motion-safe {
     transition:
-      width 0.35s cubic-bezier(0.2, 0.6, 0.2, 1),
-      height 0.35s cubic-bezier(0.2, 0.6, 0.2, 1);
+      width $duration-base $ease-standard,
+      height $duration-base $ease-standard;
   }
 }
 
@@ -169,7 +169,7 @@ $note-width: space(80);
   flex-shrink: 0;
 
   @include motion-safe {
-    transition: transform 0.35s cubic-bezier(0.2, 0.6, 0.2, 1);
+    transition: transform $duration-base $ease-standard;
   }
 
   .sticky:hover &,

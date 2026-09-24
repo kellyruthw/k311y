@@ -52,45 +52,10 @@
 }
 
 // MOBILE ----------------------------------------------------------------------
-// The one opt-out from the global section rhythm in styles/base/_sections.scss,
-// and it opts out in both directions.
-//
-// This section keeps 40px of its OWN above and below, on top of whatever its
-// neighbours contribute rather than counted inside it. With the scrub gone below
-// this breakpoint (see SplitStatement.tsx) the space is the only thing left
-// marking this as a held moment, so it is bought outright instead of shared.
-//
-// Both gaps come to 80px: 40 from the neighbour and 40 from here.
-//
-//   above    the section before keeps the global 40px of bottom padding,
-//            and the 40px here sits under it
-//   below    the global rule strips the top padding off any section that
-//            follows another, so the third rule hands it back -- otherwise
-//            this side would read 40 against the other's 80
-//
-// Specificity is doing real work here, and it needs counting rather than
-// guessing. The two global rules are:
-//
-//   main [data-component]                      (0,1,1)
-//   main [data-component] + [data-component]   (0,2,1)
-//
-// A doubled class is (0,2,0). It beats the first, because two classes outrank
-// one. It LOSES to the second: the class columns tie at two, and the element
-// `main` decides it. That is not a hypothetical -- written with two classes,
-// the padding-bottom below applied and the padding-top silently did not.
-//
-// Three classes is (0,3,0), which clears both outright.
+// No section padding of its own. The global rhythm in styles/base/_sections.scss
+// already puts 80px between every pair of sections, which is the held space a
+// statement wants with the scrub gone below this breakpoint.
 @include respond(tablet) {
-  .section.section.section {
-    padding-top: space(8);
-    padding-bottom: space(8);
-  }
-
-  // Already (0,3,0): two classes plus the sibling's attribute.
-  .section.section + [data-component] {
-    padding-top: space(8);
-  }
-
   // 8px between the halves, down from 40. The gap was set against 65px type and
   // did not follow it down: at 20px on a phone, 40px of air between two lines of
   // one sentence reads as two separate statements rather than a break in one.

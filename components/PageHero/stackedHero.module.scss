@@ -30,10 +30,7 @@
 }
 
 .kicker {
-  @include kicker;
-
-  margin-bottom: space(4);
-  color: $color-text-soft;
+  @include section-kicker;
 }
 
 .title {

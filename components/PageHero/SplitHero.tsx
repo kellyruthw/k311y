@@ -40,7 +40,7 @@ function AnchorCta({ label, link }: { label: string; link: string }) {
         if (scrollToAnchor(link)) event.preventDefault();
       }}
     >
-      {label}
+      <span className={styles.ctaLabel}>{label}</span>
     </a>
   );
 }

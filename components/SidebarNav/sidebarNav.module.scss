@@ -84,8 +84,8 @@
 
     @include motion-safe {
       transition:
-        transform 0.22s ease,
-        opacity 0.22s ease;
+        transform $duration-base ease,
+        opacity $duration-base ease;
     }
   }
 
@@ -187,6 +187,14 @@
   @include mono-button;
 
   padding: space(1.6) space(1.6) space(1) space(1.6);
+
+  // Trimmed, the label needs no correction: 8px on every side. Desktop only,
+  // to match .squareLabel.
+  @include respond-above(tablet) {
+    @include if-text-trim {
+      padding: space(1.6);
+    }
+  }
 }
 
 // A square and its toggle sit on one line.
@@ -208,6 +216,23 @@
 
   // Matches .square. It is the same object one level in.
   padding: space(1.6) space(1.6) space(1) space(1.6);
+
+  @include respond-above(tablet) {
+    @include if-text-trim {
+      padding: space(1.6);
+    }
+  }
+}
+
+// The label inside a square or the entry. A span of its own only so the trim
+// has a block box to land on -- see if-text-trim. Desktop only: on a phone the
+// squares are full-width menu rows with their own padding, and they keep it.
+.squareLabel {
+  @include respond-above(tablet) {
+    @include if-text-trim {
+      @include trim-to-caps;
+    }
+  }
 }
 
 // THE TREE TOGGLE -------------------------------------------------------------
@@ -229,7 +254,7 @@
 
   @include motion-safe {
     svg {
-      transition: transform 0.3s cubic-bezier(0.2, 0.6, 0.2, 1);
+      transition: transform $duration-base $ease-standard;
     }
   }
 }
@@ -255,17 +280,17 @@
   @include tab-label;
 
   position: absolute;
-  left: calc(100% + #{space(1.5)});
+  left: calc(100% + #{space(1.6)});
   z-index: 2;
   color: $color-text-invert;
   background-color: transparent;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  padding-top:space(0.8);
+  padding-top: space(0.8);
 
   @include motion-safe {
-    transition: opacity 0.15s ease-out;
+    transition: opacity $duration-fast ease-out;
   }
 
   .caret:hover &,
@@ -283,7 +308,7 @@
   grid-template-rows: 1fr;
 
   @include motion-safe {
-    transition: grid-template-rows 0.35s cubic-bezier(0.2, 0.6, 0.2, 1);
+    transition: grid-template-rows $duration-base $ease-standard;
   }
 }
 
@@ -304,7 +329,7 @@
   padding-top: 0;
 
   @include motion-safe {
-    transition: padding-top 0.35s cubic-bezier(0.2, 0.6, 0.2, 1);
+    transition: padding-top $duration-base $ease-standard;
   }
 }
 
@@ -345,7 +370,7 @@
     top: space(3.4);
     left: space(-4);
     width: space(4);
-    border-top: 1px solid rgba($color-black, 0.35);
+    border-top: 1px solid $color-border-on-chrome;
   }
 
   // This node's length of the vertical rule: up through the gap above it, down
@@ -357,7 +382,7 @@
     top: calc(-1 * #{space(2.4)});
     left: space(-4);
     height: calc(#{space(2.4)} + #{space(3.4)});
-    border-left: 1px solid rgba($color-black, 0.35);
+    border-left: 1px solid $color-border-on-chrome;
   }
 
   // The first node also covers the branch's own top padding, so the run starts
@@ -378,17 +403,27 @@
   display: inline-flex;
   gap: space(1.6);
   align-items: center;
-  // 8px 12px, i.e. 0.5rem 0.75rem. Off the 5px scale in both axes, as the
-  // page squares' 12px already is -- the pill is sized to its label, and the
-  // label is type rather than layout.
+  // 8px 12px, on the 4px chrome grid, as the page squares' 12px already is --
+  // the pill is sized to its label, and the label is type rather than layout.
+  //
+  // The bottom is 1px short ON PURPOSE. AOT Serial Mono's line box at
+  // line-height 1 carries empty descender room under the letters, so equal
+  // padding sits the label visibly high. Taking it off the bottom is an optical
+  // correction, not drift -- the same one .square makes. Leave it off the grid.
   padding: space(1.6) space(2.4) space(1.4) space(2.4);
   color: $color-text-invert;
   background-color: $bg-node;
   border: 1px solid $color-border-soft;
   border-radius: $radius-pill;
 
+  // Where the label can be trimmed to its letters, the correction above is not
+  // needed: the padding goes equal, on the grid, and the pill gets shorter.
+  @include if-text-trim {
+    padding: space(1.6) space(2.4);
+  }
+
   @include motion-safe {
-    transition: background-color 0.18s ease-out;
+    transition: background-color $duration-fast ease-out;
   }
 
   // Hovered: the node being asked about. Draws the marquee.
@@ -398,23 +433,64 @@
 
   // Scrolled into view: a soft "you are here", with no marquee.
   &[data-inview="true"]:not([data-active="true"]) {
-    // box-shadow: 0 0 0 1px $bg-invert;
     background-color: $bg-invert;
+  }
+}
+
+// With a count, the pill's right padding matches the space above and below the
+// circle, so the circle sits in the end of the pill rather than short of it.
+// That space is the pill's block padding plus half of (label height - circle),
+// and the label is one cap tall when trimmed, one em when not.
+.circle:has(.count) {
+  padding-right: calc((#{space(1.6)} + #{space(1.4)} + 1em - #{space(4)}) / 2);
+
+  @include if-text-trim {
+    padding-right: calc(#{space(1.6)} + (1cap - #{space(4)}) / 2);
   }
 }
 
 .count {
   @include mono-small;
 
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: space(3.6);
-  padding: space(0.8) space(1.2) space(0.4) space(1.2);;
-  color: $color-text-primary;
-  background-color: $bg-chrome;
-  border-radius: $radius-pill;
-  position: relative;
+  // A circle, so a fixed square rather than padding: padding sizes to the
+  // digit, and a digit is narrower than it is tall, which made an oval. 20px
+  // holds two digits. The number is centred by the grid, on its trimmed box.
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: space(4);
+  height: space(4);
+  border-radius: 50%;
+
+  // Pulled out of the pill's height entirely: half its size off each side
+  // leaves a margin box of zero, and align-items: center on .circle still
+  // centres the circle on the label. So a pill with a count is exactly the
+  // height of one without, whatever size the circle is.
+  margin-block: calc(-1 * #{space(2)});
+
+  // White, not the panel purple it used to be: the same purple as the panel
+  // behind the pill, which looked like a mistake. It flips with its pill,
+  // so the two always differ: white on lavender at rest, lavender on white
+  // once the pill is active or in view.
+  color: $color-text-invert;
+  background-color: $bg-invert;
+
+  @include motion-safe {
+    transition: background-color $duration-fast ease-out;
+  }
+
+  .circle[data-active="true"] &,
+  .circle[data-inview="true"] & {
+    background-color: $bg-node;
+  }
+}
+
+.countText {
+  @include trimmed-label;
+}
+
+.circleLabel {
+  @include trimmed-label;
 }
 
 // CPT-FED DIAMONDS ------------------------------------------------------------
@@ -512,7 +588,7 @@
     grid-template-rows: 0fr;
 
     @include motion-safe {
-      transition: grid-template-rows 0.28s ease;
+      transition: grid-template-rows $duration-base ease;
     }
   }
 
@@ -548,7 +624,7 @@
     overflow: hidden;
     gap: 0;
     visibility: hidden;
-    transition: visibility 0s linear 0.28s;
+    transition: visibility 0s linear $duration-base;
   }
 
   .panel[data-menu-open="true"] .pages {
@@ -595,7 +671,7 @@
     padding: space(3.2) space(4);
     background-color: transparent;
     border: 0;
-    border-top: 1px solid rgba($color-black, 0.35);
+    border-top: 1px solid $color-border-on-chrome;
     border-radius: 0;
     color: $color-text-invert;
   }

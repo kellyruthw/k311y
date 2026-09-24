@@ -38,9 +38,13 @@ export default function Tab({
 
   const body = (
     <>
-      <span className={styles.label}>{children}</span>
+      <span className={styles.label}>
+        <span className={styles.text}>{children}</span>
+      </span>
       {count !== null && count !== undefined && count !== "" ? (
-        <span className={styles.count}>{count}</span>
+        <span className={styles.count}>
+          <span className={styles.text}>{count}</span>
+        </span>
       ) : null}
     </>
   );

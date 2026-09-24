@@ -82,7 +82,7 @@
 .scrim {
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(to bottom, rgba($color-black, 0) 0%, $color-black 88%);
+  background-image: linear-gradient(to bottom, rgba($bg-page, 0) 0%, $bg-page 88%);
 }
 
 // THE COPY --------------------------------------------------------------------
@@ -125,10 +125,7 @@
 }
 
 .kicker {
-  @include kicker;
-
-  margin-bottom: space(4);
-  color: $color-text-soft;
+  @include section-kicker;
 }
 
 .title {

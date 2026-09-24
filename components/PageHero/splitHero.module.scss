@@ -44,10 +44,7 @@
 // THE COPY HALF ---------------------------------------------------------------
 
 .kicker {
-  @include kicker;
-
-  margin-bottom: space(4);
-  color: $color-text-soft;
+  @include section-kicker;
 }
 
 .title {
@@ -85,7 +82,7 @@
   background-image: $bg-select-fill-off;
 
   @include motion-safe {
-    transition: background-image 0.18s ease-out;
+    transition: background-image $duration-fast ease-out;
   }
 
   &:hover {
@@ -98,6 +95,11 @@
     // plain image swap would have done everywhere.
     background-image: $bg-select-fill;
   }
+}
+
+// The CTA text, trimmed like every other button label. See trimmed-label.
+.ctaLabel {
+  @include trimmed-label;
 }
 
 // THE MEDIA HALF --------------------------------------------------------------

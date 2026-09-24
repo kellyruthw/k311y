@@ -170,11 +170,11 @@ $media-ratio-small: 1.0769; // 420 x 390
   object-fit: cover;
 
   @include motion-safe {
-    transition: transform 0.5s cubic-bezier(0.2, 0.6, 0.2, 1);
+    transition: transform $duration-slow $ease-standard;
   }
 }
 
-@media (hover: hover) and (pointer: fine) {
+@include hover-capable {
 
   .cardLink:hover .media,
   .cardLink:focus-visible .media {
@@ -197,10 +197,10 @@ $media-ratio-small: 1.0769; // 420 x 390
   bottom: space(3);
   display: flex;
   flex-wrap: wrap;
-  gap: space(1.5);
+  gap: space(1.6);
   justify-content: flex-end;
   max-width: 70%;
-  padding: space(2.5);
+  padding: space(2.4);
   pointer-events: none;
   background-color: $bg-note;
   border-radius: $radius-square;
@@ -211,8 +211,8 @@ $media-ratio-small: 1.0769; // 420 x 390
 
   @include motion-safe {
     transition:
-      opacity 0.28s ease-out,
-      transform 0.28s cubic-bezier(0.2, 0.6, 0.2, 1);
+      opacity $duration-base ease-out,
+      transform $duration-base $ease-standard;
   }
 }
 
@@ -245,7 +245,7 @@ $media-ratio-small: 1.0769; // 420 x 390
 
 .title {
   @include paragraph-large;
-  line-height: 1.2;
+  line-height: $lh-120;
 
   margin-top: space(4);
 
@@ -254,8 +254,6 @@ $media-ratio-small: 1.0769; // 420 x 390
   }
 
   .card[data-size="small"] & {
-    @include size-token(mono-display);
-
-    font-size: clamp(rem(18), 1.2vw + rem(12), rem(22));
+    @include card-title-small;
   }
 }

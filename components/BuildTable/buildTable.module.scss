@@ -23,10 +23,12 @@
 // desktop window still answers yes to both pointer queries, and below this the
 // rows are cards in a deck rather than rows in a table -- where a full-width
 // row tint has nothing to tint.
-@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
-  .section :global(tr):has(a):hover,
-  .section :global(tr):has([data-thumb-src]):hover {
-    background-image: linear-gradient($bg-raised-strong, $bg-raised-strong);
+@include respond-above(tablet) {
+  @include hover-capable {
+    .section :global(tr):has(a):hover,
+    .section :global(tr):has([data-thumb-src]):hover {
+      background-image: linear-gradient($bg-raised-strong, $bg-raised-strong);
+    }
   }
 }
 
@@ -35,7 +37,7 @@
 .site {
   position: relative;
   display: inline-flex;
-  gap: space(1.5);
+  gap: space(1.6);
   align-items: baseline;
 }
 
@@ -45,7 +47,7 @@
 
 .marker {
   font-style: normal;
-  line-height: 1;
+  line-height: $lh-100;
 }
 
 .markerBlue {
@@ -138,7 +140,7 @@
 
 .legendItem {
   display: inline-flex;
-  gap: space(1.5);
+  gap: space(1.6);
   align-items: baseline;
 }
 
@@ -241,7 +243,7 @@
       flex: 0 0 86%;
       flex-wrap: wrap;
       align-items: baseline;
-      gap: space(1.4) space(1.6);
+      gap: space(1.6);
       scroll-snap-align: start;
 
       // The cards are equal height now, so every one has slack in it. This is
@@ -255,11 +257,11 @@
       // it would move the link within its line and never push the line down.
       align-content: space-between;
 
-      padding: space(2.8);
+      padding: space(3.2);
       background-color: $bg-page;
       border: 1px solid $color-border-subtle;
       border-radius: $radius-square;
-      box-shadow: 0 #{space(2)} #{space(4.4)} rgba($color-black, 0.55);
+      box-shadow: $shadow-popover;
     }
 
     // A card with no image is not shown at all.
@@ -312,7 +314,7 @@
       overflow: hidden;
       border-radius: $radius-square;
       background-color: $bg-raised;
-      margin-bottom: space(1.2);
+      margin-bottom: space(1.6);
     }
 
     // The year leads its line, in the select colour, tabular so 2013-2015 and
@@ -363,13 +365,13 @@
     // and a stack-only row would otherwise open with a stray separator.
     :global([data-column="Role"]:not(:empty) + [data-column="Stack"]::before) {
       content: "·";
-      margin-right: space(1.2);
+      margin-right: space(1.6);
     }
 
     :global([data-column="Link"]) {
       order: 7;
       width: 100%;
-      margin-top: space(1.2);
+      margin-top: space(1.6);
     }
   }
 
@@ -380,7 +382,7 @@
     @include mono-chip;
 
     display: inline-flex;
-    gap: space(1.5);
+    gap: space(1.6);
     align-items: baseline;
   }
 

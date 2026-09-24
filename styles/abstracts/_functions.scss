@@ -31,14 +31,34 @@ $root-font-size: 16;
   @return math.div(strip-unit($px), $root-font-size) * 1rem;
 }
 
+/// The spacing base unit, in px. Everything on the spacing scale is a multiple
+/// of it -- space() here, and flat() in the resume, which is the same scale in
+/// px rather than rem.
+$space-base: 5;
+
 /// The 5px spacing scale. Every gap, pad and offset in the site goes through
-/// this, so `space(6)` is the 30px Figma drew and there are no stray magic
-/// numbers.
-/// Figma is already drawn on this grid: 1360 content width, 30px BuildTable
-/// rows, 50px canvas grid pitch.
+/// this, so `space(6)` is 30px and there are no stray magic numbers.
+/// The layout was drawn on this grid: 1360 content width, 30px BuildTable rows,
+/// 50px canvas grid pitch.
 ///
 /// Emitted in rem, so a value that reads as 30px at the design width scales
 /// with everything else above it.
+///
+/// TWO GRIDS, ONE FUNCTION. Layout -- section padding, gutters, the space
+/// between blocks -- stays on whole steps of 5px. Chrome that is sized to its
+/// own label -- chips, nav squares, tabs, pills, the gaps inside them -- steps
+/// in 4px instead (8, 12, 16, 24), because it is sized to type rather than to
+/// the page, and a 5px step around 13px mono lands the label off-centre. Those
+/// are written as fractional steps: `space(1.6)` is 8px, `space(2.4)` is 12px.
+///
+/// A fractional step that is on neither grid should be a measurement with a
+/// reason next to it (a 44px tap target, an asset's drawn size). One without a
+/// reason is drift.
+///
+/// One standing exception: a short BOTTOM pad on mono chrome (the nav squares,
+/// the sidebar pills and count chips). AOT Serial Mono sits high in its line
+/// box, so equal top and bottom padding reads as bottom-heavy. The bottom is
+/// trimmed by eye to centre the label, and that is correct.
 @function space($n) {
-  @return rem($n * 5);
+  @return rem($n * $space-base);
 }

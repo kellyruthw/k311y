@@ -30,7 +30,7 @@
 /// get bigger when you buy a wider monitor. Read `flat(4)` exactly as you would
 /// read `space(4)`: 20px, four steps of the 5px grid.
 @function flat($n) {
-  @return $n * 5px;
+  @return $n * $space-base * 1px;
 }
 
 // TYPE SCALE, in points -------------------------------------------------------

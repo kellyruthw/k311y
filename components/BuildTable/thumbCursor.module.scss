@@ -25,7 +25,7 @@
   background-color: $bg-page;
 
   opacity: 0;
-  transition: opacity 0.18s ease-out;
+  transition: opacity $duration-fast ease-out;
 
   &[data-visible="true"] {
     opacity: 1;
@@ -42,7 +42,7 @@
 // The thumbnail becomes the cursor, so the real one is hidden while over a row
 // that has one. Only where the follower actually appears: with no hover, or
 // under reduced motion, hiding the pointer would leave nothing in its place.
-@media (hover: hover) and (pointer: fine) {
+@include hover-capable {
   .scope :global(tr):has([data-thumb-src]) {
     cursor: none;
   }

@@ -40,6 +40,12 @@
   max-width: space(255);
 }
 
+// The link text, trimmed so mono-button's even 12px reads as even around the
+// letters. See trimmed-label.
+.linkLabel {
+  @include trimmed-label;
+}
+
 .links {
   display: flex;
   flex-wrap: wrap;
@@ -54,8 +60,8 @@
 
   @include motion-safe {
     transition:
-      background-color 0.18s ease-out,
-      background-image 0.18s ease-out;
+      background-color $duration-fast ease-out,
+      background-image $duration-fast ease-out;
   }
 
   &:hover,

@@ -13,8 +13,8 @@
 
   @include motion-safe {
     transition:
-      background-color 0.18s ease-out,
-      color 0.18s ease-out;
+      background-color $duration-fast ease-out,
+      color $duration-fast ease-out;
   }
 }
 
@@ -23,7 +23,7 @@
   background-color: transparent;
   color: $color-text-soft;
 
-  @media (hover: hover) and (pointer: fine) {
+  @include hover-capable {
     &:hover {
       color: $color-text-primary;
       background-color: $bg-raised;
@@ -49,7 +49,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: space(1.6) space(2.6);
+  padding: space(1.6) space(2.4);
   color: $color-text-invert;
   background-color: $bg-invert;
   border-left: 1px solid $color-border-soft;
@@ -60,4 +60,11 @@
     background-color: transparent;
     border-left-color: $color-border-subtle;
   }
+}
+
+// The words inside .label and .count, in a span of their own so the trim has a
+// block box to land on. Both boxes already pad evenly, so trimmed they centre
+// the letters rather than the line box.
+.text {
+  @include trimmed-label;
 }
