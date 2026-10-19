@@ -1,92 +1,64 @@
 # k311y.com
 
-Portfolio for Kelly Warpechowski. A headless WordPress back end with a Next.js
-front end, whose UI is built to read as a Figma working file — a sidebar
-component tree, selection states, marching-ants marquees.
+My portfolio site. I'm Kelly Warpechowski, a design engineer. The site pairs a headless WordPress back end with a Next.js front end, and the UI is built to read like a Figma working file: a sidebar layer tree, selection states, and marching-ants marquees around the components on the page.
+
+**Live site:** [k311y.com](https://k311y.com)
+
+---
 
 ## Stack
 
 | | |
 |---|---|
-| Framework | Next.js 16 (App Router, Turbopack) · React 19 · TypeScript strict |
-| Styles | SCSS Modules. Abstracts are auto-prepended — no `@use` in component files |
+| Framework | Next.js 16 (App Router, Turbopack) · React 19 · TypeScript strict · React Compiler |
+| Styles | SCSS Modules. Abstracts (tokens, mixins, functions) are auto-prepended, so component files never `@use` them |
 | Motion | GSAP + ScrollTrigger via `@gsap/react` |
 | Content | WordPress + WPGraphQL + ACF flexible content |
-| SEO | Yoast, mapped onto Next's Metadata in `lib/seo.ts` |
+| SEO | Yoast, mapped onto Next's Metadata API in `lib/seo.ts`, plus a generated sitemap |
 
-## Running it
+## Highlights
 
-The front end reads from a WordPress install, so that has to be up first — the
-build fetches at compile time and will fail with a clear error if it cannot
-reach the endpoint.
+### The Figma metaphor is driven by the data
+The sidebar's layer tree isn't authored anywhere. [`lib/navTree.ts`](lib/navTree.ts) builds it from the page's own sections, so reordering sections in WordPress reorders the tree, and a deleted section can't leave a stale node behind. Selecting a node draws [`SelectionMarquee`](components/SidebarNav/SelectionMarquee.tsx) as a single fixed overlay: a dashed marquee with a component chip on every instance of that type. The sections themselves never reflow.
 
-```bash
-cp .env.example .env.local   # then fill in WORDPRESS_GRAPHQL_URL
-npm install
-npm run dev
-```
+### One content model behind every page
+A single ACF flexible-content field group backs the home page, `/about`, `/process`, case studies, and projects. [`Renderer.tsx`](components/Renderer/Renderer.tsx) maps each section's GraphQL `__typename` to a component through a `Record` typed on the union. Adding a layout without registering it is a compile error, not a blank space on the page.
 
-| script | |
-|---|---|
-| `npm run dev` | dev server on :3000 |
-| `npm run build` | production build |
-| `npm run build:fresh` | same, after clearing `.next/cache` |
-| `npm run lint` | ESLint |
+### A GraphQL client in one file
+There's no Apollo, urql, or codegen. [`lib/graphql.ts`](lib/graphql.ts) is `fetch` plus composed fragments, and each fragment exports its TypeScript interface right next to its query string so the two can't drift apart. Pages call loaders in `lib/queries/` rather than the client, which let the whole site run on fixtures before WordPress had any content.
 
-**Known lint baseline: 2 problems (1 error, 1 warning)**, both long-standing, in
-`SelectionMarquee.tsx` and `WorkCardGrid.tsx`. Any other count means something
-new was introduced.
+### Schema and animation discipline
+[`lib/schema.md`](lib/schema.md) is the manifest and the record of decisions. It lists every field, every approved variant, and every approved animation. A field is proposed and approved there before it appears in a fragment, the ACF JSON, or a component. Nothing moves without a brief, so components with no brief stay deliberately static.
 
-## Environment
+### A print-first resume route
+`/resume` is a print stylesheet built on the site's tokens and statically prerendered from typed content. It's the only page that doesn't need WordPress to build. Job-tailored versions are local only: they're gitignored, read off disk instead of imported, and served from a `page.dev.tsx` route that [`next.config.ts`](next.config.ts) includes only in development. Production never builds them at all.
 
-Everything is documented in `.env.example`. In short:
+### The front end owns its URLs
+WordPress permalinks look like `/case-study/ascaya/`, but this site serves `/case-studies/ascaya`. Canonicals, `og:url`, and [`app/sitemap.ts`](app/sitemap.ts) are all built from this app's routes, and Yoast's canonical and sitemap are deliberately ignored.
 
-- `WORDPRESS_GRAPHQL_URL` — required, the WPGraphQL endpoint.
-- `NEXT_PUBLIC_SITE_URL` — optional. Defaults to the production origin, which is
-  correct for production and harmless in dev. Set it only for a staging build
-  that must canonicalise somewhere else.
-- `NEXT_PUBLIC_GA_ID` — optional GA4 Measurement ID (`G-…`). Unset renders no
-  tag at all, which is what you want in dev so local traffic does not report
-  into the live property.
+### Details that took debugging
+- **Content starts hidden until JavaScript reveals it.** `styles/base/_globals.scss` sets the pre-animation state so the finished layout never flashes before GSAP runs. A `<noscript>` block in `app/layout.tsx` reverses this for readers without scripting.
+- **ScrollTrigger re-measures after client-side navigation.** ScrollTrigger caches pixel offsets and only re-measures on `load`, which a router navigation never fires. [`ScrollRefresh`](components/UI/ScrollRefresh/ScrollRefresh.tsx) refreshes the triggers after each route change, so animations fire at the right scroll position whether you load a page directly or arrive through a link.
+- **The mobile menu is hidden with CSS, not a JS media query.** A breakpoint can't be read during server rendering, so checking it in JavaScript would either break hydration or force the whole nav onto the client.
 
-## How the content model works
-
-One ACF flexible-content field group (`acf-json/group_sections.json`) backs every
-page. Home, `/about`, `/process`, case studies and projects all render through
-the same section renderer, so a new layout is a new component rather than a new
-template.
-
-**`lib/schema.md` is the manifest and the record of decisions.** It names every
-field, every approved variant and every approved animation. Two rules the
-codebase holds to:
-
-- **Schema discipline** — a field is proposed in the manifest and approved before
-  it exists in a fragment, in ACF JSON or in a component.
-- **Animation discipline** — nothing moves without a brief. Components with no
-  brief (`FullWidthMedia`, `TabbedMediaCopy`) are deliberately static.
-
-## Layout of the repo
+## Repo layout
 
 ```
-app/            routes. (site) is the main group; /dev is a token specimen page
-components/     one directory per component, co-located .module.scss
-lib/            queries, fragments, ACF helpers — and schema.md
-styles/         abstracts (tokens, mixins), base, and the section rhythm
-acf-json/       ACF field groups, synced from wp-admin
-_content-source/  authored copy and build notes, the source for what WP holds
-public/fonts/   Google Sans Flex + AOT Serial Mono
+app/              routes. (site) is the main group; /dev is a token specimen page; /resume prints
+components/       one directory per component, co-located .module.scss
+lib/              GraphQL client, fragments, loaders, SEO mapping, and schema.md
+styles/           abstracts (tokens, mixins, functions), base, and the section rhythm
+acf-json/         ACF field groups, synced from wp-admin
+_content-source/  authored copy and build notes, the source for what WordPress holds
+public/fonts/     Google Sans Flex + AOT Serial Mono
 ```
 
-## Two things that surprise people
+## Local development
 
-**Content is hidden until JavaScript reveals it.** `styles/base/_globals.scss`
-sets the pre-animation state, so anything with an entrance starts at
-`opacity: 0`. That avoids a flash of the finished layout before GSAP runs, at the
-cost that a broken timeline shows as *missing content* rather than missing
-motion. A section that is mysteriously blank is almost always this. A `<noscript>`
-block in `app/layout.tsx` reverses it for readers without scripting.
+The front end builds from a WordPress install, so it won't run without one. Environment variables are documented in [`.env.example`](.env.example). The scripts are `dev`, `build`, `build:fresh` (clears `.next/cache` first), and `lint`. The lint baseline is zero problems, so any output means something new was introduced.
 
-**URLs are the front end's, not WordPress's.** WP permalinks are
-`/case-study/ascaya/`; this site serves `/case-studies/ascaya`. Canonicals,
-`og:url` and `app/sitemap.ts` are all built from this app's routes for that
-reason, and Yoast's own sitemap is disabled in wp-admin so it cannot compete.
+## Usage
+
+The code is public so you can see how the site is built. It is not open source. The case study content, client work, and personal branding are not licensed for reuse.
+
+© Kelly Warpechowski. All rights reserved.
