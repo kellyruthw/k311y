@@ -76,6 +76,12 @@
   @include paragraph;
 }
 
+// A titled block is supporting detail, not the main thread: at full paragraph
+// size its text competes with the section's own copy, so it steps down.
+.blockLabel + .blockText {
+  @include paragraph-small;
+}
+
 // Real paragraphs now, so they need paragraph spacing between them.
 .blockText + .blockText {
   margin-top: space(4);
@@ -88,7 +94,9 @@
 }
 
 .listItem {
-  @include paragraph;
+  // Small, like the labelled blocks above: list rows are supporting detail and
+  // shouldn't compete with the main copy.
+  @include paragraph-small;
 
   position: relative;
   padding-left: space(6);
