@@ -104,6 +104,7 @@ function Card({ card, size }: { card: WorkCard; size: "large" | "small" }) {
         <span className={styles.eyebrow}>
           <span className={styles.name}>{card.name}</span>
           {card.category ? <span className={styles.category}>{card.category}</span> : null}
+          {card.role ? <span className={styles.role}>{card.role}</span> : null}
         </span>
 
         {card.title ? <span className={styles.title}>{card.title}</span> : null}

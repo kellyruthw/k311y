@@ -289,7 +289,11 @@
   @include size-token(meta-note);
   @include type-style(v.$ff-display, v.$weight-regular, v.$lh-130);
 
-  font-style: italic;
+  // `oblique 10deg`, not `italic`: the face has a slnt axis and no italic, and
+  // asking for italic makes the browser skew the already-slanted oblique --
+  // the note rendered double-slanted. This names the axis end directly, so
+  // nothing is synthesised.
+  font-style: oblique 10deg;
 }
 
 /// LargeList numerals. Figma: AOT Light 40.

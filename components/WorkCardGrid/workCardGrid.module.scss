@@ -235,11 +235,13 @@ $media-ratio-small: 1.0769; // 420 x 390
 }
 
 .name,
-.category {
+.category,
+.role {
   @include mono-body;
 }
 
-.category {
+.category,
+.role {
   color: $color-text-soft;
 }
 

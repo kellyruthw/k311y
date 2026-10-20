@@ -19,6 +19,7 @@ export const WORK_CARDS_QUERY = `
         slug
         caseStudyMeta {
           cardCategory
+          role
           cardSummary
           sortOrder
           featuredOnHome
@@ -34,6 +35,7 @@ export const WORK_CARDS_QUERY = `
         slug
         projectMeta {
           cardCategory
+          role
           tagline
           sortOrder
           ${CARD_MEDIA}
@@ -58,6 +60,7 @@ interface CaseStudyNode {
   slug: string | null;
   caseStudyMeta: {
     cardCategory: string | null;
+    role: string | null;
     cardSummary: string | null;
     sortOrder: number | null;
     featuredOnHome: boolean | null;
@@ -72,6 +75,7 @@ interface ProjectNode {
   slug: string | null;
   projectMeta: {
     cardCategory: string | null;
+    role: string | null;
     tagline: string | null;
     sortOrder: number | null;
     cardMedia: MediaField | null;
@@ -91,6 +95,9 @@ export interface WorkCard {
   name: string;
   /** Mono eyebrow beside the name, e.g. "Headless WordPress". */
   category: string | null;
+  /** Third eyebrow entry. The MetaBlock role's first line; the textarea's
+      second line is the MetaBlock's own smaller note and stays off the card. */
+  role: string | null;
   /** The large display line under the media. */
   title: string | null;
   media: { src: string; isVideo: boolean; alt: string } | null;
@@ -113,6 +120,12 @@ function bySortOrder(a: { sortOrder: number }, b: { sortOrder: number }) {
   return a.sortOrder - b.sortOrder;
 }
 
+/** The role's first line. The field is a textarea whose second line belongs to
+    the MetaBlock's italic note, not to a card eyebrow. */
+function toRole(role: string | null | undefined) {
+  return role?.split(/\r?\n/)[0]?.trim() || null;
+}
+
 export function toWorkCards(data: WorkCardsQueryResult): CardsBySource {
   const caseStudies = (data.caseStudies?.nodes ?? [])
     .filter((node) => node.caseStudyMeta?.featuredOnHome)
@@ -123,6 +136,7 @@ export function toWorkCards(data: WorkCardsQueryResult): CardsBySource {
         href: `/case-studies/${node.slug ?? ""}`,
         name: node.title ?? "",
         category: node.caseStudyMeta?.cardCategory ?? null,
+        role: toRole(node.caseStudyMeta?.role),
         title: node.caseStudyMeta?.cardSummary ?? null,
         media: toMedia(node.caseStudyMeta?.cardMedia, node.title ?? ""),
         stack: (node.caseStudyMeta?.stack ?? [])
@@ -141,6 +155,7 @@ export function toWorkCards(data: WorkCardsQueryResult): CardsBySource {
         href: `/projects/${node.slug ?? ""}`,
         name: node.title ?? "",
         category: node.projectMeta?.cardCategory ?? null,
+        role: toRole(node.projectMeta?.role),
         title: node.projectMeta?.tagline ?? null,
         media: toMedia(node.projectMeta?.cardMedia, node.title ?? ""),
         stack: [],
