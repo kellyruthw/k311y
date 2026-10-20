@@ -32,7 +32,7 @@ const CASE_STUDY_QUERY = `
 const CASE_STUDY_SLUGS_QUERY = `
   query CaseStudySlugs {
     caseStudies(first: 100) {
-      nodes { slug }
+      nodes { slug title }
     }
   }
 `;
@@ -70,14 +70,24 @@ export interface CaseStudy {
   sections: Section[];
 }
 
-export async function getCaseStudySlugs(): Promise<string[]> {
-  const data = await fetchGraphQL<{ caseStudies: { nodes: { slug: string | null }[] } | null }>(
-    CASE_STUDY_SLUGS_QUERY,
-  );
+/** One row of the index: enough to name an entry and link to it. */
+export interface EntrySummary {
+  title: string;
+  slug: string;
+}
+
+export async function getCaseStudyEntries(): Promise<EntrySummary[]> {
+  const data = await fetchGraphQL<{
+    caseStudies: { nodes: { slug: string | null; title: string | null }[] } | null;
+  }>(CASE_STUDY_SLUGS_QUERY);
 
   return (data.caseStudies?.nodes ?? [])
-    .map((node) => node.slug)
-    .filter((slug): slug is string => Boolean(slug));
+    .filter((node): node is { slug: string; title: string } => Boolean(node.slug && node.title))
+    .map((node) => ({ title: node.title, slug: node.slug }));
+}
+
+export async function getCaseStudySlugs(): Promise<string[]> {
+  return (await getCaseStudyEntries()).map((entry) => entry.slug);
 }
 
 export async function getCaseStudy(slug: string): Promise<CaseStudy | null> {

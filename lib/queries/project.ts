@@ -38,7 +38,7 @@ const PROJECT_QUERY = `
 const PROJECT_SLUGS_QUERY = `
   query ProjectSlugs {
     projects(first: 100) {
-      nodes { slug }
+      nodes { slug title }
     }
   }
 `;
@@ -77,14 +77,24 @@ export interface Project {
   sections: Section[];
 }
 
-export async function getProjectSlugs(): Promise<string[]> {
-  const data = await fetchGraphQL<{ projects: { nodes: { slug: string | null }[] } | null }>(
-    PROJECT_SLUGS_QUERY,
-  );
+/** One row of the index: enough to name an entry and link to it. */
+export interface EntrySummary {
+  title: string;
+  slug: string;
+}
+
+export async function getProjectEntries(): Promise<EntrySummary[]> {
+  const data = await fetchGraphQL<{
+    projects: { nodes: { slug: string | null; title: string | null }[] } | null;
+  }>(PROJECT_SLUGS_QUERY);
 
   return (data.projects?.nodes ?? [])
-    .map((node) => node.slug)
-    .filter((slug): slug is string => Boolean(slug));
+    .filter((node): node is { slug: string; title: string } => Boolean(node.slug && node.title))
+    .map((node) => ({ title: node.title, slug: node.slug }));
+}
+
+export async function getProjectSlugs(): Promise<string[]> {
+  return (await getProjectEntries()).map((entry) => entry.slug);
 }
 
 export async function getProject(slug: string): Promise<Project | null> {

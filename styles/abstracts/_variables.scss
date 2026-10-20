@@ -238,6 +238,7 @@ $sizes: (
   mono-chip: (min: 14, max: 14, cap: 16), // AOT Bold 14, nav squares + count chips
   tab-label: (min: 12, max: 12, cap: 14), // AOT Bold 12, the label on a table tab
   mono: (min: 13, max: 13, cap: 16), // AOT 13, labels, kickers, nowline, legend
+  mono-node: (min: 11, max: 11, cap: 14), // AOT 11, the sidebar tree's component pills
   mono-small: (min: 12, max: 13, cap: 16), // AOT 13, small mono labels
   // Bounded at BOTH ends, and for the same reason at each: table copy is data
   // in a dense grid, read by scanning down a column rather than along a line,

@@ -334,6 +334,13 @@
   @include type-style(v.$ff-mono, v.$weight-medium, v.$lh-100, v.$ls-mono);
 }
 
+/// The sidebar tree's component pills. mono-body two steps down: the pills sit
+/// a level inside the page squares, and the type steps in with them. AOT 11.
+@mixin mono-node {
+  @include size-token(mono-node);
+  @include type-style(v.$ff-mono, v.$weight-medium, v.$lh-100, v.$ls-mono);
+}
+
 /// Small mono labels. Figma: AOT 13.
 @mixin mono-small {
   @include size-token(mono-small);

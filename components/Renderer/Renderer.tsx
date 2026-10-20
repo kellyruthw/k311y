@@ -59,14 +59,26 @@ export function sectionId(section: Section, index: number): string {
   return `${name}-${index + 1}`;
 }
 
-export default function Renderer({ sections }: { sections: Section[] }) {
+export default function Renderer({
+  sections,
+  indexOffset = 0,
+}: {
+  sections: Section[];
+  /**
+   * Where this slice of the page starts in the full section list. A page that
+   * renders its sections in two Renderers (the entry shell's panel and its
+   * trailing NextCase) must offset the second, or its ids restart at 1 and no
+   * longer match what buildNavTree derived from the whole list.
+   */
+  indexOffset?: number;
+}) {
   return (
     <>
       {sections.map((section, index) => {
         const Component = SECTION_COMPONENTS[section.__typename];
         if (!Component) return null;
 
-        const id = sectionId(section, index);
+        const id = sectionId(section, index + indexOffset);
 
         return (
           <Component

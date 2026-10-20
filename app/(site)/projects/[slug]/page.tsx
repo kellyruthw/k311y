@@ -4,7 +4,7 @@ import Renderer from "@/components/Renderer/Renderer";
 import SidebarNav from "@/components/SidebarNav/SidebarNav";
 import SiteFooter from "@/components/SiteFooter/SiteFooter";
 import Tab from "@/components/UI/Tab/Tab";
-import { getProject, getProjectSlugs } from "@/lib/queries/project";
+import { getProject, getProjectEntries, getProjectSlugs } from "@/lib/queries/project";
 import { toMetadata } from "@/lib/seo";
 import { getPrimaryMenu } from "@/lib/queries/nav";
 import { getSiteFooter } from "@/lib/queries/footer";
@@ -40,13 +40,22 @@ export async function generateMetadata({
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  const [entry, links, footer] = await Promise.all([
+  const [entry, siblings, links, footer] = await Promise.all([
     getProject(slug),
+    getProjectEntries(),
     getPrimaryMenu(),
     getSiteFooter(),
   ]);
 
   if (!entry) notFound();
+
+  // Every project under the menu item, in CMS order, the one being viewed
+  // flagged so the tree hangs off it and the rest render as links.
+  const navEntries = siblings.map((sibling) => ({
+    label: sibling.title,
+    href: `/projects/${sibling.slug}`,
+    current: sibling.slug === entry.slug,
+  }));
 
   /**
    * NextCase sits outside the bordered panel, between the entry and the footer.
@@ -63,14 +72,14 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     <>
       <SidebarNav
         links={links}
-        // An entry page: the project's own meta is attached to the hero, so
-        // MetaBlock hangs off it here exactly as it does on a case study.
-        nodes={buildNavTree(entry.sections, true)}
+        // Panel-then-trailing, the order the two Renderers below draw them in,
+        // so every node id matches a section that actually renders.
+        nodes={buildNavTree([...panelSections, ...trailingSections])}
         // The menu item this page lives under, so the tree opens beneath it.
         // Projects is an anchor into Home's card grid, not a page of its own.
         currentHref="/#projects"
         // Nested inside that item as a breadcrumb, per the as-built rail rules.
-        entryLabel={entry.title}
+        entries={navEntries}
         wordmarkSrc="/logo-kelly-warpechowski.svg"
       />
 
@@ -88,7 +97,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
         {trailingSections.length ? (
           <div className={styles.trailing}>
-            <Renderer sections={trailingSections} />
+            <Renderer sections={trailingSections} indexOffset={panelSections.length} />
           </div>
         ) : null}
       </main>

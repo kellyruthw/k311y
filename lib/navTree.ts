@@ -13,16 +13,7 @@ import type { Section } from "@/lib/fragments/sections";
 const SUBCOMPONENTS: Record<string, string> = {
   WorkCardGrid: "Card",
   BuildTable: "TableRow",
-  PageHero: "MetaBlock",
 };
-
-/**
- * Diamonds that only make sense on an entry detail page, not on Home.
- *
- * MetaBlock hangs off the hero only where the post type carries meta for it to
- * draw, which is a case study or a project. Home and the prose pages have none.
- */
-const ENTRY_ONLY_SUBCOMPONENTS = new Set(["MetaBlock"]);
 
 /**
  * Where the derived name is not how the component is written.
@@ -72,7 +63,7 @@ export function sectionElementId(typename: string, index: number): string {
  * Type-grouped rather than one node per section: a page with four TextSections
  * gets a single node with a "4" chip, which is what keeps the tree readable.
  */
-export function buildNavTree(sections: Section[], isEntryPage = false): NavNode[] {
+export function buildNavTree(sections: Section[]): NavNode[] {
   const order: string[] = [];
   const byName = new Map<string, NavNode>();
 
@@ -87,16 +78,13 @@ export function buildNavTree(sections: Section[], isEntryPage = false): NavNode[
       return;
     }
 
-    const sub = SUBCOMPONENTS[name] ?? null;
-    const allowed = sub && (!ENTRY_ONLY_SUBCOMPONENTS.has(sub) || isEntryPage);
-
     order.push(name);
     byName.set(name, {
       name,
       label: displayName(name),
       count: 1,
       ids: [id],
-      subcomponent: allowed ? sub : null,
+      subcomponent: SUBCOMPONENTS[name] ?? null,
     });
   });
 

@@ -188,6 +188,19 @@
 
   padding: space(1.6) space(1.6) space(1) space(1.6);
 
+  // Inactive pages wear the node fill, same as a resting pill in the tree --
+  // only the page being read keeps the solid square. Shape is untouched.
+  background-color: $bg-node;
+
+  @include motion-safe {
+    transition: background-color $duration-fast ease-out;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background-color: $bg-invert;
+  }
+
   // Trimmed, the label needs no correction: 8px on every side. Desktop only,
   // to match .squareLabel.
   @include respond-above(tablet) {
@@ -197,10 +210,16 @@
   }
 }
 
-// A square and its toggle sit on one line.
+.page[data-current="true"] .square {
+  background-color: $bg-invert;
+}
+
+// A square and its toggle sit on one line, the toggle pushed to the row's far
+// edge so every caret lands in the same place whatever the label's length.
 .squareRow,
 .entryRow {
   display: flex;
+  justify-content: space-between;
   gap: space(0);
   align-items: center;
 }
@@ -216,6 +235,33 @@
 
   // Matches .square. It is the same object one level in.
   padding: space(1.6) space(1.6) space(1) space(1.6);
+
+  @include respond-above(tablet) {
+    @include if-text-trim {
+      padding: space(1.6);
+    }
+  }
+}
+
+// A sibling entry: the same square at the same level, but somewhere you could
+// go rather than where you are, so it wears the inactive fill the page squares
+// and resting pills share. Hover fills it, the square saying it is a
+// destination.
+.entryLink {
+  @include mono-button;
+
+  padding: space(1.6) space(1.6) space(1) space(1.6);
+  color: $color-text-invert;
+  background-color: $bg-node;
+
+  @include motion-safe {
+    transition: background-color $duration-fast ease-out;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background-color: $bg-invert;
+  }
 
   @include respond-above(tablet) {
     @include if-text-trim {
@@ -243,13 +289,13 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: space(6);
-  height: space(6);
+  width: space(3.2);
+  height: space(3.2);
   color: $color-text-invert;
 
   svg {
-    width: space(4);
-    height: space(4);
+    width: space(3.2);
+    height: space(3.2);
   }
 
   @include motion-safe {
@@ -262,41 +308,6 @@
 // Points up when the tree is open, down when it is collapsed.
 .page[data-open="false"] .caret svg {
   transform: rotate(180deg);
-}
-
-// Plain type on the panel rather than a chip floating over it.
-//
-// The caret only ever renders inside the current page's purple block, so black
-// is the panel's own text colour here -- the same $color-text-invert the page
-// squares and the diamond labels beside it already use.
-//
-// The border and fill went together with the background. They drew a box, and
-// a box around transparent type reads as an outline someone forgot to fill
-// rather than as a deliberate label.
-//
-// `tab-label` is the tab's own token: AOT Bold 14, uppercase. This is a label
-// naming what a control does, which is the job a tab's label has.
-.tooltip {
-  @include tab-label;
-
-  position: absolute;
-  left: calc(100% + #{space(1.6)});
-  z-index: 2;
-  color: $color-text-invert;
-  background-color: transparent;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  padding-top: space(0.8);
-
-  @include motion-safe {
-    transition: opacity $duration-fast ease-out;
-  }
-
-  .caret:hover &,
-  .caret:focus-visible & {
-    opacity: 1;
-  }
 }
 
 // THE COLLAPSE ----------------------------------------------------------------
@@ -385,12 +396,18 @@
     border-left: 1px solid $color-border-on-chrome;
   }
 
-  // The first node also covers the branch's own top padding, so the run starts
-  // at the top of the branch -- where it meets the square above it -- rather
-  // than 10px inside it.
-  &:first-child::after {
-    top: calc(-1 * (#{space(2.4)} + #{space(2)}));
-    height: calc(#{space(2.4)} + #{space(2)} + #{space(3.4)});
+  // The first node sits straight on the branch padding, with no gap of its
+  // own -- the tree hangs off whatever is above it, a page square or an entry
+  // name, rather than floating under it. Its segment of the rule covers the
+  // branch's own top padding instead of a margin, so the run still starts
+  // where the branch meets the row above.
+  &:first-child {
+    margin-top: 0;
+
+    &::after {
+      top: calc(-1 * #{space(2)});
+      height: calc(#{space(2)} + #{space(3.4)});
+    }
   }
 }
 
@@ -398,7 +415,7 @@
 // Pills, following Figma, despite the handoff calling them circles.
 
 .circle {
-  @include mono-body;
+  @include mono-node;
 
   display: inline-flex;
   gap: space(1.6);
@@ -504,8 +521,8 @@
 }
 
 .diamondShape {
-  width: space(6);
-  height: space(6);
+  width: space(4);
+  height: space(4);
   flex-shrink: 0;
   background-color: $bg-node;
   border: 1px solid $color-border-soft;
@@ -513,7 +530,7 @@
 }
 
 .diamondLabel {
-  @include mono-small;
+  @include mono-node;
 
   color: $color-text-invert;
 

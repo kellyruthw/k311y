@@ -68,7 +68,7 @@ function TreeToggle({
       className={styles.caret}
       aria-expanded={open}
       aria-controls={controls}
-      // The visible tooltip is decorative; this is what is announced.
+      // No visible tooltip; this is what is announced.
       aria-label={label}
       onClick={onToggle}
     >
@@ -82,10 +82,6 @@ function TreeToggle({
           strokeLinejoin="round"
         />
       </svg>
-
-      <span className={styles.tooltip} aria-hidden>
-        {label}
-      </span>
     </button>
   );
 }
@@ -105,17 +101,26 @@ function TreeToggle({
  * appear when asked and not before.
  */
 
+/** An entry of the post type the page belongs to, nested under its menu item. */
+export interface NavEntry {
+  label: string;
+  href: string;
+  /** The entry being viewed. Carries the tree; the rest are plain links. */
+  current?: boolean;
+}
+
 interface SidebarNavProps {
   links: NavLink[];
   nodes: NavNode[];
   /** Which menu link is the page being viewed, or the one it lives under. */
   currentHref: string;
   /**
-   * A single entry nested inside that menu item, e.g. "Ascaya" under Case
-   * Studies. The component tree then hangs off the entry rather than the menu
-   * item, which is the breadcrumb effect the as-built rail rules describe.
+   * The post type's entries, nested inside that menu item, e.g. every case
+   * study under Case Studies. The component tree hangs off the current one --
+   * the breadcrumb effect the as-built rail rules describe -- and its siblings
+   * sit below the tree at the same level, as links.
    */
-  entryLabel?: string;
+  entries?: NavEntry[];
   wordmarkSrc: string;
 }
 
@@ -123,7 +128,7 @@ export default function SidebarNav({
   links,
   nodes,
   currentHref,
-  entryLabel,
+  entries,
   wordmarkSrc,
 }: SidebarNavProps) {
   const pathname = usePathname();
@@ -137,6 +142,9 @@ export default function SidebarNav({
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const MENU_ID = "site-menu";
+
+  const currentEntry = entries?.find((entry) => entry.current) ?? null;
+  const siblingEntries = (entries ?? []).filter((entry) => !entry.current);
 
   /**
    * Escape closes and hands focus back to the button, and a press anywhere
@@ -341,7 +349,7 @@ export default function SidebarNav({
                     )}
 
                     {/* The toggle rides whichever square the tree hangs off. */}
-                    {hasTree && !entryLabel ? (
+                    {hasTree && !currentEntry ? (
                       <TreeToggle
                         open={treeOpen}
                         controls={treeId}
@@ -355,9 +363,9 @@ export default function SidebarNav({
                     hangs off a nested entry square rather than the menu item,
                     giving the breadcrumb effect: Case Studies > Ascaya > tree.
                   */}
-                  {isCurrent && entryLabel ? (
+                  {isCurrent && currentEntry ? (
                     <div className={styles.entryRow}>
-                      <p className={styles.entry}><span className={styles.squareLabel}>{entryLabel}</span></p>
+                      <p className={styles.entry}><span className={styles.squareLabel}>{currentEntry.label}</span></p>
 
                       {hasTree ? (
                         <TreeToggle
@@ -371,7 +379,7 @@ export default function SidebarNav({
 
                   {hasTree ? (
                     <div className={styles.branchWrap} id={treeId}>
-                    <ul className={styles.branch} data-nested={Boolean(entryLabel)}>
+                    <ul className={styles.branch} data-nested={Boolean(currentEntry)}>
                       {nodes.map((node) => (
                         <li key={node.name} className={styles.node}>
                           <button
@@ -404,6 +412,22 @@ export default function SidebarNav({
                       </ul>
                     </div>
                   ) : null}
+
+                  {/*
+                    The current entry's siblings, at its level but below the
+                    tree: Projects > Clever Keeping > tree > Ant Farm. Links,
+                    not breadcrumbs -- unfilled, so only the entry being read
+                    wears the solid square.
+                  */}
+                  {isCurrent && currentEntry
+                    ? siblingEntries.map((entry) => (
+                        <div key={entry.href} className={styles.entryRow}>
+                          <Link href={entry.href} className={styles.entryLink} onClick={closeMenu}>
+                            <span className={styles.squareLabel}>{entry.label}</span>
+                          </Link>
+                        </div>
+                      ))
+                    : null}
                 </li>
               );
             })}
