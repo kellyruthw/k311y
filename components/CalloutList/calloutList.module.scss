@@ -72,7 +72,17 @@
     }
   }
 
-  @include respond(tablet) {
+  // Three- and four-across rows thin to pairs well before the grid is tight --
+  // at laptop widths a four-up panel is already narrower than its copy wants --
+  // then to one column where the page itself is a single column.
+  @include respond(laptop) {
+    &[data-columns="3"],
+    &[data-columns="4"] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @include respond(portrait) {
     &[data-columns="3"],
     &[data-columns="4"] {
       grid-template-columns: minmax(0, 1fr);
@@ -133,10 +143,18 @@
 
 .cardTitle {
   @include subheading;
+
+  // Subheading's face and leading at the small-card size: a full 24 on a
+  // four-across panel outweighs the copy beneath it. Same curve WorkCardGrid's
+  // small cards use -- up from 18, holding at 22 -- but capped at an absolute
+  // 24 so a wide screen zooms the panel without the title shouting from it.
+  @include card-title-small(24);
 }
 
 .cardBody {
-  @include paragraph;
+  // Small, and capped at 18 absolute: panel copy is bounded by the panel
+  // rather than by the page, like copy inside a list row.
+  @include paragraph-small;
 
   margin-top: space(3);
 }

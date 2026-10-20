@@ -373,8 +373,19 @@
 /// token from 18 to 22 would not arrive until 1728. A small card is small at
 /// every width, so its title stops growing early. Above the design width it
 /// zooms with the rem like everything else.
-@mixin card-title-small {
-  font-size: clamp(#{f.rem(18)}, 1.2vw + #{f.rem(12)}, #{f.rem(22)});
+/// An optional `$cap` is an absolute px ceiling, like a $sizes token's `cap`:
+/// wrapped around the resolved curve (see fluid-type) so the title stops
+/// zooming with the root past it. CalloutList caps at 24; WorkCardGrid keeps
+/// zooming, because its card is part of the composition rather than a panel
+/// of prose.
+@mixin card-title-small($cap: null) {
+  $curve: clamp(#{f.rem(18)}, 1.2vw + #{f.rem(12)}, #{f.rem(22)});
+
+  @if $cap == null {
+    font-size: $curve;
+  } @else {
+    font-size: min(#{$curve}, #{$cap}px);
+  }
 }
 
 

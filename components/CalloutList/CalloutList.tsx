@@ -73,7 +73,9 @@ export default function CalloutList(props: CalloutListProps) {
 
   if (!cards.length) return null;
 
-  const columns = selectValue(props.columns) ?? String(Math.min(cards.length, 3));
+  // One card per column up to a row of four; past that the grid wraps onto
+  // further rows of the same width.
+  const columns = selectValue(props.columns) ?? String(Math.min(cards.length, 4));
 
 
   return (
