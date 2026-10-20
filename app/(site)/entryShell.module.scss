@@ -30,8 +30,15 @@
   // The last section stops at the panel's own 10px inset instead of adding its
   // section rhythm on top, which would leave a gap at the bottom edge that no
   // other side has. Matched on position, so nothing has to know it is last.
-  > :last-child {
+  // TextSection is exempt: a list closes itself with its own border, but prose
+  // flush against the frame reads as cut off. Double its section rhythm, so a
+  // page that ends on copy drifts to a stop instead of hitting the frame.
+  > :last-child:not([data-component="TextSection"]) {
     padding-bottom: space(0);
+  }
+
+  > [data-component="TextSection"]:last-child {
+    padding-bottom: space(24);
   }
 }
 
