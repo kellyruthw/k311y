@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import AutoplayVideo from "@/components/UI/AutoplayVideo/AutoplayVideo";
 import Tab from "@/components/UI/Tab/Tab";
-import { onAnchor } from "@/lib/anchors";
+import { onAnchor, recordAnchor } from "@/lib/anchors";
 import { HERO_TOTAL } from "@/lib/heroTiming";
 import { selectValue } from "@/lib/acf";
 import type { WorkCardGridFields } from "@/lib/fragments/workCardGrid";
@@ -287,7 +287,15 @@ export default function WorkCardGrid(props: WorkCardGridProps) {
               controls={`${props.id}-panel-${index}`}
               active={index === active}
               count={tab.countDisplay ?? count}
-              onClick={() => setActive(index)}
+              onClick={() => {
+                setActive(index);
+
+                // Recorded, not announced: announcing would scroll to a grid
+                // the reader is already in front of. The hash is what makes a
+                // refresh come back to this tab -- onAnchor above replays it.
+                const anchor = ANCHOR_FOR_SOURCE[source];
+                if (anchor) recordAnchor(anchor);
+              }}
             >
               {tab.tabLabel}
             </Tab>

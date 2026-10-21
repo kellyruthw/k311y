@@ -59,10 +59,21 @@ export function scrollToAnchor(hash: string): boolean {
   return true;
 }
 
+/**
+ * Record an anchor in the URL without announcing it. For a control that has
+ * already handled its own state -- the card grid's tabs -- where announcing
+ * would also scroll to a section the reader is already looking at. replaceState
+ * rather than pushState, so flicking between tabs does not stack history
+ * entries behind the back button.
+ */
+export function recordAnchor(hash: string): void {
+  window.history.replaceState(null, "", `#${hash.replace(/^#/, "")}`);
+}
+
 /** Announce that an anchor was followed, and record it in the URL. */
 export function requestAnchor(hash: string): void {
   const clean = hash.replace(/^#/, "");
-  window.history.replaceState(null, "", `#${clean}`);
+  recordAnchor(clean);
   window.dispatchEvent(new CustomEvent<string>(ANCHOR_EVENT, { detail: clean }));
 }
 
