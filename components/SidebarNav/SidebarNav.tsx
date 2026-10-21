@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { requestAnchor } from "@/lib/anchors";
+import { findAnchorTarget, requestAnchor } from "@/lib/anchors";
 import type { NavLink } from "@/lib/queries/nav";
 import { displayName, type NavNode } from "@/lib/navTree";
 import SelectionMarquee from "./SelectionMarquee";
@@ -342,7 +342,20 @@ export default function SidebarNav({
                         href={link.href}
                         className={styles.square}
                         aria-current={isCurrent ? "page" : undefined}
-                        onClick={closeMenu}
+                        onClick={(event) => {
+                          closeMenu();
+
+                          // An anchor pointing at another page may still name
+                          // something THIS page has -- the footer's #contact is
+                          // on every page -- and then it is handled in place
+                          // instead of navigating. Asked of the DOM at click
+                          // time, because at render time there is no DOM on the
+                          // server to ask.
+                          if (link.hash && findAnchorTarget(`#${link.hash}`)) {
+                            event.preventDefault();
+                            requestAnchor(link.hash);
+                          }
+                        }}
                       >
                         <span className={styles.squareLabel}>{link.label}</span>
                       </Link>

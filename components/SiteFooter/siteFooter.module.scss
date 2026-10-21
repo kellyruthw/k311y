@@ -21,9 +21,73 @@
   }
 }
 
+// THE CONTACT PEEK --------------------------------------------------------------
+// The sidebar's Contact summons the footer instead of scrolling to it: fixed to
+// the viewport bottom, over the content column, below the sidebar's z-index 6.
+// SiteFooter.tsx animates the root's own transform while this holds.
+// left: 0, not $sidebar-width: content-inset already pads past the sidebar
+// from the viewport's own edge, so the in-flow footer is a full-width element.
+// Offsetting the fixed copy as well paid the sidebar twice and squeezed the
+// block thin. Full width here is the same geometry, pinned; the sidebar sits
+// a z-index above.
+.footer[data-peek="true"] {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+
+  // The in-flow footer's clearance from the section above it; fixed to the
+  // viewport bottom there is nothing above to clear, and transparent padding
+  // here would only sit over content the reader can see but not click.
+  padding-top: 0;
+
+  // The scrubbed entrance keeps writing the inner block's transform on every
+  // scroll. While the peek owns the root, that transform is neutralised rather
+  // than fought over -- !important is what beats an inline style -- and the
+  // moment the peek ends it reapplies, current, because the scrub never
+  // stopped maintaining it.
+  [data-footer-rise] {
+    transform: none !important;
+  }
+}
+
+// The blur behind the peek. backdrop-filter is transitioned alongside opacity
+// because element opacity does not scale a backdrop effect -- the blur would
+// arrive at full strength on the first frame without it.
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  backdrop-filter: blur(0);
+
+  @include motion-safe {
+    transition:
+      opacity $duration-base ease-out,
+      backdrop-filter $duration-base ease-out;
+  }
+}
+
+.footer[data-peek="true"] + .veil {
+  opacity: 1;
+  backdrop-filter: blur(3px);
+}
+
 // The tab that sat here was a fourth copy of components/UI/Tab. The comment it
 // carried said "the same idiom as a table's tab" -- it is now literally the same
 // component, so it cannot drift from one again.
+
+// The hero's CURRENTLY tab reads as a solid grey because the shared tab's 6%
+// white fill sits on the black canvas. The peeked footer floats over page
+// content, where that same translucent fill shows whatever is behind it.
+// Backing it with the canvas colour flattens it to the exact grey the hero
+// shows -- identical in flow, where black is behind it either way.
+.tab {
+  background-color: $bg-page;
+  background-image: linear-gradient($bg-raised, $bg-raised);
+}
 
 .body {
   // The trailing space carries the left rule past the buttons to the page edge,

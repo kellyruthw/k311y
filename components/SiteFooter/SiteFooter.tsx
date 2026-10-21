@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import Tab from "@/components/UI/Tab/Tab";
+import { onAnchor, scrollToAnchor } from "@/lib/anchors";
 import type { SiteFooterData } from "@/lib/queries/footer";
 import styles from "./siteFooter.module.scss";
 
@@ -67,7 +68,7 @@ export default function SiteFooter({ tabLabel, availabilityLine, links }: SiteFo
         // stayed exactly where it started -- and being clipped, stayed
         // invisible. Naming `y` zeroes what CSS put there and leaves `yPercent`
         // the only thing moving.
-        gsap.fromTo(
+        const scrubbed = gsap.fromTo(
           inner,
           { yPercent: 100, y: 0 },
           {
@@ -82,7 +83,96 @@ export default function SiteFooter({ tabLabel, availabilityLine, links }: SiteFo
             },
           },
         );
+
+        /**
+         * The contact peek: the same arrival, summoned instead of scrolled to.
+         *
+         * On the sidebar's Contact the whole footer fixes to the viewport
+         * bottom and rises exactly as the scrubbed entrance does; the first
+         * scroll afterwards plays it back down and returns the footer to the
+         * page flow, where the scrub still owns it.
+         *
+         * The ROOT travels here where the scrub moves the inner block, and
+         * that is what lets the two coexist: the scrub goes on writing the
+         * inner transform with every scroll, so peeking the same element would
+         * be two tweens fighting over one property. While the peek is up, CSS
+         * neutralises the inner transform (see [data-peek] in the stylesheet)
+         * and the root is the only thing moving; when it ends, the inner
+         * transform the scrub kept current simply reapplies.
+         */
+        let peeked = false;
+
+        // Any click outside the footer dismisses it, the same as scrolling:
+        // the reader has moved on to something else.
+        const onOutsidePress = (event: PointerEvent) => {
+          if (!root.contains(event.target as Node)) slideDown();
+        };
+
+        const slideDown = () => {
+          window.removeEventListener("scroll", slideDown);
+          document.removeEventListener("pointerdown", onOutsidePress);
+          gsap.to(root, {
+            yPercent: 100,
+            y: 0,
+            duration: 0.45,
+            ease: "power2.in",
+            onComplete: () => {
+              root.removeAttribute("data-peek");
+              gsap.set(root, { clearProps: "transform" });
+              peeked = false;
+            },
+          });
+        };
+
+        const peek = () => {
+          if (peeked) return;
+
+          // Already rising in the viewport: a fixed copy would double it on
+          // screen, so finish the trip the reader has nearly made instead.
+          if ((scrubbed.scrollTrigger?.progress ?? 0) > 0) {
+            scrollToAnchor("#contact");
+            return;
+          }
+
+          peeked = true;
+          root.setAttribute("data-peek", "true");
+          gsap.fromTo(
+            root,
+            { yPercent: 100, y: 0 },
+            {
+              yPercent: 0,
+              y: 0,
+              duration: 0.6,
+              ease: "power2.out",
+              // Armed on arrival rather than on click, so the tail of the
+              // scroll that was already in flight -- or the click that opened
+              // it -- cannot dismiss the footer before it has arrived.
+              onComplete: () => {
+                window.addEventListener("scroll", slideDown, { passive: true });
+                document.addEventListener("pointerdown", onOutsidePress);
+              },
+            },
+          );
+        };
+
+        const offAnchor = onAnchor((hash) => {
+          if (hash === "contact") peek();
+        });
+
+        return () => {
+          offAnchor();
+          window.removeEventListener("scroll", slideDown);
+          document.removeEventListener("pointerdown", onOutsidePress);
+        };
       });
+
+      // Without the peek's motion, Contact keeps its old meaning: go to the
+      // footer. scrollToAnchor already answers reduced motion with a jump.
+      mm.add("(prefers-reduced-motion: reduce)", () =>
+        onAnchor((hash) => {
+          if (hash === "contact") scrollToAnchor("#contact");
+        }),
+      );
 
       return () => mm.revert();
     },
@@ -92,9 +182,10 @@ export default function SiteFooter({ tabLabel, availabilityLine, links }: SiteFo
   if (!availabilityLine && !links.length) return null;
 
   return (
-    <footer ref={scope} className={styles.footer} data-component="SiteFooter" id="contact">
+    <>
+      <footer ref={scope} className={styles.footer} data-component="SiteFooter" id="contact">
       <div data-footer-rise>
-        {tabLabel ? <Tab>{tabLabel}</Tab> : null}
+        {tabLabel ? <Tab className={styles.tab}>{tabLabel}</Tab> : null}
 
         {/* Ruled on the top and left, so the footer reads as one bounded block
             hanging off the tab rather than a run of loose text. */}
@@ -130,6 +221,17 @@ export default function SiteFooter({ tabLabel, availabilityLine, links }: SiteFo
           ) : null}
         </div>
       </div>
-    </footer>
+      </footer>
+
+      {/* Behind the peeked footer: a full-viewport veil that blurs the page a
+          touch, so the summoned footer reads as the front object without a
+          scrim darkening everything. A sibling AFTER the footer because CSS
+          can reach a following sibling and not a preceding one, and it cannot
+          live inside: the peek transform would make the footer the fixed
+          child's containing block and clip it. Sits a z-index under the
+          footer; pointer-events: none, so the click-away and scroll
+          dismissals reach the page through it. */}
+      <div className={styles.veil} aria-hidden />
+    </>
   );
 }
