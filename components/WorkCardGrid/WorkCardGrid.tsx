@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import AutoplayVideo from "@/components/UI/AutoplayVideo/AutoplayVideo";
 import Tab from "@/components/UI/Tab/Tab";
-import { onAnchor, recordAnchor } from "@/lib/anchors";
+import { deferInitialScroll, onAnchor, recordAnchor } from "@/lib/anchors";
 import { HERO_TOTAL } from "@/lib/heroTiming";
 import { selectValue } from "@/lib/acf";
 import type { WorkCardGridFields } from "@/lib/fragments/workCardGrid";
@@ -121,19 +121,26 @@ export default function WorkCardGrid(props: WorkCardGridProps) {
 
   /** Open the tab an anchor names, and bring the grid into view. */
   useEffect(() => {
-    return onAnchor((hash) => {
+    return onAnchor((hash, isInitial) => {
       const index = tabs.findIndex(
         (tab) => ANCHOR_FOR_SOURCE[selectValue(tab.source) ?? ""] === hash,
       );
       if (index === -1) return;
 
       setActive(index);
-      sectionRef.current?.scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? "auto"
-          : "smooth",
-        block: "start",
-      });
+
+      const scroll = () =>
+        sectionRef.current?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "auto"
+            : "smooth",
+          block: "start",
+        });
+
+      // On the arrival replay the router is about to reset the scroll; the
+      // state change above stays immediate either way. See deferInitialScroll.
+      if (isInitial) deferInitialScroll(scroll);
+      else scroll();
     });
   }, [tabs]);
 

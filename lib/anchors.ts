@@ -79,32 +79,38 @@ export function requestAnchor(hash: string): void {
 
 /**
  * Listen for anchors. The handler also runs once on subscribe with whatever is
- * already in the URL, so a direct load of /#projects behaves like a click.
+ * already in the URL, so a direct load of /#projects behaves like a click --
+ * synchronously, so state the handler sets is in place before any entrance
+ * animation can start. `isInitial` is true only on that replay: a scroll the
+ * handler wants to make MUST be deferred then (see deferInitialScroll),
+ * because the router is about to reset the scroll position and would throw it
+ * away. Only the scroll -- deferring the whole replay was tried, and the late
+ * state change killed entrance animations already in flight and restarted
+ * them.
  */
-export function onAnchor(handler: (hash: string) => void): () => void {
+export function onAnchor(handler: (hash: string, isInitial?: boolean) => void): () => void {
   const listener = (event: Event) => {
-    handler((event as CustomEvent<string>).detail);
+    handler((event as CustomEvent<string>).detail, false);
   };
 
   window.addEventListener(ANCHOR_EVENT, listener);
 
   const initial = window.location.hash.replace(/^#/, "");
+  if (initial) handler(initial, true);
 
-  // Two frames deep, not immediately. Subscribers mount during a client-side
-  // navigation, and the router resets the scroll position when the new page
-  // commits -- AFTER this effect has run. A scroll started here was being
-  // thrown away by that reset, which is why arriving at /#case-studies from
-  // another page landed at the top. Two frames put the replay on the far side
-  // of the reset and of first paint.
-  let raf = 0;
-  if (initial) {
-    raf = requestAnimationFrame(() => {
-      raf = requestAnimationFrame(() => handler(initial));
-    });
-  }
+  return () => window.removeEventListener(ANCHOR_EVENT, listener);
+}
 
-  return () => {
-    window.removeEventListener(ANCHOR_EVENT, listener);
-    cancelAnimationFrame(raf);
-  };
+/**
+ * Run an initial-replay scroll on the far side of the router's scroll reset.
+ *
+ * Subscribers mount during a client-side navigation, and the router resets
+ * the scroll position when the new page commits -- AFTER their effects have
+ * run. A scroll started inside the replay itself was being thrown away by
+ * that reset, which is why arriving at /#case-studies from another page
+ * landed at the top. Two frames put the scroll after the reset and after
+ * first paint.
+ */
+export function deferInitialScroll(scroll: () => void): void {
+  requestAnimationFrame(() => requestAnimationFrame(scroll));
 }
