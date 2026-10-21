@@ -270,6 +270,20 @@
   }
 }
 
+// mono-button's shape without its Bold, for every square in the panel: page
+// links, the entry breadcrumb, and sibling entries alike. A column of bolded
+// links reads as every row shouting at once. Medium, not $weight-regular --
+// AOT ships no 400 face, and 500 is the weight the site's mono body already
+// rests at. Scoped here rather than changed on the mixin, so the footer's
+// links and the hero CTA -- single buttons in a page rather than a dense
+// column -- keep their Bold. Below all three definitions, because this and
+// mono-button's own weight tie on specificity and source order decides.
+.square,
+.entry,
+.entryLink {
+  font-weight: $weight-medium;
+}
+
 // The label inside a square or the entry. A span of its own only so the trim
 // has a block box to land on -- see if-text-trim. Desktop only: on a phone the
 // squares are full-width menu rows with their own padding, and they keep it.
@@ -467,7 +481,9 @@
 }
 
 .count {
-  @include mono-small;
+  // mono-node, same as the pill label beside it: the count is part of the same
+  // object, and at mono-small it rendered a size up from its own label.
+  @include mono-node;
 
   // A circle, so a fixed square rather than padding: padding sizes to the
   // digit, and a digit is narrower than it is tall, which made an oval. 20px
