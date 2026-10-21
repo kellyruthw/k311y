@@ -106,8 +106,11 @@ $color-ink: #111111; // body copy on the sheet
 $color-ink-soft: #3d3d3d; // role meta lines, the clients line
 $color-rule: #cccccc; // the hairline under a section heading
 $paper-page: $color-white; // the sheet itself
-$grid-pitch: f.space(10); // measured 49.1px in Figma -> 50px
-$grid-dot-size: f.space(1); // measured 5.4px in Figma -> 5px
+// A fine texture rather than the drawn 50px grid, so it sits off the 5px
+// space() scale on purpose: 16px pitch, 3.2px dots (the gradient stops at the
+// 0.1rem radius). Still rem, so it zooms with the design past 1728.
+$grid-pitch: 1rem;
+$grid-dot-size: 0.2rem;
 
 
 // TYPOGRAPHY -----------------------------------------------------------------

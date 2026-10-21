@@ -5,10 +5,10 @@
 $card-gap: space(8);
 $section-gap: space(2);
 
-// Media frames, taken from Figma. Decimals rather than a `w / h` pair because
-// Sass reads the slash as division; the source dimensions are in the comments.
-$media-ratio-large: 1.6667; // 650 x 390
-$media-ratio-small: 1.0769; // 420 x 390
+// The media frame, taken from Figma. A decimal rather than a `w / h` pair
+// because Sass reads the slash as division; the source is 650 x 390. One ratio
+// for both card sizes: small cards take the same shape at a smaller width.
+$media-ratio: 1.6667;
 
 .section {
   @include content-section;
@@ -127,23 +127,10 @@ $media-ratio-small: 1.0769; // 420 x 390
   position: relative;
   display: block;
   overflow: hidden;
-  aspect-ratio: $media-ratio-large;
+  aspect-ratio: $media-ratio;
   border-radius: $radius-square;
   background-color: $bg-raised;
 
-  // Small cards are nearly square: same 390 height across a narrower card.
-  .card[data-size="small"] & {
-    aspect-ratio: $media-ratio-small;
-  }
-
-  // Once every card is one column wide, "narrower card" is no longer true and
-  // the ratio that followed from it stops describing anything: at full width a
-  // 1.08 frame is half as tall again as the 1.67 ones above it, so a single
-  // list of cards changes shape halfway down for a reason the reader cannot
-  // see. One ratio, because there is now one column.
-  //
-  // Same selector as the rule above, so the same (0,3,0), winning on source
-  // order within this stylesheet.
   @include respond(tablet) {
     // $bg-raised is a 6% white tint, chosen for a card a third of the grid wide
     // where it reads as an edge rather than an area. At one column the frame is
@@ -151,14 +138,7 @@ $media-ratio-small: 1.0769; // 420 x 390
     // visible around any media that does not fill the ratio, and visible as a
     // pale block before the image decodes. Black puts the media straight onto
     // the canvas, which is what .panel behind it already is.
-    //
-    // Declared ahead of the nested rule below rather than after it -- Sass
-    // hoists a declaration that follows a nested selector and warns about it.
     background-color: $bg-page;
-
-    .card[data-size="small"] & {
-      aspect-ratio: $media-ratio-large;
-    }
   }
 }
 
