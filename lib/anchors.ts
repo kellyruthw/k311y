@@ -89,7 +89,22 @@ export function onAnchor(handler: (hash: string) => void): () => void {
   window.addEventListener(ANCHOR_EVENT, listener);
 
   const initial = window.location.hash.replace(/^#/, "");
-  if (initial) handler(initial);
 
-  return () => window.removeEventListener(ANCHOR_EVENT, listener);
+  // Two frames deep, not immediately. Subscribers mount during a client-side
+  // navigation, and the router resets the scroll position when the new page
+  // commits -- AFTER this effect has run. A scroll started here was being
+  // thrown away by that reset, which is why arriving at /#case-studies from
+  // another page landed at the top. Two frames put the replay on the far side
+  // of the reset and of first paint.
+  let raf = 0;
+  if (initial) {
+    raf = requestAnimationFrame(() => {
+      raf = requestAnimationFrame(() => handler(initial));
+    });
+  }
+
+  return () => {
+    window.removeEventListener(ANCHOR_EVENT, listener);
+    cancelAnimationFrame(raf);
+  };
 }
