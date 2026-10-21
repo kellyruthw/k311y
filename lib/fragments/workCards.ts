@@ -23,7 +23,6 @@ export const WORK_CARDS_QUERY = `
           cardSummary
           sortOrder
           featuredOnHome
-          stack { stackItem }
           ${CARD_MEDIA}
         }
       }
@@ -64,7 +63,6 @@ interface CaseStudyNode {
     cardSummary: string | null;
     sortOrder: number | null;
     featuredOnHome: boolean | null;
-    stack: { stackItem: string | null }[] | null;
     cardMedia: MediaField | null;
   } | null;
 }
@@ -101,8 +99,6 @@ export interface WorkCard {
   /** The large display line under the media. */
   title: string | null;
   media: { src: string; isVideo: boolean; alt: string } | null;
-  /** Chips on the hover annotation. Case studies only. */
-  stack: string[];
 }
 
 /** Cards grouped by the source a tab can choose. */
@@ -139,9 +135,6 @@ export function toWorkCards(data: WorkCardsQueryResult): CardsBySource {
         role: toRole(node.caseStudyMeta?.role),
         title: node.caseStudyMeta?.cardSummary ?? null,
         media: toMedia(node.caseStudyMeta?.cardMedia, node.title ?? ""),
-        stack: (node.caseStudyMeta?.stack ?? [])
-          .map((item) => item.stackItem?.trim() ?? "")
-          .filter(Boolean),
       } satisfies WorkCard,
     }))
     .sort(bySortOrder)
@@ -158,7 +151,6 @@ export function toWorkCards(data: WorkCardsQueryResult): CardsBySource {
         role: toRole(node.projectMeta?.role),
         title: node.projectMeta?.tagline ?? null,
         media: toMedia(node.projectMeta?.cardMedia, node.title ?? ""),
-        stack: [],
       } satisfies WorkCard,
     }))
     .sort(bySortOrder)

@@ -160,49 +160,6 @@ $media-ratio: 1.6667;
   .cardLink:focus-visible .media {
     transform: scale(1.04);
   }
-
-  .cardLink:hover .sticky,
-  .cardLink:focus-visible .sticky {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// THE ANNOTATION STICKY -------------------------------------------------------
-// Rotates in at the corner on hover, carrying the entry's stack as chips.
-
-.sticky {
-  position: absolute;
-  right: space(3);
-  bottom: space(3);
-  display: flex;
-  flex-wrap: wrap;
-  gap: space(1.6);
-  justify-content: flex-end;
-  max-width: 70%;
-  padding: space(2.4);
-  pointer-events: none;
-  background-color: $bg-note;
-  border-radius: $radius-square;
-
-  // Rises into place, square to the card. No rotation.
-  opacity: 0;
-  transform: translateY(#{space(2)});
-
-  @include motion-safe {
-    transition:
-      opacity $duration-base ease-out,
-      transform $duration-base $ease-standard;
-  }
-}
-
-.chip {
-  @include mono-small;
-
-  padding: space(0.8) space(1.6);
-  color: $color-text-invert;
-  background-color: $bg-invert;
-  border-radius: $radius-square;
 }
 
 // CARD TEXT -------------------------------------------------------------------

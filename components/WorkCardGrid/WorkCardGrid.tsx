@@ -89,16 +89,6 @@ function Card({ card, size }: { card: WorkCard; size: "large" | "small" }) {
       <Link href={card.href} className={styles.cardLink}>
         <span className={styles.frame}>
           <CardMedia media={card.media} />
-
-          {card.stack.length ? (
-            <span className={styles.sticky} aria-hidden>
-              {card.stack.map((item) => (
-                <span key={item} className={styles.chip}>
-                  {item}
-                </span>
-              ))}
-            </span>
-          ) : null}
         </span>
 
         <span className={styles.eyebrow}>
