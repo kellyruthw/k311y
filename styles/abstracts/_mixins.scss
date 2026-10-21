@@ -302,6 +302,14 @@
   @include type-style(v.$ff-mono, v.$weight-light, v.$lh-100, v.$ls-mono);
 }
 
+/// A numeral one step down: same face, weight and tracking as `numeral`,
+/// sized for a card's head row on a phone -- the Timeline date is the first
+/// user. Its token tops out where numeral's begins, so the two never collide.
+@mixin numeral-small {
+  @include size-token(numeral-small);
+  @include type-style(v.$ff-mono, v.$weight-light, v.$lh-100, v.$ls-mono);
+}
+
 /// Section kickers and table labels. AOT Bold 13, uppercase.
 @mixin kicker {
   @include size-token(mono);

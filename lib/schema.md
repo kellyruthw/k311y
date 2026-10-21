@@ -923,7 +923,7 @@ Layout `timeline` · GraphQL `PageSectionsSectionsTimelineLayout`
 | entry_date | text | yes | — | text not a date picker, so "2013-2015" is valid. Set in `numeral` |
 | entry_company | text | yes | — | |
 | entry_body | textarea | no | — | one paragraph per authored line, through Prose |
-| entry_media | image \| file (mp4) | no | — | genuinely optional: the 2012 entry in Figma has none |
+| entry_gallery | gallery (images + mp4) | no | — | the entry's swipeable media, in authored order; genuinely optional. mp4 needs the `k311y-gallery-video` mu-plugin, which lifts ACF 6.8.7's images-only gallery validation. Replaced `entry_media` (file) 2026-10-21 |
 
 > **Why `entries` and not `items`.** WPGraphQL-ACF names a repeater's row type
 > after the field alone, not the layout it sits in, so every repeater called

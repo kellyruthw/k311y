@@ -1,0 +1,98 @@
+// abstracts are auto-prepended by next.config.ts.
+
+// min-width: 0 so the carousel behaves as a grid or flex child: without it the
+// track's scroll width would push its column wide instead of scrolling.
+.root {
+  min-width: 0;
+}
+
+// THE TRACK --------------------------------------------------------------------
+// Native scroll-snap is the whole mechanism. The radius sits here, on the scroll
+// container, so adjacent slides clip to the same corners mid-swipe.
+
+.track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  border-radius: $radius-square;
+
+  // The pager is the affordance; a scrollbar under a 210px frame is noise.
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // Smoothness is motion, so it is added here rather than defaulted: under
+  // reduced motion a pager click lands instantly.
+  @include motion-safe {
+    scroll-behavior: smooth;
+  }
+}
+
+.slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  overflow: hidden;
+
+  // Set by the component from the lead media's own dimensions, so the frame
+  // takes the media's proportions rather than forcing one on it. The fallback
+  // is the drawn 309 x 210 media frame, for attachments WordPress reports no
+  // dimensions for.
+  aspect-ratio: var(--media-carousel-aspect, 1.4714);
+  scroll-snap-align: start;
+  background-color: $bg-raised;
+}
+
+.media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// THE PAGER --------------------------------------------------------------------
+// The sidebar's nav diamond, demoted to a pager: same 20px rotated square, same
+// $bg-node fill -- but only the active one is filled, so the row reads as a
+// position, not a set of destinations.
+
+.pager {
+  display: flex;
+  align-items: center;
+  margin-top: space(2);
+}
+
+.dots {
+  display: flex;
+  gap: space(4);
+}
+
+.dot {
+  width: space(4);
+  height: space(4);
+  flex-shrink: 0;
+  padding: 0;
+  background-color: transparent;
+  border: 1px solid $color-border-soft;
+  transform: rotate(45deg);
+  cursor: pointer;
+
+  @include motion-safe {
+    transition:
+      background-color $duration-fast $ease-standard,
+      border-color $duration-fast $ease-standard;
+  }
+
+  &[data-active="true"] {
+    background-color: $bg-node;
+    border-color: $bg-node;
+  }
+}
+
+.count {
+  @include mono-small;
+
+  margin-left: auto;
+  color: $color-text-soft;
+}

@@ -8,303 +8,219 @@
 }
 
 // THE SHELL -------------------------------------------------------------------
-// Tab on a bordered panel, the same idiom as BuildTable and WorkCardGrid. The
-// tab itself is components/UI/Tab, so the radius, rule and raised fill have one
-// implementation rather than a third copy.
+// The tab keeps the BuildTable idiom, but it labels a deck rather than a panel,
+// and it rides along: the row pins to the top of the viewport for the whole
+// run, so the section keeps its name while the cards deal beneath it.
+//
+// The wrapper exists because sticky pins within the containing block, and as
+// grid items the tab and each card would each be confined to their own row.
+// One flow wrapper spanning the section is what lets both travel.
 
-// The panel's top edge is drawn here rather than on the panel, exactly as
-// WorkCardGrid does it: the tab has no bottom border of its own, so this rule
-// runs the full width behind it and the tab sits on the line. Putting the
-// border back on the panel instead would draw it straight through the tab.
-.tabRow {
-  display: flex;
-  grid-column: 1 / -1;
-  border-bottom: 1px solid $color-border-subtle;
-}
-
-.panel {
+.shell {
   position: relative;
   grid-column: 1 / -1;
 
-  // border-top removed so the tab and the box read as one sheet, matching
-  // WorkCardGrid's panel.
-  border: 1px solid $color-border-subtle;
-  border-top: 0;
-
-  // The 8 columns the entries lay out on live in here rather than on the
-  // section, so the panel's border wraps them.
-  display: grid;
-  grid-template-columns: repeat($content-columns, minmax(0, 1fr));
-  column-gap: $grid-gutter;
-
-  // With the interleave below, this is the STAGGER knob, not a gutter, and it
-  // does not behave like one. Every entry spans two rows and starts one row
-  // after the last, so for entries of height H and a gap of g:
-  //
-  //     row height = (H - g) / 2        advance between entries = (H + g) / 2
-  //
-  // which means g interpolates the whole arrangement between two extremes:
-  //
-  //     g = 0    entries overlap by half their height. The tightest the
-  //              arrangement can be, and far tighter than the design.
-  //     g = H    no overlap at all, i.e. back to one row each.
-  //
-  // 160px puts the advance at roughly 285px against an entry's ~409px at the
-  // design width, so entries overlap by about a quarter -- which is what the
-  // About frame draws, where the right column's media begins while the left
-  // column's paragraph is still running.
-  //
-  // Raise this to loosen the run, lower it to tighten. It is the only number
-  // here that needs touching to retune the density.
-  row-gap: space(32);
-
-  padding: space(8) space(2);
+  // The tab row is absolutely wrapped (see .tabPin), so its height has to be
+  // given back to the flow here, or the deck would start underneath it.
+  padding-top: var(--timeline-tab-height, #{space(6)});
 }
 
-// THE INTERLEAVE --------------------------------------------------------------
-// Entries overlap vertically instead of each taking a row of its own, which is
-// how the About frame draws them: the right column's media begins while the
-// left column's paragraph is still running.
-//
-// Every entry spans TWO rows and begins one row after its predecessor, so each
-// pair shares a row. Consecutive entries are on opposite sides of the spine so
-// they cannot collide horizontally, and same-side entries are two rows apart so
-// they share no row at all -- the arrangement cannot overlap its own content,
-// whatever the entries turn out to contain. That is why this is done with row
-// spans rather than a negative margin, which would collapse a short entry into
-// the one two places above it.
-//
-// The index has to be written out because CSS cannot count. .spine is the
-// panel's first child, so an entry's nth-child position is one ahead of its
-// place in the run, and the +1 below is that offset and nothing else. 24 is far
-// past any plausible career; a 25th entry auto-places underneath rather than
-// breaking.
-@for $i from 1 through 24 {
-  .entry:nth-child(#{$i + 1}) {
-    grid-row: #{$i} / span 2;
-  }
-}
+// Where the folder pins: the sheet's top edge holds at 20vh, which centres a
+// 55-60vh card in the viewport rather than pressing it against the top. One
+// value, because the tab and the cards pin relative to the same line and
+// moving it must move both.
+$deck-pin: 20vh;
 
-// THE SPINE -------------------------------------------------------------------
-// Columns 4 and 5 are symmetric about the content centre, so 50% of the grid
-// lands exactly between them without needing to name either.
-
-// The track stays the faint rule and only the fill over it is purple, so the
-// growth has something to grow against. Both purple would draw the line at full
-// strength before the reader gets there, and the scrub would show nothing.
-.spine {
+// The tab's sticky container. It ends one last-card-height above the shell's
+// end, and that early end IS the unpin: sticky holds the tab at the pin line
+// only while its container has room below, so the tab releases at the exact
+// scroll where the final card's top meets the join, and the folder leaves the
+// viewport whole. Absolute so it takes no flow space; the shell's padding-top
+// stands in for the tab row it wraps.
+.tabPin {
   position: absolute;
   top: 0;
-  bottom: 0;
-  left: 50%;
-
-  width: 1px;
-  background-color: $color-border-subtle;
+  right: 0;
+  left: 0;
+  height: calc(100% - var(--timeline-last-card-height, 55vh));
+  z-index: 3;
+  pointer-events: none;
 }
 
-// $bg-chrome is the semantic name for #b489eb. The raw $color-purple is not
-// referenced directly: _variables.scss says to reach for the semantic alias,
-// and this is system chrome rather than content, which is exactly what the
-// colour law reserves purple for.
-.spineFill {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background-color: $bg-chrome;
+.tabRow {
+  position: sticky;
 
-  // Drawn by default, which is the no-JS and reduced-motion state. GSAP sets
-  // scaleY to 0 on mount and grows it back from this origin.
-  transform-origin: top center;
+  // Directly above the pin line, so the sheet attaches flush beneath it.
+  top: calc(#{$deck-pin} - var(--timeline-tab-height, #{space(6)}));
+
+  display: flex;
+  border-bottom: 1px solid $color-border-subtle;
+  pointer-events: auto;
+
+  // Opaque, so a dealt card sliding under the pinned row disappears behind it
+  // instead of showing through the tab's corners.
+  background-color: $bg-page;
 }
 
-// THE ENTRIES -----------------------------------------------------------------
-// Each entry is its own full-width row that re-grids, so a card and its branch
-// share a row without either needing to know the other's position.
+// THE DECK --------------------------------------------------------------------
+// Plain flow, deliberately not a grid. A sticky element pins within its
+// containing block, and a grid item's containing block is its own grid area --
+// a card in a grid row could never stay put while the next row travels over
+// it. In flow the containing block is the deck, which is the whole mechanism.
 
-.entry {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: subgrid;
+.deck {
+  padding-top: space(8);
 }
 
 .card {
-  display: flex;
-  flex-direction: column;
+  position: sticky;
 
-  &[data-side="left"] {
-    grid-column: 1 / span 3;
-    align-items: flex-end;
-    text-align: right;
-  }
+  // Flush under the pinned tab row at the pin line, which is the folder join:
+  // the card's top border lands exactly on the row's rule (the -1px is that
+  // shared line), so tab and sheet read as one folder. --timeline-tab-height
+  // is measured by the component, since the tab's height is paddings around a
+  // cap-trimmed label and not a token; its fallback keeps the join close for
+  // the moment before measurement, and for JS-off, where the deal still works.
+  top: calc(#{$deck-pin} - 1px);
 
-  &[data-side="right"] {
-    grid-column: 6 / span 3;
-    align-items: flex-start;
-    text-align: left;
-  }
-}
+  display: grid;
+  grid-template-columns: repeat($content-columns, minmax(0, 1fr));
+  column-gap: $grid-gutter;
+  row-gap: space(6);
+  align-content: start;
 
-// 2 of the card's 3 columns. Two columns is one gutter narrower than two thirds
-// of three, so the gutter has to come back out:
-//
-//   card = 3c + 2g, so c = (card - 2g) / 3
-//   2 columns and the gutter between them = 2c + g = 2/3 card - g/3
-//
-// No align-self: the card's own align-items already pulls this to the spine
-// side, right on a left card and left on a right one, which is where the
-// design hangs it.
-// Capped at the 309px it is drawn at, in px so the cap does not scale with the
-// root the way a rem would. Uncapped this is the single tallest thing in an
-// entry -- over half its height -- and it grows with the columns, so on a wide
-// screen it was inflating the whole run faster than anything else in it.
-//
-// Same reasoning as the type caps in _variables.scss: a thumbnail is sized to
-// be recognised, not to stay in proportion to the composition. Capping the
-// WIDTH rather than the height keeps the drawn 309 x 210 ratio intact; the
-// frame simply stops growing and stays pinned to the spine side, which is where
-// the card's own align-items puts it.
-.mediaFrame {
-  width: min(calc(200% / 3 - #{$grid-gutter} / 3), 309px);
-  overflow: hidden;
-  aspect-ratio: 1.4714; // 309 x 210, as drawn
+  // Tall enough that the pile reads as a pile: a one-line entry (2016) would
+  // otherwise be a sliver the next card covers before it registers. Viewport
+  // units rather than a token because the slab is sized to the screen the
+  // deck deals across, not to the type scale.
+  min-height: 55vh;
+
+  padding: space(6) space(6) space(8);
+
+  // Opaque on purpose: the card occludes the pile beneath it, which is what
+  // makes the dealing legible. $bg-page, not a raised fill -- the card is the
+  // canvas while it is the current chapter, not a chip on it.
+  background-color: $bg-page;
+  border: 1px solid $color-border-soft;
+
+  // Square corners all round: the card is the folder's sheet, and a sheet
+  // that tucks flush under the tab row's rule cannot carry the tab's 8px top
+  // radius -- the corners would notch open right where the two edges have to
+  // meet. The tab keeps the radius; the sheet keeps the square.
   border-radius: $radius-square;
-  background-color: $bg-raised;
-  margin-bottom: space(4.8);
+
+  & + & {
+    // The dealing distance: how far the next card travels before it covers
+    // this one. This is the pacing knob -- raise it for a slower deal.
+    margin-top: space(16);
+  }
 }
 
-.media {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+// THE HEAD --------------------------------------------------------------------
+// One baseline row: the year at numeral size in the select yellow (the same
+// treatment the dates have always had), the company as a mono chip label, and
+// the running count pushed to the far edge.
+
+.head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  column-gap: space(6);
+  row-gap: space(3);
+  flex-wrap: wrap;
+  padding-bottom: space(4);
+  border-bottom: 1px solid $color-border-subtle;
 }
 
-// Stretched so its 100% is the card's edge whatever the date's text width,
-// which is what lets the branch hang off it and land on the spine.
 .date {
   @include numeral;
 
-  position: relative;
-  align-self: stretch;
+  margin: 0;
   color: $color-text-select;
 }
 
 .company {
   @include mono-chip;
 
-  margin-top: space(3.2);
+  margin: 0;
+}
+
+.count {
+  @include mono-small;
+
+  margin-left: auto;
+  color: $color-text-soft;
+}
+
+// THE BODY AND MEDIA ----------------------------------------------------------
+// Copy takes 5 of the card's 8 columns, the carousel the remaining 3 -- the
+// same proportions the old layout gave an entry and its media, now side by
+// side in one sheet. The carousel's frame ratio is its own 309x210 default.
+
+.copy {
+  grid-column: 1 / span 5;
 }
 
 .body {
   @include paragraph;
 
-  margin-top: space(4.8);
+  margin: 0;
 
   & + & {
     margin-top: space(3);
   }
 }
 
-// THE BRANCH ------------------------------------------------------------------
-// A 1px rule from the card's outer edge to the spine, centred on the date.
-
-.branch {
-  position: absolute;
-  top: 50%;
-
-  // Measured off the card, not the panel, and that distinction is the whole
-  // bug this replaces. A custom property holding `100%` resolves that
-  // percentage where it is USED, not where it is declared -- so a panel-level
-  // --branch-reach was silently measured against .date's box (the card) at the
-  // point of use, and every branch stopped well short of the spine.
-  //
-  // .date is align-self: stretch, so 100% here is exactly the card: 3 columns
-  // and the 2 gutters between them. One column is therefore card/3 - 2/3 of a
-  // gutter, and the reach is that plus a gutter and a half:
-  //
-  //   card/3 - (2/3 x 30) + (1.5 x 30)  =  card/3 + 25px
-  //
-  // Left as `x 5 / 6` inside calc() so CSS does the arithmetic against the
-  // real gutter, rather than a 25px literal that would quietly stop agreeing
-  // if $grid-gutter ever moved.
-  width: calc(100% / 3 + #{$grid-gutter} * 5 / 6);
-  height: 1px;
-  background-color: $bg-chrome;
-
-  // Drawn by default. GSAP sets scaleX to 0 and draws it outward from the
-  // spine, so the origin is the spine end of the line, not the card end.
-  .card[data-side="left"] & {
-    left: 100%;
-    transform-origin: right center;
-  }
-
-  .card[data-side="right"] & {
-    right: 100%;
-    transform-origin: left center;
-  }
+.carousel {
+  grid-column: 6 / span 3;
 }
 
 // MOBILE ----------------------------------------------------------------------
-// One column, spine at the left edge, and the branches stay -- they just all
-// reach the same way. A branch is what ties a date to the line; without one an
-// entry is only near the spine rather than joined to it, and the line has
-// nothing to have grown FOR.
+// One column: head, then media, then copy -- the shot leads on a phone, as it
+// did in the old single-column run. The deck itself needs no change; sticky
+// dealing is the rare pattern that works better by thumb.
 
 @include respond(tablet) {
-  .panel {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: space(16);
-    padding: space(10) space(4) space(10) space(8);
+  // On a phone the sidebar is a sticky top bar and owns the top of the
+  // screen, so the folder pins space(8) beneath it instead of at centre --
+  // 20vh of dead space above the tab reads as a gap, not as framing, and the
+  // bar (z-index 6) would ride over a centred tab anyway. The bar's height is
+  // measured by the component; the fallback approximates it before that runs.
+  .tabRow {
+    top: calc(
+      var(--timeline-nav-height, #{space(10)}) + #{space(8)} -
+        var(--timeline-tab-height, #{space(6)})
+    );
   }
 
-  // The interleave goes, and it has to. It is safe on desktop only because
-  // consecutive entries sit on opposite sides of the spine; here every entry is
-  // the full column, so overlapping rows would put two entries on top of each
-  // other. One row each, and the row-gap above is a real gutter again.
-  //
-  // The selector has to outrank the generated `grid-row` rules above, which is
-  // what the doubled class is for -- they are also single-class selectors, and
-  // they come first.
-  .entry.entry {
-    grid-row: auto;
+  // The head tightens with the type: the date steps down to numeral-small --
+  // at 28 it outweighed the chip beside it -- and the 30px column gap it no
+  // longer earns comes down with it.
+  .head {
+    column-gap: space(3);
   }
 
-  .spine {
-    left: 0;
+  .date {
+    @include numeral-small;
   }
 
   .card {
-    &[data-side="left"],
-    &[data-side="right"] {
-      grid-column: 1 / -1;
-      align-items: flex-start;
-      text-align: left;
+    grid-template-columns: minmax(0, 1fr);
+    top: calc(var(--timeline-nav-height, #{space(10)}) + #{space(8)} - 1px);
+    min-height: 0;
+    padding: space(6) space(4) space(8);
+
+    & + & {
+      margin-top: space(8);
     }
   }
 
-  // The card is the whole column here, so 2-of-3 has nothing left to mean.
-  .mediaFrame {
-    width: 100%;
+  .copy,
+  .carousel {
+    grid-column: 1 / -1;
   }
 
-  // Both sides reach right, out of the spine and into the card.
-  //
-  // The width is the panel's own left padding, which is exactly the gap between
-  // the spine at `left: 0` and the card that starts after it -- stated as the
-  // same `space(8)` the padding uses, so moving one moves the other rather than
-  // leaving a branch that stops short or overshoots.
-  //
-  // `left: auto` is not redundant: the desktop rule sets `left: 100%` for a
-  // left-side card, and setting only `right` here would leave both edges
-  // pinned and the width ignored.
-  .card[data-side="left"] .branch,
-  .card[data-side="right"] .branch {
-    right: 100%;
-    left: auto;
-    width: space(8);
-
-    // Grows out of the spine toward the entry, which is the end the reader's
-    // eye starts from.
-    transform-origin: left center;
+  .copy {
+    order: 1;
   }
 }

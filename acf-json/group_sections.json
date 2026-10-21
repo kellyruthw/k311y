@@ -3305,28 +3305,36 @@
                                     "graphql_field_name": "entryCompany"
                                 },
                                 {
-                                    "key": "field_timeline_entry_media",
-                                    "label": "Media",
-                                    "name": "entry_media",
+                                    "key": "field_timeline_entry_gallery",
+                                    "label": "Gallery",
+                                    "name": "entry_gallery",
                                     "aria-label": "",
-                                    "type": "file",
-                                    "instructions": "Optional. Image or mp4.",
+                                    "type": "gallery",
+                                    "instructions": "The entry's swipeable media, in the order shown. Images or mp4. When this has items it replaces Media entirely; Media is only read while this is empty.",
                                     "required": 0,
                                     "conditional_logic": 0,
                                     "wrapper": {
-                                        "width": "30",
+                                        "width": "70",
                                         "class": "",
                                         "id": ""
                                     },
                                     "return_format": "id",
                                     "library": "all",
+                                    "min": "",
+                                    "max": "",
+                                    "min_width": "",
+                                    "min_height": "",
                                     "min_size": "",
+                                    "max_width": "",
+                                    "max_height": "",
                                     "max_size": "",
                                     "mime_types": "jpg,jpeg,png,webp,mp4,svg",
+                                    "insert": "append",
+                                    "preview_size": "medium",
                                     "allow_in_bindings": 1,
                                     "show_in_graphql": 1,
                                     "graphql_description": "",
-                                    "graphql_field_name": "entryMedia",
+                                    "graphql_field_name": "entryGallery",
                                     "parent_repeater": "field_timeline_entries"
                                 },
                                 {
@@ -3503,5 +3511,5 @@
     "graphql_field_name": "pageSections",
     "map_graphql_types_from_location_rules": 0,
     "graphql_types": "",
-    "modified": 1785994607
+    "modified": 1792627500
 }

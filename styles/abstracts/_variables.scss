@@ -190,6 +190,10 @@ $sizes: (
   heading: (min: 26, max: 40), // Grift SemiBold 40/1 -- section headings
   subheading: (min: 18, max: 24), // Grift SemiBold 24/1.5 -- card + list item h3s
   numeral: (min: 28, max: 40), // AOT Light 40 -- LargeList numerals
+  // `numeral` one step down: a numeral inside a card's head row on a phone,
+  // where 28 outweighs the mono chip beside it. Same face and job as numeral,
+  // so it tapers the same way and stops where numeral starts.
+  numeral-small: (min: 20, max: 28),
   // A lead paragraph grows a little past the design width, to 32, so it keeps
   // up with the headline above it without turning into a second headline.
   paragraph-large: (min: 18, max: 24, cap: 32), // Grift Light 24/1.5 -- hero + intro

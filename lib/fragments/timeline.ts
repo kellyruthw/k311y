@@ -20,7 +20,7 @@ export const TIMELINE_FRAGMENT = `
       entryDate
       entryCompany
       entryBody
-      entryMedia { node { sourceUrl mediaItemUrl mimeType altText mediaDetails { width height } } }
+      entryGallery { nodes { sourceUrl mediaItemUrl mimeType altText mediaDetails { width height } } }
     }
   }
 `;
@@ -31,8 +31,12 @@ export interface TimelineEntry {
   entryCompany: string | null;
   /** One paragraph per authored line. Render through Prose. */
   entryBody: string | null;
-  /** Optional. Entries without media are normal, not a gap to fill. */
-  entryMedia: { node: MediaNode } | null;
+  /**
+   * The entry's media, in the order shown: images or mp4, as a gallery
+   * connection. Optional, like the single media field it replaced: entries
+   * without media are normal, not a gap to fill.
+   */
+  entryGallery: { nodes: MediaNode[] } | null;
 }
 
 export interface TimelineFields {

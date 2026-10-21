@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import Tab from "@/components/UI/Tab/Tab";
 import Prose from "@/components/UI/Prose/Prose";
-import AutoplayVideo from "@/components/UI/AutoplayVideo/AutoplayVideo";
-import { isVideo, mediaUrl } from "@/lib/acf";
+import MediaCarousel from "@/components/UI/MediaCarousel/MediaCarousel";
+import type { MediaNode } from "@/lib/fragments/buildTable";
 import type { TimelineFields } from "@/lib/fragments/timeline";
 import type { SectionProps } from "@/lib/fragments/sections";
 import styles from "./timeline.module.scss";
@@ -15,115 +15,163 @@ import styles from "./timeline.module.scss";
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Timeline. Career entries either side of a centre line that grows as you read
- * down it.
+ * Timeline. Career entries as a deck: each era is a full-width card that
+ * sticks below the top of the viewport while the next one deals over it, so by
+ * the last entry the whole career is physically stacked behind the current
+ * chapter -- which is the point, since the last entry is the studio the rest
+ * led to.
  *
- * Which side an entry falls on is derived from its position, never authored, so
- * reordering the repeater re-alternates the whole run and there is no way to
- * end up with two entries on the same side.
+ * The sticky pile is CSS and works everywhere. GSAP adds only the fade: as
+ * the next card travels up, the one beneath it eases back in opacity, scrubbed
+ * to the scroll. With JS off, or under reduced motion, cards simply stack at
+ * full strength -- complete, exactly as server-rendered.
  *
- * Everything is server-rendered in its finished position. GSAP sets the start
- * state on mount and scrubs back to it, so with JS off, or under reduced
- * motion, the timeline is simply complete: line drawn, entries in place.
+ * An entry's media is its entryGallery, in authored order, handed to
+ * MediaCarousel as one run. A single shot renders as a plain frame with no
+ * pager, which is most entries.
  */
 
 type TimelineProps = TimelineFields & SectionProps;
 
-/**
- * The scrub every per-entry animation runs on: from the card entering the
- * bottom of the viewport to it reaching the reading line.
- *
- * Shared so the branch and the card it belongs to cannot drift apart. They are
- * separate tweens on separate breakpoints -- the branch draws at every width,
- * the card only travels where it has somewhere to travel from -- and the one
- * thing that has to stay identical between them is this.
- */
-const CARD_SCRUB = (card: HTMLElement) => ({
-  trigger: card,
-  start: "top bottom",
-  end: "top center",
-  scrub: 0.6,
-});
+const pad2 = (n: number) => String(n).padStart(2, "0");
 
 export default function Timeline(props: TimelineProps) {
   const scope = useRef<HTMLElement>(null);
+  const shellRef = useRef<HTMLDivElement>(null);
+  const tabRowRef = useRef<HTMLDivElement>(null);
   const entries = (props.entries ?? []).filter(
     (entry) => entry.entryDate || entry.entryCompany || entry.entryBody,
   );
+
+  // THE FOLDER JOIN. A dealt card tucks its top edge under the pinned tab
+  // row's rule, so tab and sheet read as one folder -- which means the cards'
+  // sticky offset is exactly the tab row's height, and that height is not a
+  // token: it is a 1px border plus paddings around a cap-trimmed label, and it
+  // scales with the root. So it is measured, and re-measured on resize, into a
+  // custom property the stylesheet offsets by. The stylesheet's fallbacks keep
+  // the layout sane before this runs.
+  //
+  // The last card's height is measured for the same reason: the tab's sticky
+  // container (.tabPin) ends one last-card-height above the shell's end, which
+  // is what releases the tab at the exact moment the final card's top reaches
+  // the join -- from there the two scroll off together instead of the card
+  // sliding past a still-pinned tab.
+  useEffect(() => {
+    const shell = shellRef.current;
+    if (!shell) return;
+
+    const tabRow = tabRowRef.current;
+    const cards = shell.querySelectorAll<HTMLElement>("[data-timeline-card]");
+    const lastCard = cards[cards.length - 1];
+
+    // The one reach outside this component: on tablet-and-below the sidebar is
+    // a sticky top bar, and the mobile pin line hangs space(8) under it. Its
+    // height is content-driven, so it is measured like the tab's. The selector
+    // is SidebarNav's landmark; if that nav ever renames, the stylesheet's
+    // fallback keeps the pin usable.
+    const navBar = document.querySelector<HTMLElement>('nav[aria-label="Page structure"]');
+
+    const measure = () => {
+      shell.style.setProperty("--timeline-tab-height", `${tabRow?.offsetHeight ?? 0}px`);
+      if (lastCard) {
+        shell.style.setProperty("--timeline-last-card-height", `${lastCard.offsetHeight}px`);
+      }
+      if (navBar) {
+        shell.style.setProperty("--timeline-nav-height", `${navBar.offsetHeight}px`);
+      }
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (tabRow) observer.observe(tabRow);
+    if (lastCard) observer.observe(lastCard);
+    if (navBar) observer.observe(navBar);
+    return () => observer.disconnect();
+  }, [entries.length]);
 
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
 
-      // THE LINE AND ITS BRANCHES -- every width.
+      // THE FADE, DESKTOP -- motion-safe only.
       //
-      // The spine grows and each branch draws out of it toward its entry. None
-      // of that depends on having two sides: on a phone the entries are one
-      // column and the branches simply all reach the same way, which is what
-      // still ties each date to the line rather than leaving it floating beside
-      // one.
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const root = scope.current;
-        if (!root) return;
-
-        const fill = root.querySelector<HTMLElement>("[data-timeline-fill]");
-        const cards = Array.from(root.querySelectorAll<HTMLElement>("[data-timeline-card]"));
-
-        // The line grows across the whole panel: one scrub from the moment the
-        // panel's top reaches the reading line to the moment its bottom does.
-        if (fill) {
-          gsap.from(fill, {
-            scaleY: 0,
-            ease: "none",
-            scrollTrigger: {
-              trigger: fill.parentElement as HTMLElement,
-              start: "top center",
-              end: "bottom center",
-              scrub: 0.6,
-            },
-          });
-        }
-
-        for (const card of cards) {
-          const branch = card.querySelector<HTMLElement>("[data-timeline-branch]");
-          if (!branch) continue;
-
-          gsap.from(branch, {
-            scaleX: 0,
-            ease: "none",
-            scrollTrigger: CARD_SCRUB(card),
-          });
-        }
-      });
-
-      // THE CARDS THEMSELVES -- desktop only.
-      //
-      // The travel is the part that needs sides: a card starts at the spine and
-      // slides away toward the page edge, and in one column there is no "away"
-      // to slide to. Its own trigger rather than a shared timeline, on the same
-      // start, end and scrub as the branch above, so the two stay in step
-      // without the branch having to live in a timeline it does not need.
+      // Card i is driven by card i+1's travel toward the sticky line: as the
+      // next card closes in, this one fades back. Opacity only, deliberately
+      // no scale: a scaled card pulls its edges in and breaks the flush folder
+      // join against the pinned tab row. The last card has no successor and
+      // never fades; it is the destination.
       mm.add("(min-width: 1025px) and (prefers-reduced-motion: no-preference)", () => {
         const root = scope.current;
         if (!root) return;
 
         const cards = Array.from(root.querySelectorAll<HTMLElement>("[data-timeline-card]"));
 
-        for (const card of cards) {
-          const branch = card.querySelector<HTMLElement>("[data-timeline-branch]");
-          const toLeft = card.dataset.timelineSide === "left";
+        cards.forEach((card, index) => {
+          const next = cards[index + 1];
+          if (!next) return;
 
-          // The distance is the branch's own width, read at refresh rather than
-          // baked in, so a resize re-measures instead of animating to a stale
-          // pixel figure. Sign flips per side: a left card sits left of the
-          // spine, so it starts shifted right.
-          gsap.from(card, {
-            x: () => (branch?.offsetWidth ?? 0) * (toLeft ? 1 : -1),
+          // The card's CHILDREN fade, never the card: opacity on the card
+          // itself makes the whole sheet translucent and the pile beneath
+          // ghosts through its copy. The sheet stays opaque; its contents
+          // lighten. fromTo rather than to, so the interpolation is pinned at
+          // both ends whatever the computed style says at tween creation.
+          gsap.fromTo(Array.from(card.children), { opacity: 1 }, {
+            opacity: 0.6,
+            ease: "none",
+            scrollTrigger: {
+              trigger: next,
+              // Not "top bottom": the next card is visible at the foot of the
+              // viewport the whole time the reader is on this one, and starting
+              // there dimmed the card while it was being read. By two thirds up
+              // the screen this card has stuck and the reader has moved on, so
+              // the recede happens during the cover, never during the reading.
+              start: "top 66%",
+              // The next card's own sticky offset, read live rather than baked
+              // in, so a resize re-measures instead of scrubbing to a stale
+              // pixel figure.
+              end: () => `top ${parseFloat(getComputedStyle(next).top) || 0}`,
+              scrub: 0.6,
+            },
+          });
+        });
+      });
+
+      // THE FADE, MOBILE -- motion-safe only.
+      //
+      // One column means the cards' heights vary wildly, and a short card
+      // pinned over a tall one leaves the tall sheet's tail showing behind it.
+      // So on a phone the WHOLE card fades, border included, and is gone by
+      // the time the incoming card is halfway to the pin line. Fading the
+      // sheet is safe here where it ghosted on desktop: everything beneath it
+      // has already faded to nothing, so what shows through is the canvas.
+      mm.add("(max-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
+        const root = scope.current;
+        if (!root) return;
+
+        const cards = Array.from(root.querySelectorAll<HTMLElement>("[data-timeline-card]"));
+
+        cards.forEach((card, index) => {
+          const next = cards[index + 1];
+          if (!next) return;
+
+          // autoAlpha so a fully faded card is also visibility: hidden and
+          // cannot catch taps through the card above it.
+          gsap.fromTo(card, { autoAlpha: 1 }, {
             autoAlpha: 0,
             ease: "none",
-            scrollTrigger: CARD_SCRUB(card),
+            scrollTrigger: {
+              trigger: next,
+              // Nothing fades while the incoming card is still low on the
+              // screen: the fade runs from the moment its top crosses the
+              // viewport's centre to the moment it lands on the pin line, so
+              // the old card is readable right up until it is actually being
+              // covered, and gone by the time the cover completes.
+              start: "top 50%",
+              end: () => `top ${parseFloat(getComputedStyle(next).top) || 0}`,
+              scrub: 0.6,
+            },
           });
-        }
+        });
       });
 
       return () => mm.revert();
@@ -140,75 +188,57 @@ export default function Timeline(props: TimelineProps) {
       data-component={props.component}
       className={styles.section}
     >
-      {/* The tab labels the panel it sits on, exactly as a table's does. */}
-      {props.label ? (
-        <div className={styles.tabRow}>
-          <Tab count={props.countDisplay}>{props.label}</Tab>
-        </div>
-      ) : null}
+      {/* One flow wrapper for the tab and the deck, because both stick: a
+          sticky element pins within its containing block, and as grid items
+          each would be confined to its own row. In here the tab pins for the
+          whole run and the cards deal beneath it. */}
+      <div className={styles.shell} ref={shellRef}>
+        {/* The tab labels the deck it sits on, and rides along: it stays
+            pinned above the pile, each dealt card attaches flush beneath its
+            rule, and when the last card arrives the tab releases and leaves
+            with it. The .tabPin wrapper is the sticky container that ends
+            early to make that release happen. */}
+        {props.label ? (
+          <div className={styles.tabPin}>
+            <div className={styles.tabRow} ref={tabRowRef}>
+              <Tab count={props.countDisplay}>{props.label}</Tab>
+            </div>
+          </div>
+        ) : null}
 
-      <div className={styles.panel}>
-        {/* The track is always drawn; only the fill over it grows. */}
-        <div className={styles.spine} aria-hidden>
-          <span className={styles.spineFill} data-timeline-fill />
-        </div>
-
+        <div className={styles.deck}>
         {entries.map((entry, index) => {
-          const side = index % 2 === 0 ? "left" : "right";
-          const node = entry.entryMedia?.node;
-          const src = mediaUrl(node);
+          const media: MediaNode[] = entry.entryGallery?.nodes ?? [];
 
           return (
-            <div
+            <article
               key={`${entry.entryDate ?? ""}-${entry.entryCompany ?? ""}-${index}`}
-              className={styles.entry}
+              className={styles.card}
+              data-timeline-card
             >
-              <article
-                className={styles.card}
-                data-side={side}
-                data-timeline-card
-                data-timeline-side={side}
-              >
-                {src ? (
-                  <div className={styles.mediaFrame}>
-                    {isVideo(node) ? (
-                      <AutoplayVideo className={styles.media} src={src} />
-                    ) : (
-                      /* eslint-disable-next-line @next/next/no-img-element -- fixed
-                         ratio frame sized by the grid column. */
-                      <img
-                        className={styles.media}
-                        src={src}
-                        alt={node?.altText ?? ""}
-                        loading="lazy"
-                      />
-                    )}
-                  </div>
-                ) : null}
-
-                {entry.entryDate ? (
-                  <p className={styles.date}>
-                    {entry.entryDate}
-
-                    {/*
-                      The branch hangs off the date rather than the top of the
-                      card, which is where the design draws it. It lives inside
-                      this element so its 100% is the card's edge whatever the
-                      date's text width.
-                    */}
-                    <span className={styles.branch} data-timeline-branch aria-hidden />
-                  </p>
-                ) : null}
+              <header className={styles.head}>
+                {entry.entryDate ? <p className={styles.date}>{entry.entryDate}</p> : null}
 
                 {entry.entryCompany ? (
                   <h3 className={styles.company}>{entry.entryCompany}</h3>
                 ) : null}
 
+                <span className={styles.count} aria-hidden>
+                  {pad2(index + 1)} / {pad2(entries.length)}
+                </span>
+              </header>
+
+              {/* Prose renders one <p> per authored line; the wrapper keeps
+                  those siblings out of the card's grid. */}
+              <div className={styles.copy}>
                 <Prose value={entry.entryBody} className={styles.body} />
-              </article>
-            </div>
+              </div>
+
+              {media.length ? <MediaCarousel media={media} className={styles.carousel} /> : null}
+            </article>
           );
         })}
+        </div>
       </div>
     </section>
   );
