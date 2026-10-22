@@ -1,4 +1,4 @@
-# Schema manifest
+﻿# Schema manifest
 
 The single source of truth for every field on the site. Nothing is queried, no
 ACF JSON is written, and no component is built until its entry here says
@@ -53,7 +53,7 @@ options page, with its GraphQL name).
 
 ---
 
-# 1 · Post types and taxonomies
+# 1 Â· Post types and taxonomies
 
 Registered by ACF (6.8.6 supports this natively), exported to `acf-json/` as
 `post_type_*.json` and `taxonomy_*.json`. No CPT UI plugin needed.
@@ -64,45 +64,45 @@ Registered by ACF (6.8.6 supports this natively), exported to `acf-json/` as
 > be deleted in wp-admin once the new type syncs.
 
 ## `case_study`
-GraphQL: `caseStudy` / `caseStudies` · route `/case-studies/[slug]` · ACF: `acf-json/post_type_6a70235a63cc8.json`
+GraphQL: `caseStudy` / `caseStudies` Â· route `/case-studies/[slug]` Â· ACF: `acf-json/post_type_6a70235a63cc8.json`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| — | — | — | — | uses the post title as `title` and the post slug as `slug` |
-| section_label | text | yes | — | label shown on the nav tree node for this entry |
-| client | text | yes | — | MetaBlock row |
-| role | text | yes | — | MetaBlock row |
-| stack | repeater -> `stack_item` (text) | yes | — | MetaBlock row, rendered as chips |
-| timeline | text | yes | — | MetaBlock row |
-| live_url | url | no | — | MetaBlock row, external link |
-| related_build | post object -> `build` | no | — | links the case study to its BuildTable row |
-| card_summary | textarea | yes | — | WorkCardGrid card display title |
-| card_category | text | yes | — | WorkCardGrid mono eyebrow, e.g. "Headless WordPress" |
-| card_media | image \| file (mp4) | yes | — | WorkCardGrid card media. Video renders muted + looped |
-| sort_order | number | yes | — | ascending. Ties break on title |
-| featured_on_home | true/false | yes | — | controls appearance in WorkCardGrid |
-| thesis | textarea | no | — | feeds a `SplitStatement` on the case page |
-| sections | flexible content | yes | — | the 9 layouts below |
+| â€” | â€” | â€” | â€” | uses the post title as `title` and the post slug as `slug` |
+| section_label | text | yes | â€” | label shown on the nav tree node for this entry |
+| client | text | yes | â€” | MetaBlock row |
+| role | text | yes | â€” | MetaBlock row |
+| stack | repeater -> `stack_item` (text) | yes | â€” | MetaBlock row, rendered as chips |
+| timeline | text | yes | â€” | MetaBlock row |
+| live_url | url | no | â€” | MetaBlock row, external link |
+| related_build | post object -> `build` | no | â€” | links the case study to its BuildTable row |
+| card_summary | textarea | yes | â€” | WorkCardGrid card display title |
+| card_category | text | yes | â€” | WorkCardGrid mono eyebrow, e.g. "Headless WordPress" |
+| card_media | image \| file (mp4) | yes | â€” | WorkCardGrid card media. Video renders muted + looped |
+| sort_order | number | yes | â€” | ascending. Ties break on title |
+| featured_on_home | true/false | yes | â€” | controls appearance in WorkCardGrid |
+| thesis | textarea | no | â€” | feeds a `SplitStatement` on the case page |
+| sections | flexible content | yes | â€” | the 9 layouts below |
 
 > The handoff also listed `related_build`, pointing at a `build` post. Since the
 > BuildTable is now a repeater rather than a post type there is no post to point
 > at, so the link runs one way only: a BuildTable row references a case study.
 
 ## `project`
-GraphQL: `project` / `projects` · route `/projects/[slug]` · ACF: `acf-json/group_project_meta.json` · key prefix `field_project_`
+GraphQL: `project` / `projects` Â· route `/projects/[slug]` Â· ACF: `acf-json/group_project_meta.json` Â· key prefix `field_project_`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| tagline | text | yes | — | |
-| card_category | text | yes | — | WorkCardGrid mono eyebrow. Fallback tab label when the hero authors no chips |
-| status | select | no | — | `concept` \| `in_progress` \| `playable`. Authored, not yet rendered anywhere |
-| card_media | image \| file (mp4) | yes | — | |
-| sort_order | number | yes | — | |
-| role | textarea | no | — | MetaBlock row. First line is the value, a second renders smaller and italic |
-| timeline | textarea | no | — | MetaBlock row, same two-line rule |
-| live_url | url | no | — | adds the link row to the MetaBlock |
-| stack | repeater -> `stack_item` | no | — | one technology per row, joined with " · " |
-| sections | flexible content | yes | — | the same 13 layouts every post type gets |
+| tagline | text | yes | â€” | |
+| card_category | text | yes | â€” | WorkCardGrid mono eyebrow. Fallback tab label when the hero authors no chips |
+| status | select | no | â€” | `concept` \| `in_progress` \| `playable`. Authored, not yet rendered anywhere |
+| card_media | image \| file (mp4) | yes | â€” | |
+| sort_order | number | yes | â€” | |
+| role | textarea | no | â€” | MetaBlock row. First line is the value, a second renders smaller and italic |
+| timeline | textarea | no | â€” | MetaBlock row, same two-line rule |
+| live_url | url | no | â€” | adds the link row to the MetaBlock |
+| stack | repeater -> `stack_item` | no | â€” | one technology per row, joined with " Â· " |
+| sections | flexible content | yes | â€” | the same 13 layouts every post type gets |
 
 > **On the MetaBlock.** `role`, `timeline`, `live_url` and `stack` are named
 > after the `case_study` fields they mirror, and are read by the same
@@ -122,25 +122,25 @@ GraphQL: `project` / `projects` · route `/projects/[slug]` · ACF: `acf-json/gr
 > `card_category` is only the fallback for a hero that authored none.
 >
 > The two post types differ in what they can say, not in how they look. Where
-> a case study reads "Case study · Headless WordPress", a project reads
-> "Project · Next.js + PixiJS" -- one label, one shape, one component.
+> a case study reads "Case study Â· Headless WordPress", a project reads
+> "Project Â· Next.js + PixiJS" -- one label, one shape, one component.
 
 > **No `build` post type.** The handoff specified one, but the 31 BuildTable
 > rows are authored as a repeater on the Home page instead. The row fields moved
 > into the `BuildTable` entry in section 4.
 
 ## Taxonomy: `collaborator`
-GraphQL: `collaborator` / `collaborators` · ACF: `acf-json/taxonomy_collaborator.json`
-Field group: `acf-json/group_collaborator.json` · key prefix `field_collaborator_`
+GraphQL: `collaborator` / `collaborators` Â· ACF: `acf-json/taxonomy_collaborator.json`
+Field group: `acf-json/group_collaborator.json` Â· key prefix `field_collaborator_`
 
 Each agency Kelly has worked through, authored **once**. Attached to the
 `collaborator` field inside BuildTable rows.
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| — | — | — | — | term name is the display name, e.g. "Milk & Butter" (ampersand, not "and") |
-| company_url | url | yes | — | legend link target. Wicked+ links out |
-| marker_colour | select | yes | — | `blue` \| `pink` \| `green` |
+| â€” | â€” | â€” | â€” | term name is the display name, e.g. "Milk & Butter" (ampersand, not "and") |
+| company_url | url | yes | â€” | legend link target. Wicked+ links out |
+| marker_colour | select | yes | â€” | `blue` \| `pink` \| `green` |
 
 Every collaboration uses the same star glyph. Only the colour changes:
 
@@ -159,7 +159,7 @@ Seed terms: Wicked+, Milk & Butter, Digital Media Management.
 
 ---
 
-# 2 · Shared primitive: `Table`
+# 2 Â· Shared primitive: `Table`
 
 Not an ACF entry. A React component every table on the site renders through,
 so there is one implementation of borders, mono type and the mobile transform.
@@ -177,7 +177,7 @@ Mobile, horizontal only: collapses into stacked full-width cards, data stacking
 vertically, link promoted to a visible action. This is a deliberate
 self-reference to the Ascaya case study.
 
-### `mobile` — how a horizontal table behaves below `tablet`
+### `mobile` â€” how a horizontal table behaves below `tablet`
 
 A prop, not a field. Nothing about it is authored: it is a build-time decision
 about presentation, and putting it in ACF would be offering an editor a choice
@@ -225,7 +225,7 @@ deliberately, to be looked at before deciding whether it needs a companion list.
 
 ---
 
-# 3 · Flexible components
+# 3 Â· Flexible components
 
 Ten layouts. The handoff calls them "the 9 flexible components" but lists ten;
 `MetaBlock` is the extra, and it authors no fields of its own, which is probably
@@ -292,12 +292,12 @@ full-bleed image that fades in draws attention to the fade rather than to itself
 Per ANIMATION DISCIPLINE that stays true until someone briefs otherwise.
 
 ## `PageHero`
-Fragment `lib/fragments/pageHero.ts` -> `PageHeroFields` · key prefix `field_page_hero_`
-Layout `page_hero` · GraphQL `PageSectionsSectionsPageHeroLayout`
+Fragment `lib/fragments/pageHero.ts` -> `PageHeroFields` Â· key prefix `field_page_hero_`
+Layout `page_hero` Â· GraphQL `PageSectionsSectionsPageHeroLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| variant | select | yes | — | `home` \| `case` \| `simple` \| `split` \| `stacked` \| `background_media` |
+| variant | select | yes | â€” | `home` \| `case` \| `simple` \| `split` \| `stacked` \| `background_media` |
 
 > **On the case variant:** `title` is the page's H1, and it is the descriptive
 > line ("Content architecture for Las Vegas's premier luxury community"), not
@@ -349,7 +349,7 @@ Layout `page_hero` · GraphQL `PageSectionsSectionsPageHeroLayout`
 | cta_label | text | no | variant = split, stacked | the whole CTA is optional: no label, no button |
 | cta_link | text | no | variant = split, stacked | an in-page fragment, e.g. `#text-section-2`. Text, not `url`, which rejects a bare fragment. 60px below the intro |
 
-### The `background_media` variant — APPROVED
+### The `background_media` variant â€” APPROVED
 
 Figma: file `pxGuXqgJdSpBMKa0Z7Q1tO`, node `128:554` (the About frame). Requested
 because `/about` currently authors `stacked`, and its opener has to fit inside
@@ -482,14 +482,14 @@ of the layout list means it cannot be forgotten, duplicated, or placed somewhere
 the design never puts it.
 
 ## `IntroCopy`
-Fragment `lib/fragments/caseSections.ts` -> `IntroCopyFields` · key prefix `field_intro_copy_`
-Layout `intro_copy` · GraphQL `PageSectionsSectionsIntroCopyLayout`
+Fragment `lib/fragments/caseSections.ts` -> `IntroCopyFields` Â· key prefix `field_intro_copy_`
+Layout `intro_copy` Â· GraphQL `PageSectionsSectionsIntroCopyLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| kicker | text | no | — | no fallback. Empty renders nothing |
-| paragraphs | repeater -> `paragraph_text` (textarea) | yes | — | |
-| emphasis_line | text | no | — | yellow text tier. Roughly one per page |
+| kicker | text | no | â€” | no fallback. Empty renders nothing |
+| paragraphs | repeater -> `paragraph_text` (textarea) | yes | â€” | |
+| emphasis_line | text | no | â€” | yellow text tier. Roughly one per page |
 
 Approved animation: the paragraphs sit at 30% opacity and each word reaches full
 opacity as the reader scrolls, **scrubbed**, finishing when the component's
@@ -501,14 +501,14 @@ back up un-reads it, which is correct: the effect is a position indicator, not a
 arrival.
 
 ## `TextSection`
-Fragment `lib/fragments/caseSections.ts` -> `TextSectionFields` · key prefix `field_text_section_`
-Layout `text_section` · GraphQL `PageSectionsSectionsTextSectionLayout`
+Fragment `lib/fragments/caseSections.ts` -> `TextSectionFields` Â· key prefix `field_text_section_`
+Layout `text_section` Â· GraphQL `PageSectionsSectionsTextSectionLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| kicker | text | no | — | mono caps |
-| heading | textarea | no | — | line breaks are honoured |
-| paragraphs | repeater -> `paragraph_text` (textarea) | yes | — | the body. Line breaks are honoured |
+| kicker | text | no | â€” | mono caps |
+| heading | textarea | no | â€” | line breaks are honoured |
+| paragraphs | repeater -> `paragraph_text` (textarea) | yes | â€” | the body. Line breaks are honoured |
 
 > **No `intro` here either.** It was the first paragraph under a different
 > name. `CalloutList` and `LargeList` keep theirs, because there an intro is a
@@ -516,16 +516,16 @@ Layout `text_section` · GraphQL `PageSectionsSectionsTextSectionLayout`
 > -- rather than more of the same prose.
 
 ## `MediaCopy`
-Fragment `lib/fragments/caseSections.ts` -> `MediaCopyFields` · key prefix `field_media_copy_`
-Layout `media_copy` · GraphQL `PageSectionsSectionsMediaCopyLayout`
+Fragment `lib/fragments/caseSections.ts` -> `MediaCopyFields` Â· key prefix `field_media_copy_`
+Layout `media_copy` Â· GraphQL `PageSectionsSectionsMediaCopyLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| kicker | text | no | — | mono caps |
-| heading | textarea | no | — | line breaks are honoured |
-| copy_blocks | repeater -> `block_label?` (text), `block_text` (textarea) | no | — | the body. Empty label = plain prose, filled = a mono-labelled block |
-| list_items | repeater -> `item_text` | no | — | |
-| media_type | select | yes | — | `image` \| `video` \| `table` |
+| kicker | text | no | â€” | mono caps |
+| heading | textarea | no | â€” | line breaks are honoured |
+| copy_blocks | repeater -> `block_label?` (text), `block_text` (wysiwyg) | no | â€” | the body. Empty label = plain prose, filled = a mono-labelled block |
+| list_items | repeater -> `item_text` | no | â€” | |
+| media_type | select | yes | â€” | `image` \| `video` \| `table` |
 | media_image | image | yes | media_type = image | lazy loaded |
 | media_video | file (mp4) | yes | media_type = video | muted loop |
 | media_video_poster | image | yes | media_type = video | |
@@ -535,10 +535,10 @@ Layout `media_copy` · GraphQL `PageSectionsSectionsMediaCopyLayout`
 | table_columns | repeater -> `column_label` | no | orientation = horizontal | |
 | table_rows | repeater -> `cells` (repeater -> `cell_value`) | no | orientation = horizontal | |
 | table_vertical_rows | repeater -> `row_label`, `row_value`, `row_value_note` | no | orientation = vertical | |
-| copy_blocks | repeater -> `block_label` (text, opt), `block_text` (textarea) | yes | — | |
-| list_items | repeater -> `item_text` (text) | no | — | |
-| media_side | select | yes | — | `left` \| `right` |
-| variant | select | yes | — | `default` \| `before_after` |
+| copy_blocks | repeater -> `block_label` (text, opt), `block_text` (wysiwyg) | yes | â€” | |
+| list_items | repeater -> `item_text` (text) | no | â€” | |
+| media_side | select | yes | â€” | `left` \| `right` |
+| variant | select | yes | â€” | `default` \| `before_after` |
 | media_before | image | yes | variant = before_after | |
 | media_after | image | yes | variant = before_after | |
 | label_before | text | no | variant = before_after | |
@@ -557,7 +557,7 @@ inspects its neighbours to do this. CSS does.
 > ("Problem" / "My solution"). It is optional, because a section is sometimes
 > just a heading and a list.
 
-## `TabbedMediaCopy` — PARKED
+## `TabbedMediaCopy` â€” PARKED
 
 Not approved, not built, and not currently being pursued. No fragment, no ACF
 JSON, no component. Kept here rather than discarded because the shape and the
@@ -568,8 +568,8 @@ Picking it up again means: settle the three questions, approve, then fragment ->
 ACF JSON -> component, and correct the layout counts in the preamble and in
 section 3 in the same pass.
 
-Fragment `lib/fragments/caseSections.ts` -> `TabbedMediaCopyFields` · key prefix `field_tabbed_media_copy_`
-Layout `tabbed_media_copy` · GraphQL `PageSectionsSectionsTabbedMediaCopyLayout`
+Fragment `lib/fragments/caseSections.ts` -> `TabbedMediaCopyFields` Â· key prefix `field_tabbed_media_copy_`
+Layout `tabbed_media_copy` Â· GraphQL `PageSectionsSectionsTabbedMediaCopyLayout`
 
 MediaCopy with the copy half turned into a switch. Each entry is a headline, its
 copy, and the media that belongs to it. The headlines all stay visible; opening
@@ -577,19 +577,19 @@ one reveals its copy and swaps the media beside it.
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| kicker | text | no | — | mono caps |
-| heading | textarea | no | — | line breaks are honoured |
-| intro | textarea | no | — | lead line above the stack. Line breaks are honoured |
-| media_side | select | yes | — | `left` \| `right`, default `left`. Flippable, as MediaCopy is, so alternating sections can zigzag |
-| entries | repeater, min 2 | yes | — | subfields below |
+| kicker | text | no | â€” | mono caps |
+| heading | textarea | no | â€” | line breaks are honoured |
+| intro | textarea | no | â€” | lead line above the stack. Line breaks are honoured |
+| media_side | select | yes | â€” | `left` \| `right`, default `left`. Flippable, as MediaCopy is, so alternating sections can zigzag |
+| entries | repeater, min 2 | yes | â€” | subfields below |
 
 ### `entries` subfields
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| item_heading | text | yes | — | the tab itself. This is what gets clicked |
-| item_text | textarea | yes | — | the copy revealed when this entry is open. Line breaks are honoured |
-| media | image \| file (mp4) | yes | — | shown while this entry is open. Video renders muted and looped, through `AutoplayVideo` |
+| item_heading | text | yes | â€” | the tab itself. This is what gets clicked |
+| item_text | textarea | yes | â€” | the copy revealed when this entry is open. Line breaks are honoured |
+| media | image \| file (mp4) | yes | â€” | shown while this entry is open. Video renders muted and looped, through `AutoplayVideo` |
 
 **Minimum 2 entries**, enforced in ACF. A switch with one position is not a
 switch, and the design has no state to show for it.
@@ -632,44 +632,44 @@ you want the media to cross-fade or the copy to open on a height tween, that is 
 brief, and it can arrive after the component is standing.
 
 ## `FullWidthMedia`
-Fragment `lib/fragments/caseSections.ts` -> `FullWidthMediaFields` · key prefix `field_full_width_media_`
-Layout `full_width_media` · GraphQL `PageSectionsSectionsFullWidthMediaLayout`
+Fragment `lib/fragments/caseSections.ts` -> `FullWidthMediaFields` Â· key prefix `field_full_width_media_`
+Layout `full_width_media` Â· GraphQL `PageSectionsSectionsFullWidthMediaLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| media | image \| file (mp4) | yes | — | |
-| caption | text | no | — | |
-| width | select | yes | — | `wide` \| `full` |
-| frame | true/false | yes | — | browser chrome around the media |
-| zoom_lens | true/false | yes | — | hover magnifier. Off on touch and on reduced motion |
+| media | image \| file (mp4) | yes | â€” | |
+| caption | text | no | â€” | |
+| width | select | yes | â€” | `wide` \| `full` |
+| frame | true/false | yes | â€” | browser chrome around the media |
+| zoom_lens | true/false | yes | â€” | hover magnifier. Off on touch and on reduced motion |
 
 ## `CalloutList`
-Fragment `lib/fragments/caseSections.ts` -> `CalloutListFields` · key prefix `field_callout_list_`
-Layout `callout_list` · GraphQL `PageSectionsSectionsCalloutListLayout`
+Fragment `lib/fragments/caseSections.ts` -> `CalloutListFields` Â· key prefix `field_callout_list_`
+Layout `callout_list` Â· GraphQL `PageSectionsSectionsCalloutListLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| kicker | text | no | — | mono caps |
-| heading | textarea | no | — | line breaks are honoured |
-| intro | textarea | no | — | lead line above the body. Line breaks are honoured |
-| columns | select | yes | — | `2` \| `3` \| `4` |
-| cards | repeater -> `card_title`, `card_media` (opt), `card_body` | yes | — | equal media heights per row |
+| kicker | text | no | â€” | mono caps |
+| heading | textarea | no | â€” | line breaks are honoured |
+| intro | textarea | no | â€” | lead line above the body. Line breaks are honoured |
+| columns | select | yes | â€” | `2` \| `3` \| `4` |
+| cards | repeater -> `card_title`, `card_media` (opt), `card_body` | yes | â€” | equal media heights per row |
 
 `card_media` takes an image or an mp4, the same shape as `card_media` on the
 post types and `thumb` on a BuildTable row. There is no icon field: the design
 never uses one, and an unused field is one more thing to explain later.
 
 ## `LargeList`
-Fragment `lib/fragments/caseSections.ts` -> `LargeListFields` · key prefix `field_large_list_`
-Layout `large_list` · GraphQL `PageSectionsSectionsLargeListLayout`
+Fragment `lib/fragments/caseSections.ts` -> `LargeListFields` Â· key prefix `field_large_list_`
+Layout `large_list` Â· GraphQL `PageSectionsSectionsLargeListLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| kicker | text | no | — | mono caps |
-| heading | textarea | no | — | line breaks are honoured |
-| intro | textarea | no | — | lead line above the body. Line breaks are honoured |
-| media | image \| file (mp4) | no | — | optional. Always sits left, never right |
-| items | repeater -> `item_title` (opt), `item_text`, `item_media` (opt) | yes | — | oversized zero-padded numerals (01.), full-width bordered rows |
+| kicker | text | no | â€” | mono caps |
+| heading | textarea | no | â€” | line breaks are honoured |
+| intro | textarea | no | â€” | lead line above the body. Line breaks are honoured |
+| media | image \| file (mp4) | no | â€” | optional. Always sits left, never right |
+| items | repeater -> `item_title` (opt), `item_text`, `item_media` (opt) | yes | â€” | oversized zero-padded numerals (01.), full-width bordered rows |
 
 > **On `item_media`.** The artifact belonging to one step, sitting under that
 > step's copy rather than beside the list. This is what the design docket calls
@@ -691,7 +691,7 @@ numerals are the left edge of a spec register when they are alone, and the media
 becomes that edge when it is there. A right-hand option would mean two different
 left edges for the same component.
 
-### APPROVED — panel and pinning
+### APPROVED â€” panel and pinning
 
 Three requests, and they are three different KINDS of thing. Splitting them out
 because the first is ready to build, the second needs an animation brief, and
@@ -699,13 +699,13 @@ the third runs into the colour law.
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| in_panel | true/false | yes | — | render inside the tab + bordered panel shell. `kicker` becomes the tab's label |
-| pinned | true/false | yes | — | the copy holds still while the list scrolls past it |
+| in_panel | true/false | yes | â€” | render inside the tab + bordered panel shell. `kicker` becomes the tab's label |
+| pinned | true/false | yes | â€” | the copy holds still while the list scrolls past it |
 
 No new keys beyond these. Everything else -- `kicker`, `heading`, `intro`,
 `media`, `items` -- is what the component already authors.
 
-#### 1 · `in_panel` — ready to build
+#### 1 Â· `in_panel` â€” ready to build
 
 Renders the section inside `components/UI/Tab` on the bordered panel, the same
 shell BuildTable, Timeline and WorkCardGrid use. `kicker` becomes the tab's
@@ -725,7 +725,7 @@ finding out on the front end.
 > field whose only correct value is one it can compute. Say if you want it off
 > entirely rather than derived.
 
-#### 2 · `pinned` — needs an animation brief
+#### 2 Â· `pinned` â€” needs an animation brief
 
 The layout is unambiguous and I can build it today: copy on columns 1-2, list on
 columns 4-8, column 3 left as the gutter between them. That is a real change of
@@ -761,7 +761,7 @@ element's own height, so a tall row scores a fraction where a short one scores
 > render. `item_media` is unaffected -- it sits inside a row and has no quarrel
 > with either.
 
-#### 3 · `background` — dropped
+#### 3 Â· `background` â€” dropped
 
 Not being built. The colour law stands as written, and nothing here needs an
 exemption from it. Left recorded rather than deleted because the reasoning is
@@ -776,16 +776,16 @@ section or scrolled per item.
 > rather than an empty one when the kicker is missing.
 
 ## `SplitStatement`
-Fragment `lib/fragments/splitStatement.ts` -> `SplitStatementFields` · key prefix `field_split_statement_`
-Layout `split_statement` · GraphQL `PageSectionsSectionsSplitStatementLayout`
+Fragment `lib/fragments/splitStatement.ts` -> `SplitStatementFields` Â· key prefix `field_split_statement_`
+Layout `split_statement` Â· GraphQL `PageSectionsSectionsSplitStatementLayout`
 
 Supersedes both `ThesisLine` (handoff) and `PullQuote` (the current Figma label).
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| quote | textarea | yes | — | the full statement, both halves |
-| highlight_phrases | repeater -> `phrase` (text) | no | — | substrings promoted to yellow mono highlight boxes |
-| variant | select | yes | — | `scroll` \| `static` |
+| quote | textarea | yes | â€” | the full statement, both halves |
+| highlight_phrases | repeater -> `phrase` (text) | no | â€” | substrings promoted to yellow mono highlight boxes |
+| variant | select | yes | â€” | `scroll` \| `static` |
 
 Approved animation (scroll, Home only): halves translate in from opposite sides
 on scrub, lock stacked centre, brief pin. `static` has no motion, and is what
@@ -798,31 +798,31 @@ and shipping features" it landed after a preposition. Punctuation belongs in the
 authored `quote` now, so the line break can fall wherever the sentence wants it.
 
 ## `NextCase`
-Fragment `lib/fragments/caseSections.ts` -> `NextCaseFields` · key prefix `field_next_case_`
-Layout `next_case` · GraphQL `PageSectionsSectionsNextCaseLayout`
+Fragment `lib/fragments/caseSections.ts` -> `NextCaseFields` Â· key prefix `field_next_case_`
+Layout `next_case` Â· GraphQL `PageSectionsSectionsNextCaseLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| next_ref | post object -> `case_study` | yes | — | kicker auto-composes "NEXT CASE STUDY · {name}" |
-| title | text | no | — | overrides the referenced entry's title |
-| link_label | text | yes | — | |
-| media | image | no | — | falls back to the referenced entry's `card_media` |
+| next_ref | post object -> `case_study` | yes | â€” | kicker auto-composes "NEXT CASE STUDY Â· {name}" |
+| title | text | no | â€” | overrides the referenced entry's title |
+| link_label | text | yes | â€” | |
+| media | image | no | â€” | falls back to the referenced entry's `card_media` |
 
 Authored per page, so it gets its own nav node. Tab-labelled block, wholly clickable.
 
 ---
 
-# 4 · Home-only sections
+# 4 Â· Home-only sections
 
 Authored on the Home page, not inside a case study.
 
 ## `WorkCardGrid`
-Fragment `lib/fragments/workCardGrid.ts` -> `WorkCardGridFields` · key prefix `field_work_card_grid_`
-Layout `work_card_grid` · GraphQL `PageSectionsSectionsWorkCardGridLayout`
+Fragment `lib/fragments/workCardGrid.ts` -> `WorkCardGridFields` Â· key prefix `field_work_card_grid_`
+Layout `work_card_grid` Â· GraphQL `PageSectionsSectionsWorkCardGridLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| tabs | repeater -> `tab_label`, `source` (select `case_study` \| `project`), `count_display` | yes | — | three fields at 33% each, one line per tab. Figma shows 2 tabs: "Selected work" (5) and "Projects" (2) |
+| tabs | repeater -> `tab_label`, `source` (select `case_study` \| `project`), `count_display` | yes | â€” | three fields at 33% each, one line per tab. Figma shows 2 tabs: "Selected work" (5) and "Projects" (2) |
 
 Cards come from the chosen post type, filtered on `featured_on_home`, ordered by
 `sort_order`. Figma renders 2 large cards (650px) then 3 small (420px).
@@ -862,33 +862,33 @@ stays shorter than the fade it is staggering. Currently 0.6s rise, 0.6s card
 fade, 0.12s between cards.
 
 ## `BuildTable`
-Fragment `lib/fragments/buildTable.ts` -> `BuildTableFields` · key prefix `field_build_table_`
-Layout `build_table` · GraphQL `PageSectionsSectionsBuildTableLayout`
+Fragment `lib/fragments/buildTable.ts` -> `BuildTableFields` Â· key prefix `field_build_table_`
+Layout `build_table` Â· GraphQL `PageSectionsSectionsBuildTableLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| label | text | yes | — | tab title, "FEATURED SITES I'VE BUILT" |
-| count_display | text | no | — | "30+" |
-| caption | textarea | no | — | the line under the table |
-| rows | repeater | yes | — | 31 rows. Subfields below |
+| label | text | yes | â€” | tab title, "FEATURED SITES I'VE BUILT" |
+| count_display | text | no | â€” | "30+" |
+| caption | textarea | no | â€” | the line under the table |
+| rows | repeater | yes | â€” | 31 rows. Subfields below |
 
 ### `rows` subfields
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| year | text | yes | — | text not number, so "2022-2024" is valid |
-| site | text | yes | — | SITE column |
-| role | select, multiple | yes | — | `design` \| `build` \| `ops`. Rendered joined with " + " |
-| stack | select, multiple | no | — | 10 choices. Rendered joined with " · ". Empty on design-only rows |
-| notes | text | no | — | NOTES column |
-| link_label | text | no | — | "View site" or "Case study" |
-| link | url | no | — | LINK target. Internal links are fine, e.g. `/case-studies/ascaya` |
-| is_collaboration | true/false | yes | — | shows the star next to the site name |
+| year | text | yes | â€” | text not number, so "2022-2024" is valid |
+| site | text | yes | â€” | SITE column |
+| role | select, multiple | yes | â€” | `design` \| `build` \| `ops`. Rendered joined with " + " |
+| stack | select, multiple | no | â€” | 10 choices. Rendered joined with " Â· ". Empty on design-only rows |
+| notes | text | no | â€” | NOTES column |
+| link_label | text | no | â€” | "View site" or "Case study" |
+| link | url | no | â€” | LINK target. Internal links are fine, e.g. `/case-studies/ascaya` |
+| is_collaboration | true/false | yes | â€” | shows the star next to the site name |
 | collaborator | taxonomy -> `collaborator` (single) | yes | is_collaboration = true | supplies the star colour and the legend entry. Sits on the same line as the checkbox |
-| thumb | image \| file (mp4) | no | — | hover thumbnail peek. Component branches on mime type, same as `card_media` |
+| thumb | image \| file (mp4) | no | â€” | hover thumbnail peek. Component branches on mime type, same as `card_media` |
 
 Sorted year descending, then by the order rows appear in the repeater.
-Columns YEAR · SITE (+marker) · ROLE · STACK · NOTES · LINK, rendered through
+Columns YEAR Â· SITE (+marker) Â· ROLE Â· STACK Â· NOTES Â· LINK, rendered through
 Table (horizontal, headers on).
 
 The legend under the table is **derived**, not authored: it is the set of
@@ -907,23 +907,23 @@ and the table is marked locked in that file.
 > `cms` / `framework` / `motion` split (one `stack` text field instead).
 
 ## `Timeline`
-Fragment `lib/fragments/timeline.ts` -> `TimelineFields` · key prefix `field_timeline_`
-Layout `timeline` · GraphQL `PageSectionsSectionsTimelineLayout`
+Fragment `lib/fragments/timeline.ts` -> `TimelineFields` Â· key prefix `field_timeline_`
+Layout `timeline` Â· GraphQL `PageSectionsSectionsTimelineLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| label | text | yes | — | tab title. Same field and job as BuildTable's |
-| count_display | text | no | — | the chip on the tab, e.g. "14 years" |
-| entries | repeater | yes | — | in the order they should read, oldest first. Subfields below |
+| label | text | yes | â€” | tab title. Same field and job as BuildTable's |
+| count_display | text | no | â€” | the chip on the tab, e.g. "14 years" |
+| entries | repeater | yes | â€” | in the order they should read, oldest first. Subfields below |
 
 ### `entries` subfields
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| entry_date | text | yes | — | text not a date picker, so "2013-2015" is valid. Set in `numeral` |
-| entry_company | text | yes | — | |
-| entry_body | textarea | no | — | one paragraph per authored line, through Prose |
-| entry_gallery | gallery (images + mp4) | no | — | the entry's swipeable media, in authored order; genuinely optional. mp4 needs the `k311y-gallery-video` mu-plugin, which lifts ACF 6.8.7's images-only gallery validation. Replaced `entry_media` (file) 2026-10-21 |
+| entry_date | text | yes | â€” | text not a date picker, so "2013-2015" is valid. Set in `numeral` |
+| entry_company | text | yes | â€” | |
+| entry_body | textarea | no | â€” | one paragraph per authored line, through Prose |
+| entry_gallery | gallery (images + mp4) | no | â€” | the entry's swipeable media, in authored order; genuinely optional. mp4 needs the `k311y-gallery-video` mu-plugin, which lifts ACF 6.8.7's images-only gallery validation. Replaced `entry_media` (file) 2026-10-21 |
 
 > **Why `entries` and not `items`.** WPGraphQL-ACF names a repeater's row type
 > after the field alone, not the layout it sits in, so every repeater called
@@ -960,32 +960,32 @@ Nav: circle, no diamond. Its items are repeater rows rather than a CPT, the
 same as CalloutList's cards.
 
 ## `QuestionCTA`
-Fragment `lib/fragments/questionCta.ts` -> `QuestionCtaFields` · key prefix `field_question_cta_`
-Layout `question_cta` · GraphQL `PageSectionsSectionsQuestionCtaLayout`
+Fragment `lib/fragments/questionCta.ts` -> `QuestionCtaFields` Â· key prefix `field_question_cta_`
+Layout `question_cta` Â· GraphQL `PageSectionsSectionsQuestionCtaLayout`
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| notes | repeater (min 1, max 3) -> `question`, `link_label`, `link_url` | yes | — | blue stickies, tape, opposing rotations with the middle straightest |
+| notes | repeater (min 1, max 3) -> `question`, `link_label`, `link_url` | yes | â€” | blue stickies, tape, opposing rotations with the middle straightest |
 
 Whole sticky is clickable. Hover lifts and peels a corner. A small
 "Kelly Warpechowski" attribution label sits on each.
 
 ---
 
-# 5 · Global chrome
+# 5 Â· Global chrome
 
 No nav-tree nodes, no flexible-content layouts. Options pages, so they are
 edited once and appear everywhere.
 
 ## `SiteFooter`
-ACF options page · `acf-json/group_site_footer.json` · key prefix `field_site_footer_`
+ACF options page Â· `acf-json/group_site_footer.json` Â· key prefix `field_site_footer_`
 GraphQL: `siteFooter` on the options type
 
 | field | type | req | conditional | notes |
 |---|---|---|---|---|
-| tab_label | text | yes | — | "HIRE ME" |
-| availability_line | text | yes | — | "Currently open to design engineering roles." |
-| links | repeater -> `link_label`, `link_url` | yes | — | Figma: `kellyruthw@gmail.com` (mailto), LinkedIn, Resume |
+| tab_label | text | yes | â€” | "HIRE ME" |
+| availability_line | text | yes | â€” | "Currently open to design engineering roles." |
+| links | repeater -> `link_label`, `link_url` | yes | â€” | Figma: `kellyruthw@gmail.com` (mailto), LinkedIn, Resume |
 
 Identical on every page.
 
@@ -1007,7 +1007,7 @@ subcomponents. Count chips render only when a count is greater than 1.
 
 ---
 
-# 6 · Decided
+# 6 Â· Decided
 
 - **Home** is a normal WordPress `page` using the same `sections` flexible
   content as case studies and projects. One renderer, one field group.
@@ -1029,7 +1029,7 @@ subcomponents. Count chips render only when a count is greater than 1.
   Figma. No third webfont, no licensing question. Needs an `aria-label` since it
   stops being live text.
 
-# 7 · Waiting on Kelly
+# 7 Â· Waiting on Kelly
 
 Everything this section originally listed is done: the manifest is approved,
 `_content-source/` is fully populated, the wordmark ships as

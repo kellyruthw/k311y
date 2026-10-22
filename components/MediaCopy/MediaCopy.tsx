@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import SectionHeader from "@/components/UI/SectionHeader/SectionHeader";
-import Prose from "@/components/UI/Prose/Prose";
+import RichText from "@/components/UI/RichText/RichText";
 import AutoplayVideo from "@/components/UI/AutoplayVideo/AutoplayVideo";
 import Table from "@/components/Table/Table";
 import { isVideo, mediaUrl, selectValue } from "@/lib/acf";
@@ -139,7 +139,9 @@ export default function MediaCopy(props: MediaCopyProps) {
                   <p className={styles.blockLabel}>{block.blockLabel}</p>
                 ) : null}
 
-                <Prose value={block.blockText} className={styles.blockText} />
+                {/* block_text is a wysiwyg field: real HTML, parsed to real
+                    elements by RichText rather than split into lines. */}
+                <RichText value={block.blockText} className={styles.blockText} />
               </div>
             ))}
           </div>

@@ -68,23 +68,33 @@
 .blockLabel {
   @include kicker;
 
-  margin-bottom: space(2);
+  margin-bottom: space(1);
   color: $color-text-select;
 }
 
+// One wrapper per block (RichText's div), so type is set here and inherited by
+// the wysiwyg's own <p>s inside, which carry no classes of their own.
 .blockText {
   @include paragraph;
+
+  p + p {
+    margin-top: space(4);
+  }
+
+  a {
+    text-decoration: underline;
+    text-underline-position: from-font;
+  }
+  ul {
+    list-style: disc;
+    margin-left:space(3);
+  }
 }
 
 // A titled block is supporting detail, not the main thread: at full paragraph
 // size its text competes with the section's own copy, so it steps down.
 .blockLabel + .blockText {
   @include paragraph-small;
-}
-
-// Real paragraphs now, so they need paragraph spacing between them.
-.blockText + .blockText {
-  margin-top: space(4);
 }
 
 .list {

@@ -76,6 +76,7 @@ export interface MediaCopyFields extends TableFields {
   __typename: "PageSectionsSectionsMediaCopyLayout";
   kicker: string | null;
   heading: string | null;
+  /** blockText is wysiwyg HTML. Render through RichText, never Prose. */
   copyBlocks: { blockLabel: string | null; blockText: string | null }[] | null;
   listItems: { itemText: string | null }[] | null;
   /** Single selects, returned as lists. */
