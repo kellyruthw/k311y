@@ -138,6 +138,19 @@ export function entryNumber(value: number): string {
   return String(value).padStart(3, "0");
 }
 
+/**
+ * WP's wall-clock date, e.g. "Oct 22, 2026". The `date` string carries no
+ * zone, so it must be parsed and formatted in the SAME zone -- parsing local
+ * while formatting UTC shifted an evening post across midnight.
+ */
+export function formatEntryDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 const stripTags = (html: string): string =>
   html
     .replace(/<[^>]+>/g, " ")

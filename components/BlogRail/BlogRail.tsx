@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import Tab from "@/components/UI/Tab/Tab";
 import { HERO_TOTAL } from "@/lib/heroTiming";
-import { entryNumber, type BlogEntry } from "@/lib/queries/blog";
+import { entryNumber, formatEntryDate, type BlogEntry } from "@/lib/queries/blog";
 import styles from "./blogRail.module.scss";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -39,14 +39,6 @@ const RAIL_HOLD = HERO_TOTAL * 0.5;
  * one, the text spans the whole frame. The media never dictates the layout of
  * its neighbours -- each entry decides alone.
  */
-
-const formatDate = (iso: string): string =>
-  new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
 
 export default function BlogRail({ entries }: { entries: BlogEntry[] }) {
   const scope = useRef<HTMLElement>(null);
@@ -132,7 +124,7 @@ export default function BlogRail({ entries }: { entries: BlogEntry[] }) {
 
               <div className={styles.body}>
                 <div className={styles.meta}>
-                  <time dateTime={entry.date}>{formatDate(entry.date)}</time>
+                  <time dateTime={entry.date}>{formatEntryDate(entry.date)}</time>
                   <span className={styles.readTime}>{entry.readingTimeMinutes} min read</span>
                 </div>
 

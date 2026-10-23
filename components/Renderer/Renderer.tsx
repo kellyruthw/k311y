@@ -14,6 +14,7 @@ import CalloutList from "@/components/CalloutList/CalloutList";
 import LargeList from "@/components/LargeList/LargeList";
 import NextCase from "@/components/NextCase/NextCase";
 import Timeline from "@/components/Timeline/Timeline";
+import ChangeblogTeaser from "@/components/ChangeblogTeaser/ChangeblogTeaser";
 
 /**
  * Maps a section's __typename to the component that draws it.
@@ -48,6 +49,7 @@ const SECTION_COMPONENTS: Record<SectionTypename, SectionComponent | null> = {
   PageSectionsSectionsBuildTableLayout: BuildTable,
   PageSectionsSectionsTimelineLayout: Timeline,
   PageSectionsSectionsQuestionCtaLayout: QuestionCTA,
+  PageSectionsSectionsChangeblogTeaserLayout: ChangeblogTeaser,
 };
 
 /** Stable id for a section, used for anchors and the sidebar nav tree. */

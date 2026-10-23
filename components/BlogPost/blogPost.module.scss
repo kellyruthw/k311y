@@ -12,13 +12,27 @@
   padding: space(8) space(8) 0;
 
   @include respond(tablet) {
-    padding: space(4) space(2) 0;
+    // No top padding: the shell's own mobile rhythm already spaces the tab row,
+    // and the hero was starting twice as far down as any other page's.
+    padding: 0 space(2);
   }
 }
 
 .hero {
   display: flex;
   flex-direction: column;
+}
+
+// Opt out of the mobile section rhythm, the way _sections.scss prescribes
+// (doubled class beats its [data-component] selector). The hero is inside the
+// panel with the title's own margins doing the spacing: the global 40px above
+// pushed it far below the tab, and the 40px below doubled up with
+// PostContent's own top to leave a hole before the first paragraph.
+.hero.hero {
+  @include respond(tablet) {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 
 .backRow {
@@ -54,6 +68,12 @@
   align-items: center;
   margin-bottom: space(14);
   color: $color-text-soft;
+
+  @include respond(tablet) {
+    // The desktop air above the prose is the column's to spend; stacked on a
+    // phone it read as a hole between the meta and the first paragraph.
+    margin-bottom: 0;
+  }
 }
 
 // The page's ONE yellow body use, per the semantic colour law: the read time
@@ -70,6 +90,21 @@
   // The panel zeroes .post's own padding-bottom (shell rule for a last child),
   // so the bottom inset from the frame lives here instead.
   padding-bottom: space(10);
+
+  @include respond(tablet) {
+    // The section rhythm's own bottom padding is the inset here; this on top
+    // of it was a hole.
+    padding-bottom: 0;
+  }
+}
+
+// PostContent's opt-out of the mobile rhythm's BOTTOM half, doubled class per
+// _sections.scss. Its top half stays: with the hero's rhythm gone, it is what
+// separates the meta line from the first paragraph.
+.content.content {
+  @include respond(tablet) {
+    padding-bottom: 0;
+  }
 }
 
 // The entry's prose: Gutenberg output through RichText, typed by inheritance.

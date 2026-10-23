@@ -1310,7 +1310,7 @@
                             },
                             "choices": {
                                 "default": "Default",
-                                "before_after": "Before \/ after"
+                                "before_after": "Before / after"
                             },
                             "default_value": "default",
                             "return_format": "value",
@@ -3064,7 +3064,7 @@
                                     "name": "link",
                                     "aria-label": "",
                                     "type": "text",
-                                    "instructions": "External URL, or an internal path such as \/case-studies\/ascaya.",
+                                    "instructions": "External URL, or an internal path such as /case-studies/ascaya.",
                                     "required": 0,
                                     "conditional_logic": 0,
                                     "wrapper": {
@@ -3074,7 +3074,7 @@
                                     },
                                     "default_value": "",
                                     "maxlength": "",
-                                    "placeholder": "https:\/\/",
+                                    "placeholder": "https://",
                                     "prepend": "",
                                     "append": "",
                                     "parent_repeater": "field_build_table_rows",
@@ -3445,7 +3445,7 @@
                                     "name": "link_url",
                                     "aria-label": "",
                                     "type": "text",
-                                    "instructions": "Internal paths are fine, e.g. \/process.",
+                                    "instructions": "Internal paths are fine, e.g. /process.",
                                     "required": 1,
                                     "conditional_logic": 0,
                                     "wrapper": {
@@ -3455,13 +3455,44 @@
                                     },
                                     "default_value": "",
                                     "maxlength": "",
-                                    "placeholder": "\/process",
+                                    "placeholder": "/process",
                                     "prepend": "",
                                     "append": "",
                                     "parent_repeater": "field_question_cta_notes",
                                     "show_in_graphql": 1
                                 }
                             ]
+                        }
+                    ],
+                    "min": "",
+                    "max": "1"
+                },
+                "layout_changeblog_teaser": {
+                    "key": "layout_changeblog_teaser",
+                    "name": "changeblog_teaser",
+                    "label": "Changeblog Teaser",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_changeblog_teaser_label",
+                            "label": "Label",
+                            "name": "label",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "The small line above the post title. The post itself is always the newest entry; nothing else to configure.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "100",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "Latest entry",
+                            "maxlength": "",
+                            "placeholder": "Latest entry",
+                            "prepend": "",
+                            "append": "",
+                            "show_in_graphql": 1
                         }
                     ],
                     "min": "",
@@ -3511,5 +3542,5 @@
     "graphql_field_name": "pageSections",
     "map_graphql_types_from_location_rules": 0,
     "graphql_types": "",
-    "modified": 1792627600
+    "modified": 1792736273
 }

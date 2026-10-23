@@ -4,6 +4,7 @@ import { BUILD_TABLE_FRAGMENT, type BuildTableFields } from "./buildTable";
 import { SPLIT_STATEMENT_FRAGMENT, type SplitStatementFields } from "./splitStatement";
 import { QUESTION_CTA_FRAGMENT, type QuestionCtaFields } from "./questionCta";
 import { TIMELINE_FRAGMENT, type TimelineFields } from "./timeline";
+import { CHANGEBLOG_TEASER_FRAGMENT, type ChangeblogTeaserFields } from "./changeblogTeaser";
 import {
   CALLOUT_LIST_FRAGMENT,
   FULL_WIDTH_MEDIA_FRAGMENT,
@@ -42,6 +43,7 @@ export const SECTION_FRAGMENTS = [
   BUILD_TABLE_FRAGMENT,
   TIMELINE_FRAGMENT,
   QUESTION_CTA_FRAGMENT,
+  CHANGEBLOG_TEASER_FRAGMENT,
 ].join("\n");
 
 /** The discriminated union the Renderer switches on. */
@@ -58,7 +60,8 @@ export type Section =
   | WorkCardGridFields
   | BuildTableFields
   | TimelineFields
-  | QuestionCtaFields;
+  | QuestionCtaFields
+  | ChangeblogTeaserFields;
 
 export type SectionTypename = Section["__typename"];
 

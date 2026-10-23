@@ -1,6 +1,6 @@
 import Link from "next/link";
 import RichText from "@/components/UI/RichText/RichText";
-import type { BlogPost as BlogPostData } from "@/lib/queries/blog";
+import { formatEntryDate, type BlogPost as BlogPostData } from "@/lib/queries/blog";
 import styles from "./blogPost.module.scss";
 
 /**
@@ -18,14 +18,6 @@ import styles from "./blogPost.module.scss";
  * The draft chip appears only when the loader could see a draft at all, which
  * only happens locally; see lib/queries/blog.ts.
  */
-
-const formatDate = (iso: string): string =>
-  new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
 
 export default function BlogPost({
   post,
@@ -52,13 +44,13 @@ export default function BlogPost({
         <h1 className={styles.title}>{post.title}</h1>
 
         <div className={styles.meta}>
-          <time dateTime={post.date}>{formatDate(post.date)}</time>
+          <time dateTime={post.date}>{formatEntryDate(post.date)}</time>
           <span className={styles.readTime}>{post.readingTimeMinutes} min read</span>
         </div>
       </header>
 
       <div className={styles.body}>
-        <section data-component="PostContent" id="post-content">
+        <section className={styles.content} data-component="PostContent" id="post-content">
           <RichText value={post.content} className={styles.prose} />
         </section>
 
