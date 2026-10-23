@@ -152,6 +152,28 @@ body > * {
 // unconditionally, on every route.
 // -----------------------------------------------------------------------------
 
+// -----------------------------------------------------------------------------
+// THE SHORT-PAGE FOOTER PIN
+// A page whose content can run shorter than the viewport -- the changeblog hub
+// while the rail is young -- pins the footer's bottom edge to the bottom of the
+// screen: body becomes a column, the main grows to take the slack, and the gap
+// lands above the footer instead of below it. Keyed off an attribute on the
+// page's own <main>, the same move the sheet opt-out below makes, for the same
+// cascade reasons. The nav is position: fixed, so it takes no column slot.
+// -----------------------------------------------------------------------------
+
+body:has(> main[data-fill="viewport"]) {
+  display: flex;
+  flex-direction: column;
+}
+
+main[data-fill="viewport"] {
+  flex: 1;
+  // Outranks the module's 100vh floor at (0,1,1): the column already
+  // guarantees the height, and keeping both would reopen the gap this removes.
+  min-height: 0;
+}
+
 html:has(> body > [data-doc="resume"]) {
   background-color: $paper-page;
 }

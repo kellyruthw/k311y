@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Tab from "@/components/UI/Tab/Tab";
 import { entryNumber, type BlogEntry } from "@/lib/queries/blog";
 import styles from "./blogRail.module.scss";
 
@@ -29,17 +30,19 @@ const formatDate = (iso: string): string =>
 export default function BlogRail({ entries }: { entries: BlogEntry[] }) {
   if (!entries.length) return null;
 
-  const latest = entryNumber(Math.max(...entries.map((entry) => entry.number)));
-
   return (
     <section className={styles.section} data-component="BlogRail" id="blog-rail">
       <ol className={styles.rail}>
         {entries.map((entry) => (
           <li key={entry.databaseId} className={styles.entry}>
-            <p className={styles.frameLabel}>
-              revival / {entryNumber(entry.number)}
-              {entry.isDraft ? <span className={styles.chipDraft}>Draft</span> : null}
-            </p>
+            {/* The tab labels the frame it sits on, exactly as a table's does:
+                the post's category and its changelog number. A local draft is
+                flagged in the tab's own chip. */}
+            <div className={styles.tabRow}>
+              <Tab count={entry.isDraft ? "Draft" : undefined}>
+                {entry.category} / {entryNumber(entry.number)}
+              </Tab>
+            </div>
 
             <Link
               href={entry.href}
@@ -59,7 +62,7 @@ export default function BlogRail({ entries }: { entries: BlogEntry[] }) {
               <div className={styles.body}>
                 <div className={styles.meta}>
                   <time dateTime={entry.date}>{formatDate(entry.date)}</time>
-                  <span>{entry.readingTimeMinutes} min read</span>
+                  <span className={styles.readTime}>{entry.readingTimeMinutes} min read</span>
                 </div>
 
                 <h2 className={styles.title}>{entry.title}</h2>
@@ -72,10 +75,6 @@ export default function BlogRail({ entries }: { entries: BlogEntry[] }) {
           </li>
         ))}
       </ol>
-
-      <p className={styles.railEnd}>
-        {`// ${latest} of ${latest} — the changelog grows downward as entries ship`}
-      </p>
     </section>
   );
 }

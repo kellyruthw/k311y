@@ -42,7 +42,7 @@ const STATIC_ROUTES: { path: string; uri?: string; modified?: string }[] = [
   { path: "/", uri: "/" },
   { path: "/about", uri: "/about/" },
   { path: "/process", uri: "/process/" },
-  { path: "/blog", uri: "/blog/" },
+  { path: "/changeblog", uri: "/changeblog/" },
   // /resume has no WordPress page behind it -- its content is a typed file in
   // lib/resume -- so there is nothing to look up, and the content file carries
   // its own date. That is the honest source: the file IS the resume, so the
@@ -152,6 +152,6 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     ...staticEntries,
     ...(caseStudies.caseStudies?.nodes ?? []).filter(hasSlug).map(entryFor("/case-studies")),
     ...(projects.projects?.nodes ?? []).filter(hasSlug).map(entryFor("/projects")),
-    ...(posts.posts?.nodes ?? []).filter(hasSlug).map(entryFor("/blog")),
+    ...(posts.posts?.nodes ?? []).filter(hasSlug).map(entryFor("/changeblog")),
   ];
 }

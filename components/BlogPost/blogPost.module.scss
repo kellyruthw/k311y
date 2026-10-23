@@ -4,8 +4,16 @@
 // measure is in ch so it widens with the type -- `paragraph` grows to its 24px
 // cap above the design width, and the column grows with it.
 
+// Inside the entry shell's panel: the route draws the tab and the bordered
+// frame; this draws the entry. Horizontal and top padding are its inset from
+// the frame; the bottom inset lives on .body, because the shell zeroes a
+// direct child's own padding-bottom.
 .post {
-  padding-bottom: space(16);
+  padding: space(8) space(8) 0;
+
+  @include respond(tablet) {
+    padding: space(4) space(2) 0;
+  }
 }
 
 .hero {
@@ -30,25 +38,6 @@
   }
 }
 
-.frameLabel {
-  @include mono-node;
-
-  display: flex;
-  gap: space(2);
-  align-items: center;
-  margin: 0 0 space(1.2) 2px;
-  color: $bg-node;
-}
-
-.chipDraft {
-  @include mono-node;
-
-  padding: space(0.6) space(2.2);
-  color: $bg-node;
-  border: 1px dashed $bg-node;
-  border-radius: $radius-pill;
-}
-
 .title {
   @include title;
 
@@ -67,10 +56,20 @@
   color: $color-text-soft;
 }
 
+// The page's ONE yellow body use, per the semantic colour law: the read time
+// is the thing not to miss. Flat yellow, never the gradient -- text has no
+// area for a gradient to read as one. The date beside it stays soft.
+.readTime {
+  color: $color-text-select;
+}
+
 .body {
   width: 100%;
   max-width: 125ch;
   margin: 0 auto;
+  // The panel zeroes .post's own padding-bottom (shell rule for a last child),
+  // so the bottom inset from the frame lives here instead.
+  padding-bottom: space(10);
 }
 
 // The entry's prose: Gutenberg output through RichText, typed by inheritance.

@@ -47,6 +47,7 @@ const ENTRY_FIELDS = `
   date
   excerpt
   content
+  categories(first: 1) { nodes { name } }
   featuredImage { node { sourceUrl altText mediaDetails { width height } } }
 `;
 
@@ -86,6 +87,7 @@ interface EntryNode {
   date: string | null;
   excerpt: string | null;
   content: string | null;
+  categories: { nodes: { name: string | null }[] } | null;
   featuredImage: FeaturedImageNode | null;
 }
 
@@ -113,6 +115,12 @@ export interface BlogEntry {
   excerpt: string;
   /** Changelog position, oldest = 1. Formatted by entryNumber(). */
   number: number;
+  /**
+   * The post's WordPress category, named on the entry's tab: "Revival / 001".
+   * WordPress files an uncategorised post under "Uncategorized", which is a
+   * default rather than a decision, so it falls back to the blog's own name.
+   */
+  category: string;
   readingTimeMinutes: number;
   isDraft: boolean;
   image: BlogImage | null;
@@ -165,10 +173,15 @@ const toImage = (featured: FeaturedImageNode | null): BlogImage | null => {
 const toEntry = (node: EntryNode, number: number): BlogEntry => {
   const key = node.slug?.trim() || String(node.databaseId);
 
+  const categoryName = node.categories?.nodes[0]?.name?.trim();
+  const category =
+    categoryName && categoryName.toLowerCase() !== "uncategorized" ? categoryName : "Revival";
+
   return {
+    category,
     databaseId: node.databaseId,
     key,
-    href: `/blog/${key}`,
+    href: `/changeblog/${key}`,
     title: node.title ?? "",
     date: node.date ?? new Date().toISOString(),
     excerpt: stripTags(node.excerpt ?? ""),

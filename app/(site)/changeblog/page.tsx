@@ -5,7 +5,7 @@ import SidebarNav from "@/components/SidebarNav/SidebarNav";
 import SiteFooter from "@/components/SiteFooter/SiteFooter";
 import BlogRail from "@/components/BlogRail/BlogRail";
 import { getPage } from "@/lib/queries/page";
-import { getBlogEntries } from "@/lib/queries/blog";
+import { entryNumber, getBlogEntries } from "@/lib/queries/blog";
 import { toMetadata } from "@/lib/seo";
 import { getPrimaryMenu } from "@/lib/queries/nav";
 import { getSiteFooter } from "@/lib/queries/footer";
@@ -26,11 +26,11 @@ import styles from "../site.module.scss";
  */
 
 /** The URI WordPress stores, which is also what the primary menu links to. */
-const URI = "/blog/";
+const URI = "/changeblog/";
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPage(URI);
-  return toMetadata(page?.seo, { path: "/blog", fallbackTitle: page?.title });
+  return toMetadata(page?.seo, { path: "/changeblog", fallbackTitle: page?.title });
 }
 
 export default async function BlogPage() {
@@ -44,6 +44,18 @@ export default async function BlogPage() {
   if (!page) notFound();
 
   /**
+   * The hero's kicker counts the changelog: "Changeblog / 003" with three
+   * entries on the rail. The label is authored in WordPress; only the number
+   * is appended here, so the count can never drift from what renders below.
+   * Locally that includes drafts, because the rail shows them too.
+   */
+  const sections = page.sections.map((section) =>
+    section.__typename === "PageSectionsSectionsPageHeroLayout" && section.kicker?.trim()
+      ? { ...section, kicker: `${section.kicker.trim()} / ${entryNumber(entries.length)}` }
+      : section,
+  );
+
+  /**
    * Blog schema, with each entry as a BlogPosting stub. Drafts are deliberately
    * left out even locally: schema describes what the public page claims, and a
    * draft is not yet a claim.
@@ -51,8 +63,8 @@ export default async function BlogPage() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "Blog",
-    name: "Revival",
-    url: `${SITE_URL}/blog`,
+    name: "Changeblog",
+    url: `${SITE_URL}/changeblog`,
     description: page.seo?.metaDesc || undefined,
     author: { "@type": "Person", name: "Kelly Warpechowski", url: SITE_URL },
     blogPost: entries
@@ -69,18 +81,21 @@ export default async function BlogPage() {
     <>
       <SidebarNav
         links={links}
-        nodes={buildNavTree(page.sections)}
+        nodes={buildNavTree(sections)}
         currentHref={URI}
         wordmarkSrc="/logo-kelly-warpechowski.svg"
       />
 
-      <main className={styles.main}>
+      {/* data-fill: a short rail must not strand the footer mid-screen -- the
+          body column in _globals.scss grows this main and pins the footer's
+          bottom edge to the viewport's. */}
+      <main className={styles.main} data-fill="viewport">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
 
-        <Renderer sections={page.sections} />
+        <Renderer sections={sections} />
         <BlogRail entries={entries} />
       </main>
 

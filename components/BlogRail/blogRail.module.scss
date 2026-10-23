@@ -4,13 +4,15 @@
 // pills off a branch. Every type style is a shipped mixin; the one new state
 // is the dashed draft chip, approved with the blog design.
 
+// No padding-bottom: the footer sets the distance to itself, the same
+// convention the entry shell states, so the gap is stated once.
 .section {
-  display: flex;
-  flex-direction: column;
-  padding-bottom: space(16);
+  @include content-section;
 }
 
 .rail {
+  @include grid-span(7, 1);
+
   display: flex;
   flex-direction: column;
   gap: space(14);
@@ -46,27 +48,10 @@
   }
 }
 
-// The frame's name, floating above its top-left corner the way Figma names a
-// frame. Lavender: component chrome, never content.
-.frameLabel {
-  @include mono-node;
-
+// The entry's tab sits on its frame the way a table's sits on its block:
+// joined, bottom border absent.
+.tabRow {
   display: flex;
-  gap: space(2);
-  align-items: center;
-  margin: 0 0 space(1.2) 2px;
-  color: $bg-node;
-}
-
-// A draft's chip: the pill idiom outlined rather than filled, dashed because
-// the entry is not yet placed. Local-only by construction.
-.chipDraft {
-  @include mono-node;
-
-  padding: space(0.6) space(2.2);
-  color: $bg-node;
-  border: 1px dashed $bg-node;
-  border-radius: $radius-pill;
 }
 
 .frame {
@@ -128,6 +113,12 @@
   color: $color-text-soft;
 }
 
+// The read time is the card's yellow moment, same rule as the post page: flat
+// yellow text, the date beside it soft.
+.readTime {
+  color: $color-text-select;
+}
+
 .title {
   @include heading;
 
@@ -150,11 +141,3 @@
   transition: color $duration-fast $ease-standard;
 }
 
-.railEnd {
-  @include mono-small;
-
-  margin: space(11) 0 0;
-  padding-left: space(5);
-  color: $color-text-soft;
-  opacity: 0.6;
-}

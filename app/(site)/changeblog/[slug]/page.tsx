@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SidebarNav from "@/components/SidebarNav/SidebarNav";
 import SiteFooter from "@/components/SiteFooter/SiteFooter";
+import Tab from "@/components/UI/Tab/Tab";
 import BlogPost from "@/components/BlogPost/BlogPost";
 import { entryNumber, getBlogEntries, getBlogPost, getBlogSlugs } from "@/lib/queries/blog";
 import { toMetadata } from "@/lib/seo";
 import { getPrimaryMenu } from "@/lib/queries/nav";
 import { getSiteFooter } from "@/lib/queries/footer";
 import { SITE_URL, absoluteUrl } from "@/lib/site";
-import styles from "../../site.module.scss";
+import styles from "../../entryShell.module.scss";
 
 /**
  * One Revival entry.
@@ -33,7 +34,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getBlogPost(slug);
 
-  return toMetadata(post?.seo, { path: `/blog/${slug}`, fallbackTitle: post?.title });
+  return toMetadata(post?.seo, { path: `/changeblog/${slug}`, fallbackTitle: post?.title });
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -56,13 +57,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     current: entry.databaseId === post.databaseId,
   }));
 
-  // "Next entry" is the next number up -- the one written after this -- and
-  // falls back to the changelog when this is the newest.
-  const next = entries.find((entry) => entry.number === post.number + 1);
-  const nextHref = next?.href ?? "/blog";
-  const nextLabel = next
-    ? next.title
-    : `${entryNumber(post.number + 1)} isn’t written yet — back to the changelog →`;
+  // "Next entry" is the next number up -- the one written after this. On the
+  // newest post there is none, and the block hides until one is written.
+  const nextEntry = entries.find((entry) => entry.number === post.number + 1);
+  const next = nextEntry ? { href: nextEntry.href, label: nextEntry.title } : undefined;
 
   /**
    * BlogPosting schema. Description prefers Yoast's meta description -- the
@@ -79,7 +77,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     description: post.seo?.metaDesc?.trim() || post.excerpt || undefined,
     image: post.image?.url,
     author: { "@type": "Person", name: "Kelly Warpechowski", url: SITE_URL },
-    isPartOf: { "@type": "Blog", name: "Revival", url: `${SITE_URL}/blog` },
+    isPartOf: { "@type": "Blog", name: "Changeblog", url: `${SITE_URL}/changeblog` },
   };
 
   return (
@@ -87,18 +85,28 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <SidebarNav
         links={links}
         nodes={[]}
-        currentHref="/blog/"
+        currentHref="/changeblog/"
         entries={navEntries}
         wordmarkSrc="/logo-kelly-warpechowski.svg"
       />
 
-      <main className={styles.main}>
+      <main className={styles.shell}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
 
-        <BlogPost post={post} nextHref={nextHref} nextLabel={nextLabel} />
+        {/* The entry shell both detail post types wear: the tab labels the
+            panel it sits on. A local draft is flagged in the tab's own chip. */}
+        <div className={styles.tabRow}>
+          <Tab count={post.isDraft ? "Draft" : undefined}>
+            {post.category} / {entryNumber(post.number)}
+          </Tab>
+        </div>
+
+        <div className={styles.panel}>
+          <BlogPost post={post} next={next} />
+        </div>
       </main>
 
       <SiteFooter {...footer} />
