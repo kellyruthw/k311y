@@ -361,8 +361,15 @@
 
     :global([data-column="Stack"]) {
       order: 6;
-      flex: 1;
+
+      // No flex: 1, deliberately. Stretched to the remainder of the role's
+      // line, a long stack wrapped into a cramped two-line column beside it.
+      // At its content size the row's own flex-wrap decides instead: a short
+      // stack shares the role's line, a long one drops to a full-width line of
+      // its own and wraps there.
+      flex: 0 1 auto;
       min-width: 0;
+      max-width: 100%;
     }
 
     // Only when there is a role in front of it. A design-only row has no stack

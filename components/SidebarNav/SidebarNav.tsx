@@ -486,6 +486,14 @@ export default function SidebarNav({
           the stylesheet, and .tree's flex-grow already reserves the bottom of
           the panel for it.
         */}
+
+        {/* Behind the open mobile menu: the same full-viewport veil the footer
+            peek uses, blurring the page so the menu reads as the front object.
+            Inside the panel at a negative z-index, the trick the dropdown
+            itself uses to come out from under the bar; pointer-events: none,
+            so the click-away handler still sees the page. Display: none above
+            tablet -- the desktop panel has no menu to open. */}
+        <div className={styles.menuVeil} aria-hidden />
       </nav>
 
       {/* Only a deliberate hover draws the marquee, never the scroll position. */}

@@ -578,6 +578,12 @@
   color: $color-text-primary;
 }
 
+// Mobile-only; see the block below. Stated here so the desktop panel never
+// has to lay out an empty child.
+.menuVeil {
+  display: none;
+}
+
 // MOBILE ======================================================================
 // The panel stops being a layers panel and becomes a menu.
 //
@@ -614,10 +620,10 @@
     flex-grow: 0;
     padding: 0;
 
-    // White, not the panel's purple. $bg-invert is the semantic name for it --
-    // the same token the page squares are filled with on desktop, which is what
-    // the menu rows are, opened out to the full width of the screen.
-    background-color: $bg-invert;
+    // The canvas black, white type: the menu opens as a window back onto the
+    // page rather than the bar continuing. (It wore the bar's select fill for
+    // about an hour; the black read better.)
+    background-color: $bg-page;
 
     // The slide. A grid row measured in fr is the one way to transition to a
     // content height without naming that height in advance, and naming it is
@@ -712,9 +718,11 @@
     padding: space(3.2) space(4);
     background-color: transparent;
     border: 0;
-    border-top: 1px solid $color-border-on-chrome;
+    // White-on-black now, so the hairlines are the canvas's subtle rule rather
+    // than the darkened one drawn for coloured grounds.
+    border-top: 1px solid $color-border-subtle;
     border-radius: 0;
-    color: $color-text-invert;
+    color: $color-text-primary;
   }
 
   // Everything below the page list belongs to the tree.
@@ -723,5 +731,30 @@
   .branchWrap,
   .colophon {
     display: none;
+  }
+
+  // The veil behind the open menu: the footer peek's device, rebuilt with the
+  // same figures (see siteFooter.module.scss). backdrop-filter transitions
+  // alongside opacity because element opacity does not scale a backdrop
+  // effect. z-index -2 sits under the dropdown's -1, both beneath the bar.
+  .menuVeil {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    opacity: 0;
+    backdrop-filter: blur(0);
+
+    @include motion-safe {
+      transition:
+        opacity $duration-base ease-out,
+        backdrop-filter $duration-base ease-out;
+    }
+  }
+
+  .panel[data-menu-open="true"] .menuVeil {
+    opacity: 1;
+    backdrop-filter: blur(3px);
   }
 }
