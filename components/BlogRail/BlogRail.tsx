@@ -132,7 +132,7 @@ export default function BlogRail({ entries }: { entries: BlogEntry[] }) {
 
                 {entry.excerpt ? <p className={styles.excerpt}>{entry.excerpt}</p> : null}
 
-                <span className={styles.read}>Open {entryNumber(entry.number)}</span>
+                <span className={styles.read}>Read {entryNumber(entry.number)}</span>
               </div>
             </Link>
           </li>

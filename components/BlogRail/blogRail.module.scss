@@ -90,11 +90,28 @@
 }
 
 // A frame whose post has a featured image: the image rides the left column.
+//
+// The frame's padding steps down to 8px so the thumb sits close to the card's
+// edge, photo-card fashion, and the copy takes the difference back as padding
+// on .body -- 8 + 22 = the 30px inset the plain frame gives it, with the gap
+// at 8px so the copy also holds 30px off the image.
 .frameMedia {
   display: grid;
   grid-template-columns: minmax(space(48), space(64)) 1fr;
-  gap: space(6);
+  gap: space(1.6);
   align-items: start;
+  padding: space(1.6);
+
+  .body {
+    padding: space(4.4);
+  }
+
+  @include respond(tablet) {
+    // 8 + 12 = the plain frame's 20px tablet inset.
+    .body {
+      padding: space(2.4);
+    }
+  }
 
   @include respond(portrait) {
     grid-template-columns: 1fr;
@@ -103,7 +120,7 @@
 
 .cardMedia {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 12 / 9;
   object-fit: cover;
   border-radius: $radius-square;
 }

@@ -122,6 +122,10 @@
 .caption {
   @include mono-small;
 
+  // mono-small is a single-line label style and sets lh 1, which is too tight
+  // once a caption wraps. Table copy's line height, since that is the job.
+  line-height: $lh-130;
+
   max-width: space(110);
   color: $color-text-soft;
 }
