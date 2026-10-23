@@ -251,6 +251,21 @@ export default function SidebarNav({
    * looking at its third instance takes you to the fourth, and the count chip
    * stays honest -- the node is a way through five sections, not a link to one.
    */
+  /**
+   * Clicking the wordmark or a menu link while already on its page scrolls back
+   * to the top instead of navigating: a same-page navigation re-renders the
+   * route, which replays every entrance animation on the way up. The scroll
+   * says "same page, we just went up"; the reload-shaped jump does not.
+   */
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+  }, []);
+
   const scrollToNode = useCallback(
     (node: NavNode) => {
       const current = inViewId ? node.ids.indexOf(inViewId) : -1;
@@ -283,7 +298,17 @@ export default function SidebarNav({
           resting state: logotype left, menu button right.
         */}
         <div className={styles.bar}>
-          <Link href="/" className={styles.wordmark} onClick={closeMenu}>
+          <Link
+            href="/"
+            className={styles.wordmark}
+            onClick={(event) => {
+              closeMenu();
+              if (pathname === "/") {
+                event.preventDefault();
+                scrollToTop();
+              }
+            }}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element -- fixed-size
                 outlined logotype; next/image has nothing to optimise here. */}
             <img src={wordmarkSrc} alt="Kelly Warpechowski" width={201} height={25} />
@@ -354,6 +379,10 @@ export default function SidebarNav({
                           if (link.hash && findAnchorTarget(`#${link.hash}`)) {
                             event.preventDefault();
                             requestAnchor(link.hash);
+                          } else if (!link.hash && link.path === pathname) {
+                            // The page being viewed. See scrollToTop.
+                            event.preventDefault();
+                            scrollToTop();
                           }
                         }}
                       >

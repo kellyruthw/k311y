@@ -1228,8 +1228,8 @@
                                     "label": "Text",
                                     "name": "block_text",
                                     "aria-label": "",
-                                    "type": "textarea",
-                                    "instructions": "Press Enter for a line break.",
+                                    "type": "wysiwyg",
+                                    "instructions": "",
                                     "required": 1,
                                     "conditional_logic": 0,
                                     "wrapper": {
@@ -1238,10 +1238,10 @@
                                         "id": ""
                                     },
                                     "default_value": "",
-                                    "maxlength": "",
-                                    "rows": 4,
-                                    "placeholder": "",
-                                    "new_lines": "",
+                                    "tabs": "all",
+                                    "toolbar": "basic",
+                                    "media_upload": 0,
+                                    "delay": 0,
                                     "parent_repeater": "field_media_copy_copy_blocks",
                                     "show_in_graphql": 1
                                 }
@@ -3511,5 +3511,5 @@
     "graphql_field_name": "pageSections",
     "map_graphql_types_from_location_rules": 0,
     "graphql_types": "",
-    "modified": 1792627500
+    "modified": 1792627600
 }
