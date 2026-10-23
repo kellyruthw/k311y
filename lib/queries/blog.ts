@@ -45,6 +45,7 @@ const ENTRY_FIELDS = `
   status
   title
   date
+  dateGmt
   excerpt
   content
   categories(first: 1) { nodes { name } }
@@ -66,6 +67,7 @@ const POST_QUERY = `
     post(id: $id, idType: $idType) {
       ${ENTRY_FIELDS}
       modified
+      modifiedGmt
       ${SEO_FRAGMENT}
     }
   }
@@ -85,6 +87,7 @@ interface EntryNode {
   status: string | null;
   title: string | null;
   date: string | null;
+  dateGmt: string | null;
   excerpt: string | null;
   content: string | null;
   categories: { nodes: { name: string | null }[] } | null;
@@ -93,6 +96,7 @@ interface EntryNode {
 
 interface PostNode extends EntryNode {
   modified: string | null;
+  modifiedGmt: string | null;
   seo: YoastSeo | null;
 }
 
@@ -111,6 +115,11 @@ export interface BlogEntry {
   title: string;
   /** ISO, as WordPress reports it. Null never survives mapping; see below. */
   date: string;
+  /**
+   * The same instant in UTC with an explicit Z, for schema.org dates.
+   * WPGraphQL's `date` carries no zone, which Google tolerates but flags.
+   */
+  dateGmt: string;
   /** Plain text, tags stripped: the card never renders markup. */
   excerpt: string;
   /** Changelog position, oldest = 1. Formatted by entryNumber(). */
@@ -130,6 +139,8 @@ export interface BlogPost extends BlogEntry {
   /** Gutenberg HTML, rendered through RichText. */
   content: string;
   modified: string | null;
+  /** UTC with an explicit Z, as dateGmt. Null when WP has no modified date. */
+  modifiedGmt: string | null;
   seo: YoastSeo | null;
 }
 
@@ -183,6 +194,9 @@ const toImage = (featured: FeaturedImageNode | null): BlogImage | null => {
   };
 };
 
+/** WPGraphQL's GMT stamps carry no zone marker either; the Z states it. */
+const utc = (gmt: string | null): string | null => (gmt ? `${gmt}Z` : null);
+
 const toEntry = (node: EntryNode, number: number): BlogEntry => {
   const key = node.slug?.trim() || String(node.databaseId);
 
@@ -197,6 +211,7 @@ const toEntry = (node: EntryNode, number: number): BlogEntry => {
     href: `/changeblog/${key}`,
     title: node.title ?? "",
     date: node.date ?? new Date().toISOString(),
+    dateGmt: utc(node.dateGmt) ?? new Date().toISOString(),
     excerpt: stripTags(node.excerpt ?? ""),
     number,
     readingTimeMinutes: readingTime(node.content),
@@ -269,6 +284,7 @@ export async function getBlogPost(key: string): Promise<BlogPost | null> {
     ...toEntry(node, number),
     content: node.content ?? "",
     modified: node.modified,
+    modifiedGmt: utc(node.modifiedGmt),
     seo: node.seo,
   };
 }

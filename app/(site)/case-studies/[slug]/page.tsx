@@ -5,10 +5,11 @@ import SidebarNav from "@/components/SidebarNav/SidebarNav";
 import SiteFooter from "@/components/SiteFooter/SiteFooter";
 import Tab from "@/components/UI/Tab/Tab";
 import { getCaseStudy, getCaseStudyEntries, getCaseStudySlugs } from "@/lib/queries/caseStudy";
-import { toMetadata } from "@/lib/seo";
+import { jsonLd, toMetadata } from "@/lib/seo";
 import { getPrimaryMenu } from "@/lib/queries/nav";
 import { getSiteFooter } from "@/lib/queries/footer";
 import { buildNavTree } from "@/lib/navTree";
+import { SITE_URL, absoluteUrl } from "@/lib/site";
 import styles from "../../entryShell.module.scss";
 
 /** Every case study is prerendered at build time. */
@@ -64,6 +65,25 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
   const panelSections = entry.sections.filter((section) => !isNextCase(section));
   const trailingSections = entry.sections.filter(isNextCase);
 
+  /**
+   * The case study as a CreativeWork. Description is Yoast's meta description,
+   * the authored one; absent rather than invented when none is written. The
+   * author points at the Person node the home page declares.
+   */
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: entry.title,
+    url: absoluteUrl(`/case-studies/${entry.slug}`),
+    description: entry.seo?.metaDesc?.trim() || undefined,
+    author: {
+      "@type": "Person",
+      "@id": `${SITE_URL}/#kelly`,
+      name: "Kelly Warpechowski",
+      url: SITE_URL,
+    },
+  };
+
   return (
     <>
       <SidebarNav
@@ -79,6 +99,8 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
       />
 
       <main className={styles.shell}>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(schema) }} />
+
         {/* The tab labels the panel it sits on, exactly as a table's does. */}
         {entry.tabLabel ? (
           <div className={styles.tabRow}>

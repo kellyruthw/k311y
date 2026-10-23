@@ -146,3 +146,15 @@ export function toMetadata(seo: YoastSeo | null | undefined, options: SeoOptions
     },
   };
 }
+
+/**
+ * A schema object serialised for a JSON-LD <script>.
+ *
+ * JSON.stringify does not escape `<`, and these strings are injected with
+ * dangerouslySetInnerHTML -- authored content containing "</script>" would
+ * close the tag mid-schema and hand the rest to the parser as markup. <
+ * is the same character to JSON and nothing at all to the HTML parser.
+ */
+export function jsonLd(schema: object): string {
+  return JSON.stringify(schema).replace(/</g, "\\u003c");
+}

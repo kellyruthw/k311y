@@ -6,7 +6,7 @@ import SiteFooter from "@/components/SiteFooter/SiteFooter";
 import BlogRail from "@/components/BlogRail/BlogRail";
 import { getPage } from "@/lib/queries/page";
 import { entryNumber, getBlogEntries } from "@/lib/queries/blog";
-import { toMetadata } from "@/lib/seo";
+import { jsonLd, toMetadata } from "@/lib/seo";
 import { getPrimaryMenu } from "@/lib/queries/nav";
 import { getSiteFooter } from "@/lib/queries/footer";
 import { buildNavTree, type NavNode } from "@/lib/navTree";
@@ -73,7 +73,7 @@ export default async function BlogPage() {
         "@type": "BlogPosting",
         headline: entry.title,
         url: `${SITE_URL}${entry.href}`,
-        datePublished: entry.date,
+        datePublished: entry.dateGmt,
       })),
   };
 
@@ -109,7 +109,7 @@ export default async function BlogPage() {
       <main className={styles.main} data-fill="viewport">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
         />
 
         <Renderer sections={sections} />

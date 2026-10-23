@@ -5,7 +5,7 @@ import SiteFooter from "@/components/SiteFooter/SiteFooter";
 import Tab from "@/components/UI/Tab/Tab";
 import BlogPost from "@/components/BlogPost/BlogPost";
 import { entryNumber, getBlogEntries, getBlogPost, getBlogSlugs } from "@/lib/queries/blog";
-import { toMetadata } from "@/lib/seo";
+import { jsonLd, toMetadata } from "@/lib/seo";
 import { getPrimaryMenu } from "@/lib/queries/nav";
 import { getSiteFooter } from "@/lib/queries/footer";
 import { SITE_URL, absoluteUrl } from "@/lib/site";
@@ -65,8 +65,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     "@type": "BlogPosting",
     headline: post.title,
     url: absoluteUrl(post.href),
-    datePublished: post.date,
-    dateModified: post.modified ?? post.date,
+    mainEntityOfPage: { "@type": "WebPage", "@id": absoluteUrl(post.href) },
+    datePublished: post.dateGmt,
+    dateModified: post.modifiedGmt ?? post.dateGmt,
     description: post.seo?.metaDesc?.trim() || post.excerpt || undefined,
     image: post.image?.url,
     author: { "@type": "Person", name: "Kelly Warpechowski", url: SITE_URL },
@@ -98,7 +99,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <main className={styles.shell}>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
         />
 
         {/* The entry shell both detail post types wear: the tab labels the
