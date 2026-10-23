@@ -49,14 +49,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   if (!post) notFound();
 
-  // Every entry under the Blog menu item, the one being read flagged, the same
-  // breadcrumb the project pages hang off their square.
-  const navEntries = entries.map((entry) => ({
-    label: entry.title,
-    href: entry.href,
-    current: entry.databaseId === post.databaseId,
-  }));
-
   // "Next entry" is the next number up -- the one written after this. On the
   // newest post there is none, and the block hides until one is written.
   const nextEntry = entries.find((entry) => entry.number === post.number + 1);
@@ -85,8 +77,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <SidebarNav
         links={links}
         nodes={[]}
+        // Deliberately no `entries`: a changelog's posts are its content, not
+        // site structure, so they stay off the layers panel.
         currentHref="/changeblog/"
-        entries={navEntries}
         wordmarkSrc="/logo-kelly-warpechowski.svg"
       />
 
