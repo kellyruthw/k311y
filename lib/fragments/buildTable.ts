@@ -68,9 +68,12 @@ export const STACK_LABELS: Record<string, string> = {
   gsap: "GSAP",
 };
 
+// Display labels for the stored ACF values. These are the frontend's own:
+// renaming a choice label in ACF changes the WP admin only -- the value key
+// ("build") is what GraphQL returns, and it deliberately stays stable.
 export const ROLE_LABELS: Record<string, string> = {
-  design: "Design",
-  build: "Build",
+  design: "Designer",
+  build: "Engineer",
   ops: "Ops",
 };
 

@@ -72,13 +72,14 @@ function markerClass(term: CollaboratorTerm | null): string {
 }
 
 /**
- * Roles read "Design + build + ops": only the first is capitalised, matching
- * the copy in _content-source/build-table.md.
+ * Roles read "Designer + Engineer + Ops", each label as written: they are job
+ * titles now rather than the activities build-table.md phrased as a sentence,
+ * and the Stack line beside them already keeps every label's own casing.
  */
 function joinRoles(value: string[] | null): string {
-  const parts = orderedSelect(value, ROLE_ORDER).map((choice) => ROLE_LABELS[choice] ?? choice);
-
-  return parts.map((part, index) => (index === 0 ? part : part.toLowerCase())).join(" + ");
+  return orderedSelect(value, ROLE_ORDER)
+    .map((choice) => ROLE_LABELS[choice] ?? choice)
+    .join(" + ");
 }
 
 /** Stack keeps every label's own casing: "Headless WP · Next.js · GSAP". */
