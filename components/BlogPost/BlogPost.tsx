@@ -37,7 +37,7 @@ export default function BlogPost({
       <header className={styles.hero} data-component="PostHero" id="post-hero">
         <p className={styles.backRow}>
           <Link href="/changeblog" className={styles.backlink}>
-            &larr; Changeblog
+            Back to Changeblog
           </Link>
         </p>
 

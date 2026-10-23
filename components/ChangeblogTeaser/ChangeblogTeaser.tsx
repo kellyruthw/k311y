@@ -46,7 +46,7 @@ export default async function ChangeblogTeaser(props: ChangeblogTeaserProps) {
             <h2 className={styles.title}>{latest.title}</h2>
           </div>
 
-          <span className={styles.open}>Read article &rarr;</span>
+          <span className={styles.open}>Read article</span>
         </Link>
       </div>
     </section>
