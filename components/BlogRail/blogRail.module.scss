@@ -30,6 +30,16 @@
 .entry {
   position: relative;
 
+  // The entrance's starting pose, in CSS rather than a gsap.set: the server
+  // paints before hydration runs any JS, so a JS-only hide shows every entry
+  // for a frame and then blinks it out. Inside motion-safe, because the
+  // animation that undoes it only runs there -- reduced motion gets the
+  // static entry, visible from the first paint.
+  @include motion-safe {
+    opacity: 0;
+    transform: translateY(#{rem(12)});
+  }
+
   // The version node on the rule: the tree's circle idiom.
   &::before {
     content: "";

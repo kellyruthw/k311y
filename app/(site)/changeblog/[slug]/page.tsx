@@ -9,6 +9,7 @@ import { toMetadata } from "@/lib/seo";
 import { getPrimaryMenu } from "@/lib/queries/nav";
 import { getSiteFooter } from "@/lib/queries/footer";
 import { SITE_URL, absoluteUrl } from "@/lib/site";
+import type { NavNode } from "@/lib/navTree";
 import styles from "../../entryShell.module.scss";
 
 /**
@@ -76,7 +77,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     <>
       <SidebarNav
         links={links}
-        nodes={[]}
+        // The entry's own parts. Hand-built the way the hub adds BlogRail:
+        // these are the route's components, not WP sections, and Pagination
+        // only exists once a next entry does.
+        nodes={
+          [
+            { name: "PostHero", label: "PostHero", count: 1, ids: ["post-hero"], subcomponent: null },
+            { name: "PostContent", label: "PostContent", count: 1, ids: ["post-content"], subcomponent: null },
+            ...(next
+              ? [{ name: "Pagination", label: "Pagination", count: 1, ids: ["pagination"], subcomponent: null }]
+              : []),
+          ] satisfies NavNode[]
+        }
         // Deliberately no `entries`: a changelog's posts are its content, not
         // site structure, so they stay off the layers panel.
         currentHref="/changeblog/"

@@ -348,13 +348,16 @@
   overflow: hidden;
 }
 
-// The branch's own top padding sits inside the clipped box, but a collapsed
-// tree should contribute nothing whatsoever, so it goes to zero as well.
+// The branch's own paddings sit inside the clipped box, but a collapsed
+// tree should contribute nothing whatsoever, so they go to zero as well.
 .page[data-open="false"] .branch {
   padding-top: 0;
+  padding-bottom: 0;
 
   @include motion-safe {
-    transition: padding-top $duration-base $ease-standard;
+    transition:
+      padding-top $duration-base $ease-standard,
+      padding-bottom $duration-base $ease-standard;
   }
 }
 
@@ -382,6 +385,11 @@
   margin-left: space(4);
   padding-top: space(2);
   padding-left: space(4);
+  // A rotated diamond's corner overhangs its layout box by ~4px, and the
+  // collapse wrapper clips overflow -- so a tree that ENDS on a diamond node
+  // (BlogRail: Entry) lost the bottom corner. Room for it, zeroed on collapse
+  // below like padding-top.
+  padding-bottom: space(1);
 }
 
 .node {

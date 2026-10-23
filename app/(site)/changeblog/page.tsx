@@ -9,7 +9,7 @@ import { entryNumber, getBlogEntries } from "@/lib/queries/blog";
 import { toMetadata } from "@/lib/seo";
 import { getPrimaryMenu } from "@/lib/queries/nav";
 import { getSiteFooter } from "@/lib/queries/footer";
-import { buildNavTree } from "@/lib/navTree";
+import { buildNavTree, type NavNode } from "@/lib/navTree";
 import { SITE_URL } from "@/lib/site";
 import styles from "../site.module.scss";
 
@@ -81,7 +81,24 @@ export default async function BlogPage() {
     <>
       <SidebarNav
         links={links}
-        nodes={buildNavTree(sections)}
+        // The authored sections, plus the rail: BlogRail is this route's own
+        // component rather than a WP section, so it joins the tree by hand,
+        // with its repeating entry as the diamond -- the WorkCardGrid: Card
+        // relationship, one level down.
+        nodes={[
+          ...buildNavTree(sections),
+          ...(entries.length
+            ? [
+                {
+                  name: "BlogRail",
+                  label: "BlogRail",
+                  count: 1,
+                  ids: ["blog-rail"],
+                  subcomponent: "Entry",
+                } satisfies NavNode,
+              ]
+            : []),
+        ]}
         currentHref={URI}
         wordmarkSrc="/logo-kelly-warpechowski.svg"
       />
