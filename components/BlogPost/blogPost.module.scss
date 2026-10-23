@@ -9,18 +9,57 @@
 // the frame; the bottom inset lives on .body, because the shell zeroes a
 // direct child's own padding-bottom.
 .post {
-  padding: space(8) space(8) 0;
+  padding: space(4) space(8) 0;
 
   @include respond(tablet) {
-    // No top padding: the shell's own mobile rhythm already spaces the tab row,
-    // and the hero was starting twice as far down as any other page's.
-    padding: 0 space(2);
+    // space(2) on top: with the panel's own inset that is 20px above the back
+    // link -- enough to breathe without the hero starting twice as far down as
+    // any other page's, which is what the desktop padding did here.
+    padding: space(2) space(2) 0;
   }
 }
 
 .hero {
   display: flex;
   flex-direction: column;
+}
+
+// A hero whose post has a featured image: the thumb rides a fixed left column
+// at the rail card's 12:9, and the copy -- back link, title, meta -- takes the
+// rest. The same column clamp the rail's media frame uses, so the two read as
+// one idiom at both ends of the click.
+.heroMedia {
+  display: grid;
+  grid-template-columns: minmax(space(48), space(64)) 1fr;
+  // No row gap: the back link's own margin-bottom keeps setting the distance
+  // to the split beneath it, as it does on an imageless hero.
+  column-gap: space(8);
+  align-items: start;
+
+  // The back link is its own row above the split, spanning both columns.
+  .backRow {
+    grid-column: 1 / -1;
+  }
+
+  @include respond(portrait) {
+    // Stacked: back link, image, then copy, the way the rail card stacks.
+    grid-template-columns: 1fr;
+
+    .heroThumb {
+      margin-bottom: space(4);
+    }
+  }
+}
+
+.heroThumb {
+  width: 100%;
+  aspect-ratio: 12 / 9;
+  object-fit: cover;
+  border-radius: $radius-square;
+}
+
+.heroCopy {
+  min-width: 0;
 }
 
 // Opt out of the mobile section rhythm, the way _sections.scss prescribes
@@ -35,8 +74,16 @@
   }
 }
 
+// The space below the link matches the space above it at each width: on
+// desktop .post pads space(4) above, on a phone the panel inset plus .post's
+// space(2) make the 20px.
 .backRow {
-  margin: 0 0 space(5.2);
+  margin: 0 0 space(4);
+
+  @include respond(tablet) {
+    // 20px, matching the panel inset plus .post's mobile top padding above.
+    margin-bottom: space(4);
+  }
 }
 
 .backlink {
@@ -55,7 +102,7 @@
 .title {
   @include title;
 
-  margin: space(4.8) 0 space(5.2);
+  margin: 0 0 space(5.2);
   text-wrap: balance;
 }
 
@@ -103,6 +150,9 @@
 // separates the meta line from the first paragraph.
 .content.content {
   @include respond(tablet) {
+    // 24px, down from the rhythm's 40: with the hero directly above, the full
+    // mobile section gap read as a hole before the first paragraph.
+    padding-top: space(4.8);
     padding-bottom: 0;
   }
 }

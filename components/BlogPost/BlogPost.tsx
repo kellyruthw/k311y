@@ -34,18 +34,34 @@ export default function BlogPost({
     // page would win at every scroll position. Its three parts are the tree's
     // nodes instead.
     <article className={styles.post}>
-      <header className={styles.hero} data-component="PostHero" id="post-hero">
+      <header
+        className={post.image ? `${styles.hero} ${styles.heroMedia}` : styles.hero}
+        data-component="PostHero"
+        id="post-hero"
+      >
         <p className={styles.backRow}>
           <Link href="/changeblog" className={styles.backlink}>
             Back to Changeblog
           </Link>
         </p>
 
-        <h1 className={styles.title}>{post.title}</h1>
+        {post.image ? (
+          /* eslint-disable-next-line @next/next/no-img-element -- sized by the
+             grid column it sits in, the same call the rail makes. */
+          <img
+            className={styles.heroThumb}
+            src={post.image.url}
+            alt={post.image.alt}
+          />
+        ) : null}
 
-        <div className={styles.meta}>
-          <time dateTime={post.date}>{formatEntryDate(post.date)}</time>
-          <span className={styles.readTime}>{post.readingTimeMinutes} min read</span>
+        <div className={styles.heroCopy}>
+          <h1 className={styles.title}>{post.title}</h1>
+
+          <div className={styles.meta}>
+            <time dateTime={post.date}>{formatEntryDate(post.date)}</time>
+            <span className={styles.readTime}>{post.readingTimeMinutes} min read</span>
+          </div>
         </div>
       </header>
 
