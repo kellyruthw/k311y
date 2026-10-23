@@ -64,7 +64,15 @@ const DEFAULT_REVALIDATE = 60;
 export async function fetchGraphQL<T>(
   query: string,
   variables: Record<string, unknown> = {},
-  options: { revalidate?: number } = {},
+  options: {
+    revalidate?: number;
+    /**
+     * Extra request headers. The one caller is the blog's local draft preview,
+     * which sends Basic auth so WPGraphQL will return unpublished posts -- see
+     * lib/queries/blog.ts for why that never happens in production.
+     */
+    headers?: Record<string, string>;
+  } = {},
 ): Promise<T> {
   const operation = describeOperation(query);
   const endpoint = process.env.WORDPRESS_GRAPHQL_URL;
@@ -80,7 +88,7 @@ export async function fetchGraphQL<T>(
   try {
     response = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...options.headers },
       body: JSON.stringify({ query, variables }),
       next: { revalidate: options.revalidate ?? DEFAULT_REVALIDATE },
     });

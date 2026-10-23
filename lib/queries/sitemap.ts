@@ -42,6 +42,7 @@ const STATIC_ROUTES: { path: string; uri?: string; modified?: string }[] = [
   { path: "/", uri: "/" },
   { path: "/about", uri: "/about/" },
   { path: "/process", uri: "/process/" },
+  { path: "/blog", uri: "/blog/" },
   // /resume has no WordPress page behind it -- its content is a typed file in
   // lib/resume -- so there is nothing to look up, and the content file carries
   // its own date. That is the honest source: the file IS the resume, so the
@@ -84,6 +85,17 @@ const PAGE_SITEMAP_QUERY = `
   }
 `;
 
+// Blog posts. Published only, and deliberately not through getBlogEntries():
+// that loader sends local preview auth when it has it, and a sitemap must
+// describe the public site even on a machine that can see drafts.
+const POST_SITEMAP_QUERY = `
+  query PostSitemap {
+    posts(first: 100, where: { stati: [PUBLISH] }) {
+      nodes { slug modified }
+    }
+  }
+`;
+
 interface SlugNode {
   slug: string | null;
   modified: string | null;
@@ -109,10 +121,11 @@ function toDate(value: string | null | undefined): Date | undefined {
 }
 
 export async function getSitemapEntries(): Promise<SitemapEntry[]> {
-  const [caseStudies, projects, pages] = await Promise.all([
+  const [caseStudies, projects, pages, posts] = await Promise.all([
     fetchGraphQL<{ caseStudies: { nodes: SlugNode[] } | null }>(CASE_STUDY_SITEMAP_QUERY),
     fetchGraphQL<{ projects: { nodes: SlugNode[] } | null }>(PROJECT_SITEMAP_QUERY),
     fetchGraphQL<{ pages: { nodes: UriNode[] } | null }>(PAGE_SITEMAP_QUERY),
+    fetchGraphQL<{ posts: { nodes: SlugNode[] } | null }>(POST_SITEMAP_QUERY),
   ]);
 
   const pageDates = new Map<string, string | null>(
@@ -139,5 +152,6 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     ...staticEntries,
     ...(caseStudies.caseStudies?.nodes ?? []).filter(hasSlug).map(entryFor("/case-studies")),
     ...(projects.projects?.nodes ?? []).filter(hasSlug).map(entryFor("/projects")),
+    ...(posts.posts?.nodes ?? []).filter(hasSlug).map(entryFor("/blog")),
   ];
 }
