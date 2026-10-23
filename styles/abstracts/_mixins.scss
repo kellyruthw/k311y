@@ -225,12 +225,14 @@
   @include type-style(v.$ff-display, v.$weight-bold, v.$lh-110);
 }
 
-/// The hero's second line. Figma: AOT Serial Mono Light 58, -6.96px.
+/// The hero's second line. Set in the sans at light weight, untracked -- a
+/// deliberate departure from the Figma mono (AOT Serial Mono Light 58,
+/// -6.96px). The name stays: it still sizes against the mono-display token.
 /// Its highlighted substring is set in $color-text-invert and only becomes
 /// readable once the yellow box wipes in behind it.
 @mixin mono-display {
   @include size-token(mono-display);
-  @include type-style(v.$ff-mono, v.$weight-light, v.$lh-100, v.$ls-mono-display);
+  @include type-style(v.$ff-display, v.$weight-light, v.$lh-100);
 }
 
 /// Section headings. Figma: Grift SemiBold 40/1.

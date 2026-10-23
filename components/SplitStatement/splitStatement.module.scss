@@ -52,14 +52,12 @@
 }
 
 // MOBILE ----------------------------------------------------------------------
-// No section padding of its own. The global rhythm in styles/base/_sections.scss
-// already puts 80px between every pair of sections, which is the held space a
-// statement wants with the scrub gone below this breakpoint.
+// Not shown at all. A statement is a held moment built around the scroll scrub,
+// and without the room that gives it on a phone it is just a big sentence
+// between sections. display: none also takes it out of the section rhythm, so
+// the neighbours close up to their usual 80px.
 @include respond(tablet) {
-  // 8px between the halves, down from 40. The gap was set against 65px type and
-  // did not follow it down: at 20px on a phone, 40px of air between two lines of
-  // one sentence reads as two separate statements rather than a break in one.
-  .line + .line {
-    margin-top: space(1.6);
+  .section {
+    display: none;
   }
 }

@@ -125,4 +125,10 @@
   @include respond(small-laptop) {
     @include grid-span(8);
   }
+
+  // 48px, down from 80: the desktop gap was set against the full-height hero,
+  // and on a phone it pushes the nowline a whole thumb-scroll below the copy.
+  @include respond(tablet) {
+    margin-top: space(9.6);
+  }
 }

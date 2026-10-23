@@ -193,6 +193,19 @@ $deck-pin: 20vh;
     );
   }
 
+  // The first card starts ON the join rather than 40px under it. The deck's
+  // desktop padding opens a gap between the tab's rule and the first sheet
+  // that only closes once both have pinned -- at the mobile pin line, right
+  // under the nav bar, that moment reads as the card being detached from its
+  // tab. The -1px is the same shared rule the pinned state uses.
+  .deck {
+    padding-top: 0;
+  }
+
+  .card:first-child {
+    margin-top: -1px;
+  }
+
   // The head tightens with the type: the date steps down to numeral-small --
   // at 28 it outweighed the chip beside it -- and the 30px column gap it no
   // longer earns comes down with it.
