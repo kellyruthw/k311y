@@ -183,8 +183,14 @@
   .mediaLayer,
   .hero[data-media-side="left"] .mediaLayer {
     position: static;
-    height: 45vh;
     margin-bottom: space(12);
+  }
+
+  // No height either: a fixed band plus object-fit: cover crops a portrait
+  // asset from the top, which is where the face is. The image keeps its own
+  // aspect ratio instead.
+  .media {
+    height: auto;
   }
 
   .scrim {
