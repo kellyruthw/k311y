@@ -36,10 +36,6 @@
   @include hover-capable {
     &:hover {
       border-color: $color-border-strong;
-
-      .open {
-        color: $bg-select;
-      }
     }
   }
 
@@ -77,10 +73,14 @@
   text-wrap: balance;
 }
 
+// The authored-link register from the table above it (table.module.scss's
+// `.cell a`): yellow, mono-chip, underlined. The strip's link is the same kind
+// of object as a row's "View site", so it wears the same clothes.
 .open {
-  @include mono-link;
+  @include mono-chip;
 
-  color: $color-text-primary;
+  color: $color-text-select;
+  text-decoration: underline;
+  text-underline-position: from-font;
   white-space: nowrap;
-  transition: color $duration-fast $ease-standard;
 }
